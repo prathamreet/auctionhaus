@@ -8,10 +8,14 @@
   ],
   "scripts": {
     "dev:front": "npm run dev --workspace=front",
-    "dev:back": "npm run dev --workspace=auctionhaus-backend",
+    "dev:back": "npm run dev --workspace=back",
     "build:front": "npm run build --workspace=front",
-    "build:back": "npm run build --workspace=auctionhaus-backend",
+    "build:back": "npm run build --workspace=back",
     "start:front": "npm run start --workspace=front",
-    "start:back": "npm run start --workspace=auctionhaus-backend"
+    "start:back": "npm run start --workspace=back",
+    "prisma:generate": "npm run prisma:generate --workspace=back",
+    "prisma:migrate": "npm run prisma:migrate --workspace=back",
+    "prisma:studio": "npm run prisma:studio --workspace=back",
+    "postinstall": "npm run prisma:generate"
   }
 }
