@@ -2,21 +2,29 @@
 node_modules/
 .pnp
 .pnp.*
+front/.yarn/*
+!front/.yarn/patches
+!front/.yarn/plugins
+!front/.yarn/releases
+!front/.yarn/versions
 
 # Build outputs
 front/.next/
 front/out/
 front/build/
 back/dist/
+front/coverage/
 
 # Environment files
 .env
 .env.local
 .env.*.local
-front/.env*
-back/.env*
+# Ensure .env.example files are always committed
+!*.env.example
+!**/.env.example
 
 # Debug logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
