@@ -11,7 +11,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   // render the correct links on the client without a SSR mismatch.
   useEffect(() => {
     hydrate();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [hydrate]);
 
   // Step 2 — validate the stored token against the server in the background.
   // If the token is expired / revoked, this logs the user out gracefully.
@@ -30,7 +30,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       .catch(() => {
         logout();
       });
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token, setAuth, logout]);
 
   return <>{children}</>;
 }
