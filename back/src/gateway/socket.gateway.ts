@@ -1,0 +1,85 @@
+import { Server, Socket } from 'socket.io';
+import jwt from 'jsonwebtoken';
+
+/**
+ * Socket.io Gateway
+ * Handles real-time bidding events and user connections.
+ *
+ * Rooms:
+ *  - auction:{auctionId} — join to get live bid updates for an auction
+ *  - user:{userId}       — personal room for notifications
+ */
+export const initSocketGateway = (io: Server) => {
+  // Authentication middleware for socket connections
+  io.use((socket, next) => {
+    const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      // Allow unauthenticated for watching auctions
+      socket.data.userId = null;
+      return next();
+    }
+
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+        id: string;
+        email: string;
+        role: string;
+      };
+      socket.data.userId = payload.id;
+      socket.data.userRole = payload.role;
+      next();
+    } catch {
+      socket.data.userId = null;
+      next(); // still allow connection, just unauthenticated
+    }
+  });
+
+  io.on('connection', (socket: Socket) => {
+    const userId = socket.data.userId;
+
+    // Join personal notification room if authenticated
+    if (userId) {
+      socket.join(`user:${userId}`);
+      console.log(`Socket: user ${userId} connected`);
+    }
+
+    // ── Join auction room ──
+    socket.on('auction:join', (auctionId: string) => {
+      if (!auctionId) return;
+      socket.join(`auction:${auctionId}`);
+      socket.emit('auction:joined', { auctionId });
+    });
+
+    // ── Leave auction room ──
+    socket.on('auction:leave', (auctionId: string) => {
+      socket.leave(`auction:${auctionId}`);
+    });
+
+    // ── Request current bid (for sync on reconnect) ──
+    socket.on('auction:sync', async (auctionId: string) => {
+      try {
+        const { prisma } = await import('../lib/prisma');
+        const auction = await prisma.auction.findUnique({
+          where: { id: auctionId },
+          select: {
+            id: true,
+            currentPrice: true,
+            status: true,
+            endTime: true,
+            _count: { select: { bids: true } },
+          },
+        });
+        if (auction) socket.emit('auction:state', auction);
+      } catch {
+        // ignore
+      }
+    });
+
+    socket.on('disconnect', () => {
+      if (userId) {
+        console.log(`Socket: user ${userId} disconnected`);
+      }
+    });
+  });
+};
