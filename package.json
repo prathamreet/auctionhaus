@@ -1,0 +1,17 @@
+{
+  "name": "auctionhaus-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "front",
+    "back"
+  ],
+  "scripts": {
+    "dev:front": "npm run dev --workspace=front",
+    "dev:back": "npm run dev --workspace=auctionhaus-backend",
+    "build:front": "npm run build --workspace=front",
+    "build:back": "npm run build --workspace=auctionhaus-backend",
+    "start:front": "npm run start --workspace=front",
+    "start:back": "npm run start --workspace=auctionhaus-backend"
+  }
+}
