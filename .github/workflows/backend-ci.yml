@@ -1,0 +1,45 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'back/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    paths:
+      - 'back/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: './package-lock.json'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Generate Prisma Client
+      run: npm run prisma:generate
+
+    - name: Run Linter
+      run: npm run lint:back
+
+    - name: Run Tests
+      run: npm run test:back
+      env:
+        JWT_SECRET: testing-secret
+        NODE_ENV: test
+
+    - name: Build
+      run: npm run build:back
