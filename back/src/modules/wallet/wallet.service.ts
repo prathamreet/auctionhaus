@@ -47,29 +47,36 @@ export const deposit = async (userId: string, amount: number) => {
 export const withdraw = async (userId: string, amount: number) => {
   if (amount <= 0) throw createError('Amount must be positive', 400);
 
-  const wallet = await prisma.wallet.findUnique({ where: { userId } });
-  if (!wallet) throw createError('Wallet not found', 404);
+  return await prisma.$transaction(async (tx) => {
+    const wallet = await tx.wallet.findUnique({ where: { userId } });
+    if (!wallet) throw createError('Wallet not found', 404);
 
-  const available = wallet.balance - wallet.heldAmount;
-  if (available < amount) throw createError('Insufficient available balance', 400);
+    const available = wallet.balance - wallet.heldAmount;
+    if (available < amount) throw createError('Insufficient available balance', 400);
 
-  const updatedWallet = await prisma.wallet.update({
-    where: { userId },
-    data: { balance: { decrement: amount } },
+    const updatedWallet = await tx.wallet.update({
+      where: { userId },
+      data: { balance: { decrement: amount } },
+    });
+
+    // Double-check after atomic decrement to prevent race conditions (TOCTOU)
+    if (updatedWallet.balance < updatedWallet.heldAmount) {
+      throw createError('Insufficient available balance', 400);
+    }
+
+    await tx.transaction.create({
+      data: {
+        walletId: wallet.id,
+        userId,
+        type: 'WITHDRAWAL',
+        amount: -amount,
+        description: 'Mock withdrawal',
+        status: 'COMPLETED',
+      },
+    });
+
+    return updatedWallet;
   });
-
-  await prisma.transaction.create({
-    data: {
-      walletId: wallet.id,
-      userId,
-      type: 'WITHDRAWAL',
-      amount: -amount,
-      description: 'Mock withdrawal',
-      status: 'COMPLETED',
-    },
-  });
-
-  return updatedWallet;
 };
 
 export const getTransactions = async (userId: string, page = 1, limit = 20) => {
