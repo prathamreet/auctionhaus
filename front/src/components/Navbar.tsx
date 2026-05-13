@@ -64,7 +64,7 @@ export default function Navbar() {
     <nav
       style={{
         background: "var(--surface)",
-        borderBottom: "1px solid var(--text)",
+        borderBottom: "1px solid var(--border)",
         padding: "0 4rem",
         height: "var(--navbar-h)",
         display: "flex",
@@ -72,30 +72,27 @@ export default function Navbar() {
         justifyContent: "space-between",
         position: "sticky",
         top: 0,
-        zIndex: 100,
-      }}
+        zIndex: 100 }}
     >
       {/* ── BRAND ── */}
       <div style={{ display: "flex", alignItems: "center", gap: "3.5rem" }}>
         <Link
           href="/"
           style={{
-            fontWeight: 900,
+            fontWeight: 600,
             fontSize: "13px",
             color: "var(--text)",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
+
+
             display: "flex",
             alignItems: "center",
-            gap: "0.75rem",
-          }}
+            gap: "0.75rem" }}
         >
           <div
             style={{
               width: 12,
               height: 12,
-              background: "var(--accent)",
-            }}
+              background: "var(--accent)" }}
           />
           AuctionHaus
         </Link>
@@ -142,15 +139,14 @@ export default function Navbar() {
                   border: `1px solid ${unread > 0 ? "var(--accent)" : "var(--border)"}`,
                   background: unread > 0 ? "rgba(225,45,45,0.05)" : "transparent",
                   fontSize: "10px",
-                  fontWeight: 800,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: unread > 0 ? "var(--accent)" : "var(--muted)",
-                }}
+                  fontWeight: 500,
+
+
+                  color: unread > 0 ? "var(--accent)" : "var(--muted)" }}
               >
                 Alerts
                 {unread > 0 && (
-                  <span style={{ fontFamily: "monospace" }}>
+                  <span style={{ }}>
                     [{unread > 99 ? "99+" : unread}]
                   </span>
                 )}
@@ -161,11 +157,10 @@ export default function Navbar() {
                 style={{
                   fontSize: "11px",
                   color: "var(--text)",
-                  fontWeight: 800,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  padding: "0 0.5rem",
-                }}
+                  fontWeight: 500,
+
+
+                  padding: "0 0.5rem" }}
               >
                 {user.name}
               </Link>
@@ -178,11 +173,10 @@ export default function Navbar() {
                   background: "none",
                   border: "none",
                   padding: "0.5rem 0",
-                  fontWeight: 800,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  cursor: "pointer",
-                }}
+                  fontWeight: 500,
+
+
+                  cursor: "pointer" }}
               >
                 Logout
               </button>
@@ -194,11 +188,10 @@ export default function Navbar() {
                 style={{
                   fontSize: "11px",
                   color: "var(--text)",
-                  fontWeight: 800,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  padding: "0.5rem 1rem",
-                }}
+                  fontWeight: 500,
+
+
+                  padding: "0.5rem 1rem" }}
               >
                 Access
               </Link>
@@ -207,8 +200,7 @@ export default function Navbar() {
                 className="btn-primary"
                 style={{
                   fontSize: "10px",
-                  padding: "0.5rem 1.25rem",
-                }}
+                  padding: "0.5rem 1.25rem" }}
               >
                 Join
               </Link>
@@ -223,8 +215,7 @@ export default function Navbar() {
 function NavLink({
   href,
   children,
-  active,
-}: {
+  active }: {
   href: string;
   children: React.ReactNode;
   active: boolean;
@@ -235,13 +226,12 @@ function NavLink({
       style={{
         fontSize: "11px",
         color: active ? "var(--text)" : "var(--muted)",
-        fontWeight: 800,
-        letterSpacing: "0.1em",
-        textTransform: "uppercase",
+        fontWeight: 500,
+
+
         paddingBottom: "4px",
         borderBottom: active ? "2px solid var(--accent)" : "2px solid transparent",
-        transition: "all 0.1s",
-      }}
+        transition: "all 0.1s" }}
     >
       {children}
     </Link>

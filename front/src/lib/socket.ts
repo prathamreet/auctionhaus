@@ -12,8 +12,7 @@ export const getSocket = (): Socket => {
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-    });
+      reconnectionDelayMax: 5000 });
   }
   return socket;
 };

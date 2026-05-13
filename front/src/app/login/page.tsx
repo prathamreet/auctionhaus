@@ -35,8 +35,7 @@ export default function LoginPage() {
       style={{
         minHeight: "calc(100vh - var(--navbar-h))",
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-      }}
+        gridTemplateColumns: "1fr 1fr" }}
     >
       {/* Left — Brand panel */}
       <div
@@ -46,8 +45,7 @@ export default function LoginPage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "3.5rem",
-          borderRight: "1.5px solid var(--border-hard)",
-        }}
+          borderRight: "1px solid var(--border)" }}
       >
         <div>
           <div
@@ -55,25 +53,20 @@ export default function LoginPage() {
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
-              marginBottom: "3rem",
-            }}
+              marginBottom: "3rem" }}
           >
             <span
               style={{
                 display: "inline-block",
                 width: 12,
                 height: 12,
-                background: "#c41e1e",
-              }}
+                background: "#c41e1e" }}
             />
             <span
               style={{
                 color: "#fff",
-                fontWeight: 900,
-                fontSize: "var(--font-base)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-              }}
+                fontWeight: 600,
+                fontSize: "var(--font-base)" }}
             >
               AuctionHaus
             </span>
@@ -82,12 +75,11 @@ export default function LoginPage() {
           <h2
             style={{
               fontSize: "clamp(2rem, 4vw, 3.5rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.04em",
+              fontWeight: 600,
+
               lineHeight: 0.95,
               color: "#fff",
-              marginBottom: "1.5rem",
-            }}
+              marginBottom: "1.5rem" }}
           >
             Bid.
             <br />
@@ -101,8 +93,7 @@ export default function LoginPage() {
               fontSize: "var(--font-base)",
               color: "#888",
               lineHeight: 1.6,
-              maxWidth: 320,
-            }}
+              maxWidth: 320 }}
           >
             Real-time auctions with English, Dutch, and Sealed-bid formats.
             Auto-bid engine included.
@@ -112,10 +103,7 @@ export default function LoginPage() {
         <div
           style={{
             fontSize: "var(--font-xs)",
-            color: "#555",
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-          }}
+            color: "#555" }}
         >
           CSE Major Project · Real-Time Platform
         </div>
@@ -128,22 +116,19 @@ export default function LoginPage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "3rem",
-          background: "var(--bg)",
-        }}
+          background: "var(--bg)" }}
       >
         <div style={{ width: "100%", maxWidth: 380 }}>
           <div
             style={{
-              marginBottom: "2rem",
-            }}
+              marginBottom: "2rem" }}
           >
             <h1
               style={{
                 fontSize: "var(--font-xl)",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
-                marginBottom: "0.4rem",
-              }}
+                fontWeight: 600,
+
+                marginBottom: "0.4rem" }}
             >
               Sign In
             </h1>
@@ -154,8 +139,7 @@ export default function LoginPage() {
                 style={{
                   color: "var(--accent)",
                   fontWeight: 700,
-                  textDecoration: "underline",
-                }}
+                  textDecoration: "underline" }}
               >
                 Register
               </Link>
@@ -171,8 +155,7 @@ export default function LoginPage() {
                 color: "var(--accent)",
                 fontSize: "var(--font-sm)",
                 fontWeight: 600,
-                marginBottom: "1.25rem",
-              }}
+                marginBottom: "1.25rem" }}
             >
               {err}
             </div>
@@ -183,7 +166,7 @@ export default function LoginPage() {
             style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}
           >
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
                 Email
               </label>
               <input
@@ -192,11 +175,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="alice@example.com"
-                style={{ borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
                 Password
               </label>
               <input
@@ -205,7 +188,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                style={{ borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
               />
             </div>
 
@@ -213,7 +196,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               className="btn-primary"
-              style={{ width: "100%", padding: "1rem", marginTop: "0.5rem", borderRadius: 0, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 800 }}
+              style={{ width: "100%", padding: "1rem", marginTop: "0.5rem", borderRadius: "var(--radius)",   fontWeight: 500 }}
             >
               {loading ? "SIGNING IN..." : "SIGN IN →"}
             </button>

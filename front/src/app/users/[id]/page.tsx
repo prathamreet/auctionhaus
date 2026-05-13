@@ -25,8 +25,7 @@ export default function PublicProfilePage() {
         .get(`/users/${id}`)
         .then((r) => r.data as PublicProfile)
         .catch(() => null),
-    enabled: !!id,
-  });
+    enabled: !!id });
 
   const { data: auctionsData } = useQuery({
     queryKey: ["user-auctions", id],
@@ -35,8 +34,7 @@ export default function PublicProfilePage() {
         .get(`/auctions?sellerId=${id}&limit=10`)
         .then((r) => r.data.auctions ?? [])
         .catch(() => []),
-    enabled: !!id,
-  });
+    enabled: !!id });
 
   if (isLoading) {
     return (
@@ -45,10 +43,7 @@ export default function PublicProfilePage() {
           padding: "4rem",
           textAlign: "center",
           color: "var(--muted)",
-          fontSize: "var(--font-sm)",
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-        }}
+          fontSize: "var(--font-sm)" }}
       >
         Loading profile...
       </div>
@@ -61,8 +56,7 @@ export default function PublicProfilePage() {
         style={{
           padding: "4rem",
           textAlign: "center",
-          color: "var(--muted)",
-        }}
+          color: "var(--muted)" }}
       >
         User not found.
       </div>
@@ -78,8 +72,7 @@ export default function PublicProfilePage() {
 
   const memberSince = new Date(profile.createdAt).toLocaleDateString([], {
     month: "long",
-    year: "numeric",
-  });
+    year: "numeric" });
 
   const starRating = profile.ratingCount > 0 ? profile.rating.toFixed(1) : null;
 
@@ -90,14 +83,13 @@ export default function PublicProfilePage() {
       <div
         style={{
           padding: "2.5rem 2rem",
-          border: "1.5px solid var(--border-hard)",
+          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
           borderBottom: "none",
           background: "var(--surface)",
           display: "flex",
           gap: "1.5rem",
           alignItems: "flex-start",
-          flexWrap: "wrap",
-        }}
+          flexWrap: "wrap" }}
       >
         {/* Avatar */}
         <div
@@ -108,12 +100,10 @@ export default function PublicProfilePage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontWeight: 900,
+            fontWeight: 600,
             fontSize: "1.5rem",
             color: "#fff",
-            flexShrink: 0,
-            letterSpacing: "-0.02em",
-          }}
+            flexShrink: 0 }}
         >
           {initials}
         </div>
@@ -123,22 +113,20 @@ export default function PublicProfilePage() {
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--muted)",
-              marginBottom: "0.25rem",
-            }}
+              marginBottom: "0.25rem" }}
           >
             Public Profile
           </div>
           <h1
             style={{
               fontSize: "var(--font-2xl)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
+              fontWeight: 600,
+
               lineHeight: 1,
-              marginBottom: "0.5rem",
-            }}
+              marginBottom: "0.5rem" }}
           >
             {profile.name}
           </h1>
@@ -150,24 +138,21 @@ export default function PublicProfilePage() {
               flexWrap: "wrap",
               alignItems: "center",
               fontSize: "var(--font-sm)",
-              color: "var(--muted)",
-            }}
+              color: "var(--muted)" }}
           >
             {starRating && (
               <span
                 style={{
                   color: "var(--warning)",
-                  fontWeight: 800,
-                  fontSize: "var(--font-sm)",
-                }}
+                  fontWeight: 500,
+                  fontSize: "var(--font-sm)" }}
               >
                 [RATE] {starRating}
                 <span
                   style={{
                     color: "var(--muted)",
                     fontWeight: 400,
-                    marginLeft: "0.3rem",
-                  }}
+                    marginLeft: "0.3rem" }}
                 >
                   ({profile.ratingCount} review{profile.ratingCount !== 1 ? "s" : ""})
                 </span>
@@ -183,9 +168,8 @@ export default function PublicProfilePage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          border: "1.5px solid var(--border-hard)",
-          borderBottom: "none",
-        }}
+          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+          borderBottom: "none" }}
       >
         {[
           { label: "Auctions Listed", value: profile._count.auctions, color: "var(--accent)" },
@@ -193,37 +177,33 @@ export default function PublicProfilePage() {
           {
             label: "Rating",
             value: starRating ? starRating : "—",
-            color: "var(--warning)",
-          },
+            color: "var(--warning)" },
         ].map((s, i) => (
           <div
             key={s.label}
             style={{
               padding: "1.5rem 2rem",
               borderRight: i < 2 ? "1.5px solid var(--border-hard)" : undefined,
-              background: "var(--surface)",
-            }}
+              background: "var(--surface)" }}
           >
             <div
               style={{
                 fontSize: "var(--font-xs)",
                 fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
+
+
                 color: "var(--muted)",
-                marginBottom: "0.5rem",
-              }}
+                marginBottom: "0.5rem" }}
             >
               {s.label}
             </div>
             <div
               style={{
                 fontSize: "2rem",
-                fontWeight: 900,
-                letterSpacing: "-0.04em",
+                fontWeight: 600,
+
                 color: s.color,
-                lineHeight: 1,
-              }}
+                lineHeight: 1 }}
             >
               {s.value}
             </div>
@@ -234,24 +214,20 @@ export default function PublicProfilePage() {
 
       <div>
       {/* ── Active Listings ── */}
-      <div style={{ border: "1.5px solid var(--border-hard)", background: "var(--surface)" }}>
+      <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface)" }}>
         <div
           style={{
             padding: "0.85rem 2rem",
             background: "var(--surface-2)",
-            borderBottom: "1.5px solid var(--border-hard)",
+            borderBottom: "1px solid var(--border)",
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
-          }}
+            alignItems: "center" }}
         >
           <span
             style={{
               fontWeight: 700,
-              fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-            }}
+              fontSize: "var(--font-sm)" }}
           >
             Active Listings
           </span>
@@ -260,10 +236,7 @@ export default function PublicProfilePage() {
             style={{
               fontSize: "var(--font-xs)",
               color: "var(--accent)",
-              fontWeight: 700,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-            }}
+              fontWeight: 700 }}
           >
             All listings →
           </Link>
@@ -276,13 +249,12 @@ export default function PublicProfilePage() {
             gridTemplateColumns: "1fr 120px 90px",
             padding: "0.85rem 2rem",
             background: "var(--surface-2)",
-            borderBottom: "1.5px solid var(--border-hard)",
+            borderBottom: "1px solid var(--border)",
             fontSize: "var(--font-xs)",
-            fontWeight: 800,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--muted)",
-          }}
+            fontWeight: 500,
+
+
+            color: "var(--muted)" }}
         >
           <span>Title</span>
           <span style={{ textAlign: "right" }}>Price</span>
@@ -295,8 +267,7 @@ export default function PublicProfilePage() {
               padding: "2.5rem 2rem",
               color: "var(--muted)",
               fontSize: "var(--font-sm)",
-              background: "var(--surface)",
-            }}
+              background: "var(--surface)" }}
           >
             No active listings.
           </div>
@@ -315,20 +286,18 @@ export default function PublicProfilePage() {
                   display: "grid",
                   gridTemplateColumns: "1fr 120px 90px",
                   padding: "1rem 2rem",
-                  borderBottom: "1.5px solid var(--border-hard)",
+                  borderBottom: "1px solid var(--border)",
                   fontSize: "var(--font-base)",
                   background: "var(--surface)",
                   transition: "background 0.1s",
                   alignItems: "center",
-                  gap: "1rem",
-                }}
+                  gap: "1rem" }}
               >
                 <span
                   style={{
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
+                    whiteSpace: "nowrap" }}
                 >
                   {a.title}
                 </span>
@@ -337,8 +306,7 @@ export default function PublicProfilePage() {
                     fontWeight: 700,
                     color: "var(--accent)",
                     textAlign: "right",
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                    fontVariantNumeric: "tabular-nums" }}
                 >
                   ₹{a.currentPrice?.toLocaleString()}
                 </span>
@@ -350,10 +318,9 @@ export default function PublicProfilePage() {
                         ? "var(--success)"
                         : "var(--muted)",
                     fontWeight: 700,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    textAlign: "right",
-                  }}
+
+
+                    textAlign: "right" }}
                 >
                   {a.status}
                 </span>

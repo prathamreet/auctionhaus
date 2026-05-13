@@ -46,11 +46,8 @@ export default function AuctionsPage() {
             type: type || undefined,
             status: statusFilter === "ALL" ? undefined : statusFilter,
             page,
-            limit: 12,
-          },
-        })
-        .then((r) => r.data),
-  });
+            limit: 12 } })
+        .then((r) => r.data) });
 
   // Fetch user's watchlist so cards know their status
   const { data: watchlistData } = useQuery({
@@ -60,8 +57,7 @@ export default function AuctionsPage() {
         .get("/watchlist")
         .then((r) => r.data.watchlist ?? [])
         .catch(() => []),
-    enabled: !!user,
-  });
+    enabled: !!user });
 
   const watchedIds = new Set<string>(
     ((watchlistData ?? []) as { auctionId: string }[]).map((w) => w.auctionId)
@@ -90,22 +86,20 @@ export default function AuctionsPage() {
           justifyContent: "space-between",
           alignItems: "flex-end",
           gap: "1rem",
-          flexWrap: "wrap",
-        }}
+          flexWrap: "wrap" }}
       >
         <div>
           <div
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--accent)",
               marginBottom: "0.4rem",
               display: "flex",
               alignItems: "center",
-              gap: "0.4rem",
-            }}
+              gap: "0.4rem" }}
           >
             <span className="live-dot" />
             &nbsp;Live Auctions
@@ -113,11 +107,10 @@ export default function AuctionsPage() {
           <h1
             style={{
               fontSize: "var(--font-2xl)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
+              fontWeight: 600,
+
               lineHeight: 1,
-              color: "var(--text)",
-            }}
+              color: "var(--text)" }}
           >
             Auction Catalogue
           </h1>
@@ -132,12 +125,11 @@ export default function AuctionsPage() {
               padding: "0.6rem 1.5rem",
               fontWeight: 700,
               fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
+
+
               display: "inline-flex",
               alignItems: "center",
-              gap: "0.4rem",
-            }}
+              gap: "0.4rem" }}
           >
             + New Listing
           </Link>
@@ -150,8 +142,7 @@ export default function AuctionsPage() {
           display: "flex",
           gap: "0",
           padding: "0 0 2rem",
-          alignItems: "stretch",
-        }}
+          alignItems: "stretch" }}
       >
         <input
           placeholder="Search auctions..."
@@ -162,9 +153,7 @@ export default function AuctionsPage() {
           }}
           style={{
             maxWidth: 280,
-            border: "1.5px solid var(--border-hard)",
-            borderRight: "none",
-          }}
+            borderRight: "none" }}
         />
         <select
           value={type}
@@ -174,10 +163,7 @@ export default function AuctionsPage() {
           }}
           style={{
             maxWidth: 160,
-            border: "1.5px solid var(--border-hard)",
-            borderRadius: 0,
-            borderRight: "none",
-          }}
+            borderRight: "none" }}
         >
           <option value="">All Types</option>
           <option value="ENGLISH">English</option>
@@ -193,9 +179,7 @@ export default function AuctionsPage() {
           }}
           style={{
             maxWidth: 160,
-            border: "1.5px solid var(--border-hard)",
-            borderRadius: 0,
-          }}
+            borderRadius: "var(--radius)" }}
         >
           <option value="ACTIVE">Active</option>
           <option value="ENDED">Past (Ended)</option>
@@ -210,9 +194,7 @@ export default function AuctionsPage() {
             alignItems: "center",
             gap: "0.4rem",
             fontSize: "var(--font-sm)",
-            color: "var(--muted)",
-            letterSpacing: "0.04em",
-          }}
+            color: "var(--muted)" }}
         >
           {isLoading
             ? "Loading..."
@@ -232,17 +214,15 @@ export default function AuctionsPage() {
           style={{
             padding: "5rem 0",
             textAlign: "center",
-            borderBottom: "1px solid var(--border)",
-          }}
+            borderBottom: "1px solid var(--border)" }}
         >
           <div
             style={{
               fontSize: "3rem",
-              fontWeight: 900,
-              letterSpacing: "-0.04em",
+              fontWeight: 600,
+
               color: "var(--border)",
-              marginBottom: "0.5rem",
-            }}
+              marginBottom: "0.5rem" }}
           >
             0 Lots
           </div>
@@ -255,8 +235,7 @@ export default function AuctionsPage() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-            gap: "1.5rem",
-          }}
+            gap: "1.5rem" }}
         >
           {auctions.map((a, i) => (
             <AuctionCard
@@ -278,9 +257,8 @@ export default function AuctionsPage() {
           style={{
             display: "flex",
             marginTop: "3rem",
-            borderRight: "1.5px solid var(--border-hard)",
-            width: "fit-content",
-          }}
+            borderRight: "1px solid var(--border)",
+            width: "fit-content" }}
         >
           {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((p) => (
             <button
@@ -288,15 +266,12 @@ export default function AuctionsPage() {
               onClick={() => setPage(p)}
               style={{
                 padding: "0.65rem 1.25rem",
-                border: "1.5px solid var(--border-hard)",
                 borderRight: "none",
                 background: p === page ? "var(--text)" : "var(--surface)",
                 color: p === page ? "var(--bg)" : "var(--text)",
                 fontSize: "var(--font-sm)",
-                fontWeight: 800,
-                cursor: "pointer",
-                letterSpacing: "0.04em",
-              }}
+                fontWeight: 500,
+                cursor: "pointer" }}
             >
               {p}
             </button>
@@ -319,8 +294,7 @@ function AuctionCard({
   isWatched,
   showWatchlist,
   isOwner,
-  onToggleWatchlist,
-}: {
+  onToggleWatchlist }: {
   auction: Auction;
   index: number;
   isWatched: boolean;
@@ -331,13 +305,11 @@ function AuctionCard({
   const typeLabel: Record<string, string> = {
     ENGLISH: "English",
     DUTCH: "Dutch",
-    SEALED_BID: "Sealed Bid",
-  };
+    SEALED_BID: "Sealed Bid" };
   const typeBadgeClass: Record<string, string> = {
     ENGLISH: "badge badge-english",
     DUTCH: "badge badge-dutch",
-    SEALED_BID: "badge badge-sealed",
-  };
+    SEALED_BID: "badge badge-sealed" };
 
   const [now, setNow] = useState(() => Date.now());
 
@@ -359,29 +331,26 @@ function AuctionCard({
       href={`/auctions/${auction.id}`}
       className="auction-card"
       style={{
-        border: "1.5px solid var(--border-hard)",
         padding: isOwner ? "0" : "2rem",
         display: "block",
         background: "var(--surface)",
-        position: "relative",
-      }}
+        position: "relative" }}
     >
       {/* Your Listing banner */}
       {isOwner && (
         <div
           style={{
             background: "var(--surface-2)",
-            borderBottom: "1.5px solid var(--border-hard)",
+            borderBottom: "1px solid var(--border)",
             padding: "0.5rem 2rem",
             fontSize: "0.65rem",
-            fontWeight: 800,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
+            fontWeight: 500,
+
+
             color: "var(--text)",
             display: "flex",
             alignItems: "center",
-            gap: "0.35rem",
-          }}
+            gap: "0.35rem" }}
         >
           YOUR LISTING
         </div>
@@ -399,14 +368,12 @@ function AuctionCard({
             background: "var(--surface)",
             border: `1.5px solid ${isWatched ? "var(--text)" : "var(--border-hard)"}`,
             color: isWatched ? "var(--text)" : "var(--muted)",
-            borderRadius: 0,
             padding: "0.3rem 0.6rem",
             fontSize: "0.65rem",
-            fontWeight: 800,
+            fontWeight: 500,
             cursor: "pointer",
             transition: "all 0.15s",
-            zIndex: 2,
-          }}
+            zIndex: 2 }}
         >
           {isWatched ? "WATCHED" : "WATCH"}
         </button>
@@ -419,17 +386,13 @@ function AuctionCard({
           justifyContent: "space-between",
           alignItems: "flex-start",
           marginBottom: "1rem",
-          paddingRight: showWatchlist ? "2rem" : "0",
-        }}
+          paddingRight: showWatchlist ? "2rem" : "0" }}
       >
         <span
           style={{
             fontSize: "var(--font-xs)",
             fontWeight: 700,
-            color: "var(--muted)",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-          }}
+            color: "var(--muted)" }}
         >
           Lot {lotNumber(index)}
         </span>
@@ -439,14 +402,12 @@ function AuctionCard({
         {auction.status === "ENDED" && (
           <span style={{
             fontSize: "0.6rem", 
-            fontWeight: 800, 
+            fontWeight: 500,
             padding: "0.15rem 0.4rem", 
             background: auction.winnerId ? "rgba(26,127,60,0.1)" : "rgba(100,100,100,0.1)", 
             color: auction.winnerId ? "var(--success)" : "var(--muted)", 
             border: `1px solid ${auction.winnerId ? "var(--success)" : "var(--muted)"}`,
-            marginLeft: "0.5rem",
-            textTransform: "uppercase"
-          }}>
+            marginLeft: "0.5rem" }}>
             {auction.winnerId ? "Won" : "Unsold"}
           </span>
         )}
@@ -463,8 +424,7 @@ function AuctionCard({
           overflow: "hidden",
           display: "-webkit-box",
           WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-        }}
+          WebkitBoxOrient: "vertical" }}
       >
         {auction.title}
       </h3>
@@ -476,8 +436,7 @@ function AuctionCard({
           paddingTop: "0.85rem",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "flex-end",
-        }}
+          alignItems: "flex-end" }}
       >
         <div>
           <div className="price-label" style={{ marginBottom: "0.2rem" }}>
@@ -486,11 +445,10 @@ function AuctionCard({
           <div
             style={{
               fontSize: "1.4rem",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
+              fontWeight: 600,
+
               color: "var(--accent)",
-              lineHeight: 1,
-            }}
+              lineHeight: 1 }}
           >
             ₹{auction.currentPrice?.toLocaleString()}
           </div>
@@ -501,19 +459,17 @@ function AuctionCard({
             className="price-label"
             style={{
               marginBottom: "0.2rem",
-              color: urgent ? "var(--accent)" : "var(--muted)",
-            }}
+              color: urgent ? "var(--accent)" : "var(--muted)" }}
           >
             Time Left
           </div>
           <div
             style={{
               fontSize: "0.9rem",
-              fontWeight: 800,
-              letterSpacing: "-0.01em",
+              fontWeight: 500,
+
               color: urgent ? "var(--accent)" : "var(--text)",
-              fontVariantNumeric: "tabular-nums",
-            }}
+              fontVariantNumeric: "tabular-nums" }}
           >
             {timeText}
           </div>
@@ -527,9 +483,7 @@ function AuctionCard({
           display: "flex",
           justifyContent: "space-between",
           fontSize: "var(--font-xs)",
-          color: "var(--muted)",
-          letterSpacing: "0.03em",
-        }}
+          color: "var(--muted)" }}
       >
         <span>by {auction.seller?.name}</span>
         <span>{auction._count?.bids ?? 0} bids</span>

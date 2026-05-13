@@ -8,8 +8,7 @@ export default function Home() {
         background: "var(--bg)",
         display: "flex",
         flexDirection: "column",
-        fontFamily: "'Inter', system-ui, sans-serif",
-      }}
+        fontFamily: "'Inter', system-ui, sans-serif" }}
     >
       {/* ── CORE GRID ── */}
       <div
@@ -17,18 +16,16 @@ export default function Home() {
           flex: 1,
           display: "grid",
           gridTemplateColumns: "1.25fr 0.75fr",
-          borderBottom: "1px solid var(--text)",
-        }}
+          borderBottom: "1px solid var(--border)" }}
       >
         {/* Left Segment: Hero */}
         <div
           style={{
             padding: "var(--pad) 4rem 3rem 4rem",
-            borderRight: "1px solid var(--text)",
+            borderRight: "1px solid var(--border)",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
-          }}
+            justifyContent: "space-between" }}
         >
           <div>
             {/* System Status */}
@@ -37,24 +34,21 @@ export default function Home() {
                 display: "flex",
                 alignItems: "center",
                 gap: "0.75rem",
-                marginBottom: "4rem",
-              }}
+                marginBottom: "4rem" }}
             >
               <div
                 style={{
                   width: 10,
                   height: 10,
-                  background: "var(--accent)",
-                }}
+                  background: "var(--accent)" }}
               />
               <span
                 style={{
                   fontSize: "11px",
-                  fontWeight: 800,
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  color: "var(--text)",
-                }}
+                  fontWeight: 500,
+
+
+                  color: "var(--text)" }}
               >
                 Operational / Sync: Active
               </span>
@@ -63,13 +57,11 @@ export default function Home() {
             <h1
               style={{
                 fontSize: "clamp(4.5rem, 12vw, 9rem)",
-                fontWeight: 900,
-                letterSpacing: "-0.07em",
+                fontWeight: 600,
+
                 lineHeight: 0.82,
                 color: "var(--text)",
-                marginBottom: "4rem",
-                textTransform: "uppercase",
-              }}
+                marginBottom: "4rem" }}
             >
               Bid.
               <br />
@@ -85,8 +77,7 @@ export default function Home() {
                 lineHeight: 1.35,
                 maxWidth: 440,
                 marginBottom: "4rem",
-                fontWeight: 500,
-              }}
+                fontWeight: 500 }}
             >
               A high-frequency auction platform supporting multi-protocol bidding 
               engines. Engineered for zero-lag synchronization and algorithmic 
@@ -100,13 +91,12 @@ export default function Home() {
                   background: "var(--text)",
                   color: "var(--bg)",
                   padding: "1.5rem 3rem",
-                  fontWeight: 800,
+                  fontWeight: 500,
                   fontSize: "12px",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
+
+
                   textDecoration: "none",
-                  border: "1px solid var(--text)",
-                }}
+                  border: "1px solid var(--text)" }}
               >
                 Access Market
               </Link>
@@ -116,14 +106,13 @@ export default function Home() {
                   background: "transparent",
                   color: "var(--text)",
                   padding: "1.5rem 3rem",
-                  fontWeight: 800,
+                  fontWeight: 500,
                   fontSize: "12px",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
+
+
                   textDecoration: "none",
                   border: "1px solid var(--text)",
-                  borderLeft: "none",
-                }}
+                  borderLeft: "none" }}
               >
                 Open Account
               </Link>
@@ -136,9 +125,8 @@ export default function Home() {
               marginTop: "4rem",
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
-              borderTop: "1px solid var(--text)",
-              paddingTop: "2rem",
-            }}
+              borderTop: "1px solid var(--border)",
+              paddingTop: "2rem" }}
           >
             {[
               { n: "01", label: "English Engine" },
@@ -149,10 +137,8 @@ export default function Home() {
                 <div
                   style={{
                     fontSize: "1.75rem",
-                    fontWeight: 900,
-                    color: "var(--text)",
-                    letterSpacing: "-0.04em",
-                  }}
+                    fontWeight: 600,
+                    color: "var(--text)" }}
                 >
                   {s.n}
                 </div>
@@ -160,11 +146,10 @@ export default function Home() {
                   style={{
                     fontSize: "10px",
                     color: "var(--muted)",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    marginTop: "0.3rem",
-                  }}
+                    fontWeight: 500,
+
+
+                    marginTop: "0.3rem" }}
                 >
                   {s.label}
                 </div>
@@ -177,25 +162,21 @@ export default function Home() {
         <div
           style={{
             display: "grid",
-            gridTemplateRows: "repeat(3, 1fr)",
-          }}
+            gridTemplateRows: "repeat(3, 1fr)" }}
         >
           {[
             {
               title: "Synchronized Bidding",
               desc: "Real-time state updates powered by the AH-Sync engine for zero-conflict transactions.",
-              ref: "REF_001",
-            },
+              ref: "REF_001" },
             {
               title: "Automated Escrow",
               desc: "Atomic wallet logic ensuring all assets are backed and secured during active auctions.",
-              ref: "REF_002",
-            },
+              ref: "REF_002" },
             {
               title: "Global Marketplace",
               desc: "Cross-format support for high-stakes digital and physical asset liquidation.",
-              ref: "REF_003",
-            },
+              ref: "REF_003" },
           ].map((item, i) => (
             <div
               key={item.ref}
@@ -205,30 +186,27 @@ export default function Home() {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                background: "var(--surface)",
-              }}
+                background: "var(--surface)" }}
             >
               <div
                 style={{
-                  fontFamily: "monospace",
+
                   fontSize: "11px",
-                  fontWeight: 800,
+                  fontWeight: 500,
                   color: "var(--accent)",
-                  marginBottom: "1.5rem",
-                }}
+                  marginBottom: "1.5rem" }}
               >
                 {item.ref}
               </div>
               <div
                 style={{
                   fontSize: "1.75rem",
-                  fontWeight: 900,
-                  textTransform: "uppercase",
-                  letterSpacing: "-0.04em",
+                  fontWeight: 600,
+
+
                   color: "var(--text)",
                   marginBottom: "1rem",
-                  lineHeight: 1,
-                }}
+                  lineHeight: 1 }}
               >
                 {item.title}
               </div>
@@ -238,8 +216,7 @@ export default function Home() {
                   color: "var(--text-soft)",
                   lineHeight: 1.5,
                   maxWidth: "280px",
-                  fontWeight: 500,
-                }}
+                  fontWeight: 500 }}
               >
                 {item.desc}
               </div>
@@ -256,24 +233,20 @@ export default function Home() {
           justifyContent: "space-between",
           alignItems: "center",
           background: "var(--text)",
-          color: "var(--bg)",
-        }}
+          color: "var(--bg)" }}
       >
         <span
           style={{
             fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-          }}
+            fontWeight: 500 }}
         >
           AuctionHaus / Protocol 1.0.4
         </span>
         <div style={{ display: "flex", gap: "2rem" }}>
-          <span style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.6 }}>
+          <span style={{ fontSize: "10px", fontWeight: 500,   opacity: 0.6 }}>
             LATENCY: 14MS
           </span>
-          <span style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.6 }}>
+          <span style={{ fontSize: "10px", fontWeight: 500,   opacity: 0.6 }}>
             UPTIME: 99.9%
           </span>
         </div>

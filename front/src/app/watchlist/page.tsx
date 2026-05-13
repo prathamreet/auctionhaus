@@ -23,14 +23,12 @@ interface WatchItem {
 const TYPE_BADGE: Record<string, string> = {
   ENGLISH: "badge badge-english",
   DUTCH: "badge badge-dutch",
-  SEALED_BID: "badge badge-sealed",
-};
+  SEALED_BID: "badge badge-sealed" };
 
 const TYPE_LABEL: Record<string, string> = {
   ENGLISH: "English",
   DUTCH: "Dutch",
-  SEALED_BID: "Sealed Bid",
-};
+  SEALED_BID: "Sealed Bid" };
 
 export default function WatchlistPage() {
   const { user, token } = useAuthStore();
@@ -68,26 +66,24 @@ export default function WatchlistPage() {
       <div
         style={{
           padding: "2.5rem 2rem",
-          border: "1.5px solid var(--border-hard)",
+          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
           borderBottom: "none",
           background: "var(--surface)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "1.5rem",
-        }}
+          gap: "1.5rem" }}
       >
         <div>
           <div
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--muted)",
-              marginBottom: "0.3rem",
-            }}
+              marginBottom: "0.3rem" }}
           >
             Your account
           </div>
@@ -95,10 +91,9 @@ export default function WatchlistPage() {
             <h1
               style={{
                 fontSize: "var(--font-2xl)",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
-                lineHeight: 1,
-              }}
+                fontWeight: 600,
+
+                lineHeight: 1 }}
             >
               Watchlist
             </h1>
@@ -108,10 +103,8 @@ export default function WatchlistPage() {
                   background: "var(--text)",
                   color: "var(--bg)",
                   fontSize: "var(--font-xs)",
-                  fontWeight: 900,
-                  padding: "0.3rem 0.65rem",
-                  letterSpacing: "0.05em",
-                }}
+                  fontWeight: 600,
+                  padding: "0.3rem 0.65rem" }}
               >
                 {items.length}
               </span>
@@ -126,10 +119,7 @@ export default function WatchlistPage() {
             color: "#fff",
             padding: "0.5rem 1.25rem",
             fontWeight: 700,
-            fontSize: "var(--font-xs)",
-            letterSpacing: "0.07em",
-            textTransform: "uppercase",
-          }}
+            fontSize: "var(--font-xs)" }}
         >
           Browse Auctions →
         </Link>
@@ -142,23 +132,19 @@ export default function WatchlistPage() {
             padding: "4rem",
             textAlign: "center",
             color: "var(--muted)",
-            fontSize: "var(--font-sm)",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-          }}
+            fontSize: "var(--font-sm)" }}
         >
           Loading...
         </div>
       ) : items.length === 0 ? (
-        <div style={{ padding: "5rem 2rem", textAlign: "center", color: "var(--muted)", border: "1.5px solid var(--border-hard)", background: "var(--surface)" }}>
+        <div style={{ padding: "5rem 2rem", textAlign: "center", color: "var(--muted)", border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface)" }}>
           <div
             style={{
               fontSize: "var(--font-sm)",
-              fontWeight: 800,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              marginBottom: "0.4rem",
-            }}
+              fontWeight: 500,
+
+
+              marginBottom: "0.4rem" }}
           >
             [EMPTY] Watchlist is empty
           </div>
@@ -167,7 +153,7 @@ export default function WatchlistPage() {
           </div>
         </div>
       ) : (
-        <div style={{ border: "1.5px solid var(--border-hard)" }}>
+        <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)" }}>
           {/* Table header */}
           <div
             style={{
@@ -175,13 +161,12 @@ export default function WatchlistPage() {
               gridTemplateColumns: "1fr 120px 100px 90px 100px",
               padding: "0.85rem 1.5rem",
               background: "var(--surface-2)",
-              borderBottom: "1.5px solid var(--border-hard)",
+              borderBottom: "1px solid var(--border)",
               fontSize: "var(--font-xs)",
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--muted)",
-            }}
+              fontWeight: 500,
+
+
+              color: "var(--muted)" }}
           >
             <span>Auction</span>
             <span style={{ textAlign: "right" }}>Current Bid</span>
@@ -209,8 +194,7 @@ export default function WatchlistPage() {
                   borderBottom: i < items.length - 1 ? "1.5px solid var(--border-hard)" : "none",
                   background: "var(--surface)",
                   transition: "background 0.1s",
-                  gap: "0.5rem",
-                }}
+                  gap: "0.5rem" }}
               >
                 {/* Title + type */}
                 <div style={{ overflow: "hidden" }}>
@@ -224,8 +208,7 @@ export default function WatchlistPage() {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      marginBottom: "0.2rem",
-                    }}
+                      marginBottom: "0.2rem" }}
                   >
                     {a?.title ?? "—"}
                   </Link>
@@ -242,12 +225,11 @@ export default function WatchlistPage() {
                 {/* Current price */}
                 <div
                   style={{
-                    fontWeight: 800,
+                    fontWeight: 500,
                     fontSize: "var(--font-sm)",
                     color: "var(--accent)",
                     textAlign: "right",
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                    fontVariantNumeric: "tabular-nums" }}
                 >
                   ₹{a?.currentPrice?.toLocaleString() ?? "—"}
                 </div>
@@ -258,10 +240,9 @@ export default function WatchlistPage() {
                     style={{
                       fontSize: "var(--font-xs)",
                       fontWeight: 700,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      color: isEnded ? "var(--muted)" : "var(--success)",
-                    }}
+
+
+                      color: isEnded ? "var(--muted)" : "var(--success)" }}
                   >
                     {a?.status ?? "—"}
                   </span>
@@ -273,8 +254,7 @@ export default function WatchlistPage() {
                     fontSize: "var(--font-xs)",
                     color: "var(--muted)",
                     textAlign: "right",
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                    fontVariantNumeric: "tabular-nums" }}
                 >
                   {endLabel}
                 </div>
@@ -285,16 +265,15 @@ export default function WatchlistPage() {
                     onClick={() => remove(item)}
                     style={{
                       background: "none",
-                      border: "1.5px solid var(--border-hard)",
+                      border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                       color: "var(--text)",
                       padding: "0.5rem 0.75rem",
                       fontSize: "var(--font-xs)",
                       cursor: "pointer",
-                      fontWeight: 800,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                      transition: "all 0.12s",
-                    }}
+                      fontWeight: 500,
+
+
+                      transition: "all 0.12s" }}
                   >
                     REMOVE
                   </button>

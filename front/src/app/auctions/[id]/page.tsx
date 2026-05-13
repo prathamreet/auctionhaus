@@ -106,8 +106,7 @@ export default function AuctionDetailPage() {
         .get(`/bids/auctions/${id}/auto-bid`)
         .then((r) => r.data ?? null)
         .catch(() => null),
-    enabled: !!user,
-  });
+    enabled: !!user });
 
   const { data: watchlistData } = useQuery({
     queryKey: ["watchlist-check", id],
@@ -120,8 +119,7 @@ export default function AuctionDetailPage() {
           ) ?? false
         )
         .catch(() => false),
-    enabled: !!user,
-  });
+    enabled: !!user });
 
   // Socket.io real-time
   useEffect(() => {
@@ -208,8 +206,7 @@ export default function AuctionDetailPage() {
     setBidErr("");
     try {
       await api.post(`/bids/auctions/${id}/auto-bid`, {
-        maxAmount: parseFloat(autoBidMax),
-      });
+        maxAmount: parseFloat(autoBidMax) });
       setBidSuccess("Auto-bid activated!");
       setAutoBidMax("");
       qc.invalidateQueries({ queryKey: ["auto-bid", id] });
@@ -286,8 +283,7 @@ export default function AuctionDetailPage() {
         rateeId: ratedUserId,
         auctionId: id,
         rating: ratingValue,
-        comment: ratingComment || undefined,
-      });
+        comment: ratingComment || undefined });
       setRatingDone(true);
       setBidSuccess("Rating submitted!");
     } catch (e: unknown) {
@@ -323,10 +319,9 @@ export default function AuctionDetailPage() {
           padding: "5rem 2rem",
           textAlign: "center",
           color: "var(--muted)",
-          letterSpacing: "0.05em",
-          textTransform: "uppercase",
-          fontSize: "var(--font-sm)",
-        }}
+
+
+          fontSize: "var(--font-sm)" }}
       >
         Loading lot...
       </div>
@@ -349,13 +344,11 @@ export default function AuctionDetailPage() {
   const typeLabel: Record<string, string> = {
     ENGLISH: "English",
     DUTCH: "Dutch",
-    SEALED_BID: "Sealed Bid",
-  };
+    SEALED_BID: "Sealed Bid" };
   const typeBadgeClass: Record<string, string> = {
     ENGLISH: "badge badge-english",
     DUTCH: "badge badge-dutch",
-    SEALED_BID: "badge badge-sealed",
-  };
+    SEALED_BID: "badge badge-sealed" };
 
   return (
     <div style={{ width: "100%", margin: "0", padding: "0 4vw 4vw", minHeight: "100vh" }}>
@@ -367,8 +360,7 @@ export default function AuctionDetailPage() {
           alignItems: "center",
           justifyContent: "space-between",
           gap: "1rem",
-          flexWrap: "wrap",
-        }}
+          flexWrap: "wrap" }}
       >
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
           <span className={typeBadgeClass[auction.type]}>
@@ -387,10 +379,7 @@ export default function AuctionDetailPage() {
                 gap: "0.4rem",
                 fontSize: "var(--font-xs)",
                 color: "var(--accent)",
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-              }}
+                fontWeight: 700 }}
             >
               <span className="live-dot" />
               &nbsp;Live
@@ -401,10 +390,7 @@ export default function AuctionDetailPage() {
         <div
           style={{
             fontSize: "var(--font-xs)",
-            color: "var(--muted)",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-          }}
+            color: "var(--muted)" }}
         >
           Seller:{" "}
           <Link
@@ -424,8 +410,7 @@ export default function AuctionDetailPage() {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(600px, 1fr))",
           gap: "1.5rem",
-          minHeight: "calc(100vh - var(--navbar-h) - 60px)",
-        }}
+          minHeight: "calc(100vh - var(--navbar-h) - 60px)" }}
       >
         {/* ── LEFT COLUMN ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -433,19 +418,17 @@ export default function AuctionDetailPage() {
           <div
             style={{
               padding: "2.5rem 2rem",
-              border: "1.5px solid var(--border-hard)",
-              background: "var(--surface)",
-            }}
+              border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+              background: "var(--surface)" }}
           >
             <h1
               style={{
                 fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
+                fontWeight: 600,
+
                 lineHeight: 1.1,
                 marginBottom: "1rem",
-                color: "var(--text)",
-              }}
+                color: "var(--text)" }}
             >
               {auction.title}
             </h1>
@@ -454,8 +437,7 @@ export default function AuctionDetailPage() {
                 style={{
                   color: "var(--text-soft)",
                   fontSize: "var(--font-base)",
-                  lineHeight: 1.65,
-                }}
+                  lineHeight: 1.65 }}
               >
                 {auction.description}
               </p>
@@ -467,9 +449,8 @@ export default function AuctionDetailPage() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              border: "1.5px solid var(--border-hard)",
-              background: "var(--surface)",
-            }}
+              border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+              background: "var(--surface)" }}
           >
             {(auction.type === "DUTCH"
               ? [
@@ -486,8 +467,7 @@ export default function AuctionDetailPage() {
                     label: "Buy Now",
                     value: auction.buyNowPrice
                       ? `₹${auction.buyNowPrice?.toLocaleString()}`
-                      : "—",
-                  },
+                      : "—" },
                 ]
             ).map((item, i) => (
               <div
@@ -495,8 +475,7 @@ export default function AuctionDetailPage() {
                 style={{
                   padding: "1rem 1.25rem",
                   borderRight:
-                    i < 3 ? "1px solid var(--border)" : undefined,
-                }}
+                    i < 3 ? "1px solid var(--border)" : undefined }}
               >
                 <div className="price-label" style={{ marginBottom: "0.3rem" }}>
                   {item.label}
@@ -509,24 +488,20 @@ export default function AuctionDetailPage() {
           </div>
 
           {/* ── Bid History ── */}
-          <div style={{ border: "1.5px solid var(--border-hard)", background: "var(--surface)" }}>
+          <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface)" }}>
             <div
               style={{
                 padding: "1.25rem 2rem",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                borderBottom: "1.5px solid var(--border-hard)",
-                background: "var(--surface-2)",
-              }}
+                borderBottom: "1px solid var(--border)",
+                background: "var(--surface-2)" }}
             >
               <span
                 style={{
                   fontWeight: 700,
-                  fontSize: "var(--font-sm)",
-                  letterSpacing: "0.07em",
-                  textTransform: "uppercase",
-                }}
+                  fontSize: "var(--font-sm)" }}
               >
                 Bid History
               </span>
@@ -534,8 +509,7 @@ export default function AuctionDetailPage() {
                 style={{
                   fontSize: "var(--font-xs)",
                   color: "var(--muted)",
-                  fontWeight: 600,
-                }}
+                  fontWeight: 600 }}
               >
                 {bids.length} entries
               </span>
@@ -547,9 +521,7 @@ export default function AuctionDetailPage() {
                   padding: "3rem",
                   textAlign: "center",
                   color: "var(--muted)",
-                  fontSize: "var(--font-sm)",
-                  letterSpacing: "0.04em",
-                }}
+                  fontSize: "var(--font-sm)" }}
               >
                 No bids placed yet. Be the first.
               </div>
@@ -561,11 +533,10 @@ export default function AuctionDetailPage() {
                     background: "rgba(100,80,200,0.06)",
                     border: "1.5px solid rgba(120,80,220,0.25)",
                     padding: "1.25rem",
-                    borderRadius: 0,
-                    textAlign: "center",
-                  }}
+                    borderRadius: "var(--radius)",
+                    textAlign: "center" }}
                 >
-                  <div style={{ fontWeight: 800, fontSize: "var(--font-sm)", letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text)", marginBottom: "0.35rem" }}>
+                  <div style={{ fontWeight: 500, fontSize: "var(--font-sm)",   color: "var(--text)", marginBottom: "0.35rem" }}>
                     [PRIVATE] {bids.length} Sealed {bids.length === 1 ? "Bid" : "Bids"}
                   </div>
                   <div style={{ fontSize: "var(--font-xs)", color: "var(--muted)", lineHeight: 1.6 }}>
@@ -582,8 +553,7 @@ export default function AuctionDetailPage() {
                         border: "1.5px solid var(--success)",
                         fontSize: "var(--font-sm)",
                         color: "var(--success)",
-                        fontWeight: 700,
-                      }}
+                        fontWeight: 700 }}
                     >
                       [LOGGED] Your sealed bid: ₹{b.amount?.toLocaleString() ?? "—"}
                     </div>
@@ -602,10 +572,9 @@ export default function AuctionDetailPage() {
                     borderBottom: "1px solid var(--border)",
                     fontSize: "var(--font-xs)",
                     fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: "var(--muted)",
-                  }}
+
+
+                    color: "var(--muted)" }}
                 >
                   <span>Bidder</span>
                   <span>Amount</span>
@@ -624,8 +593,7 @@ export default function AuctionDetailPage() {
                       borderBottom: "1px solid var(--border)",
                       fontSize: "var(--font-base)",
                       background: i === 0 ? "rgba(196,30,30,0.04)" : "var(--surface)",
-                      transition: "background 0.3s",
-                    }}
+                      transition: "background 0.3s" }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                       {i === 0 && (
@@ -635,8 +603,7 @@ export default function AuctionDetailPage() {
                             width: 6,
                             height: 6,
                             borderRadius: "50%",
-                            background: "var(--accent)",
-                          }}
+                            background: "var(--accent)" }}
                         />
                       )}
                       <span style={{ fontWeight: i === 0 ? 700 : 400 }}>
@@ -650,8 +617,7 @@ export default function AuctionDetailPage() {
                             fontSize: "var(--font-xs)",
                             color: "var(--muted)",
                             border: "1px solid var(--border)",
-                            padding: "0 0.3rem",
-                          }}
+                            padding: "0 0.3rem" }}
                         >
                           auto
                         </span>
@@ -661,8 +627,7 @@ export default function AuctionDetailPage() {
                       style={{
                         fontWeight: 700,
                         color: i === 0 ? "var(--accent)" : "var(--text)",
-                        fontVariantNumeric: "tabular-nums",
-                      }}
+                        fontVariantNumeric: "tabular-nums" }}
                     >
                       {b.amount != null ? `₹${b.amount?.toLocaleString()}` : "[SEALED]"}
                     </span>
@@ -670,8 +635,7 @@ export default function AuctionDetailPage() {
                       {new Date(b.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
-                        second: "2-digit",
-                      })}
+                        second: "2-digit" })}
                     </span>
                     <span
                       style={{
@@ -680,10 +644,7 @@ export default function AuctionDetailPage() {
                           b.status === "WINNING" || b.status === "WON"
                             ? "var(--success)"
                             : "var(--muted)",
-                        fontSize: "var(--font-xs)",
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                      }}
+                        fontSize: "var(--font-xs)" }}
                     >
                       {b.status}
                     </span>
@@ -700,10 +661,9 @@ export default function AuctionDetailPage() {
           {/* ── Price Panel ── */}
           <div
             style={{
-              border: "1.5px solid var(--border-hard)",
+              border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
               padding: "2rem",
-              background: "var(--surface)",
-            }}
+              background: "var(--surface)" }}
           >
             <div className="price-label" style={{ marginBottom: "0.4rem" }}>
               {isEnded ? "Final Price" : "Current Bid"}
@@ -718,15 +678,13 @@ export default function AuctionDetailPage() {
                   padding: "0.85rem 1rem",
                   background: "var(--surface-2)",
                   border: "1px solid var(--border)",
-                  marginBottom: "1.25rem",
-                }}
+                  marginBottom: "1.25rem" }}
               >
                 <div
                   className="price-label"
                   style={{
                     marginBottom: "0.35rem",
-                    color: "var(--muted)",
-                  }}
+                    color: "var(--muted)" }}
                 >
                   Time Remaining
                 </div>
@@ -742,29 +700,27 @@ export default function AuctionDetailPage() {
                     ? (isWinner ? "rgba(26,127,60,0.08)" : "rgba(26,127,60,0.04)")
                     : "var(--surface-2)",
                   border: `1.5px solid ${auction.winner ? "var(--success)" : "var(--border)"}`,
-                  marginBottom: "1.25rem",
-                }}
+                  marginBottom: "1.25rem" }}
               >
                 {auction.winner ? (
                   <div>
                     <div style={{
                       fontSize: "var(--font-xs)",
-                      fontWeight: 800,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
+                      fontWeight: 500,
+
+
                       color: "var(--success)",
-                      marginBottom: "0.5rem",
-                    }}>
+                      marginBottom: "0.5rem" }}>
                       {isWinner ? "You Won This Auction" : isSeller ? "Sold" : "Winner Announced"}
                     </div>
                     <div style={{ fontWeight: 700, fontSize: "var(--font-sm)" }}>
                       {isWinner ? (
-                        <span>Congratulations! You won for <span style={{ color: "var(--success)", fontWeight: 800 }}>₹{auction.currentPrice?.toLocaleString()}</span></span>
+                        <span>Congratulations! You won for <span style={{ color: "var(--success)", fontWeight: 500 }}>₹{auction.currentPrice?.toLocaleString()}</span></span>
                       ) : (
                         <>
                           <Link href={`/users/${auction.winner.id}`} style={{ textDecoration: "underline", textUnderlineOffset: "3px" }}>{auction.winner.name}</Link>
                           <span style={{ color: "var(--muted)", fontWeight: 400 }}> won for </span>
-                          <span style={{ color: "var(--success)", fontWeight: 800 }}>₹{auction.currentPrice?.toLocaleString()}</span>
+                          <span style={{ color: "var(--success)", fontWeight: 500 }}>₹{auction.currentPrice?.toLocaleString()}</span>
                         </>
                       )}
                     </div>
@@ -773,12 +729,11 @@ export default function AuctionDetailPage() {
                   <div>
                     <div style={{
                       fontSize: "var(--font-xs)",
-                      fontWeight: 800,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
+                      fontWeight: 500,
+
+
                       color: "var(--muted)",
-                      marginBottom: "0.3rem",
-                    }}>
+                      marginBottom: "0.3rem" }}>
                       Auction Ended
                     </div>
                     <span style={{ fontWeight: 700, fontSize: "var(--font-sm)", color: "var(--muted)" }}>UNSOLD — reserve not met or no bids</span>
@@ -800,8 +755,7 @@ export default function AuctionDetailPage() {
                     background: isWinner
                       ? "rgba(26,127,60,0.05)"
                       : "rgba(196,30,30,0.04)",
-                    padding: "1.25rem",
-                  }}
+                    padding: "1.25rem" }}
                 >
                   {/* Trophy header */}
                   <div
@@ -809,18 +763,16 @@ export default function AuctionDetailPage() {
                       display: "flex",
                       alignItems: "center",
                       gap: "0.5rem",
-                      marginBottom: "0.85rem",
-                    }}
+                      marginBottom: "0.85rem" }}
                   >
                     <div>
                       <div
                         style={{
-                          fontWeight: 900,
+                          fontWeight: 600,
                           fontSize: "var(--font-sm)",
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                          color: isWinner ? "var(--success)" : "var(--accent)",
-                        }}
+
+
+                          color: isWinner ? "var(--success)" : "var(--accent)" }}
                       >
                         {isWinner ? "You Won!" : "Auction Winner"}
                       </div>
@@ -828,8 +780,7 @@ export default function AuctionDetailPage() {
                         style={{
                           fontSize: "var(--font-xs)",
                           color: "var(--muted)",
-                          fontWeight: 600,
-                        }}
+                          fontWeight: 600 }}
                       >
                         {isSeller ? "Show this to verify the winner" : "Show this to the seller"}
                       </div>
@@ -843,12 +794,11 @@ export default function AuctionDetailPage() {
                       border: "1px solid var(--border)",
                       padding: "0.85rem",
                       marginBottom: "0.85rem",
-                      fontSize: "var(--font-xs)",
-                    }}
+                      fontSize: "var(--font-xs)" }}
                   >
                     <div style={{ marginBottom: "0.5rem" }}>
                       <span style={{ color: "var(--muted)", fontWeight: 600 }}>Winner: </span>
-                      <span style={{ fontWeight: 800, fontSize: "var(--font-sm)" }}>{winnerName}</span>
+                      <span style={{ fontWeight: 500, fontSize: "var(--font-sm)" }}>{winnerName}</span>
                     </div>
                     <div style={{ marginBottom: "0.5rem" }}>
                       <span style={{ color: "var(--muted)", fontWeight: 600 }}>Item: </span>
@@ -856,7 +806,7 @@ export default function AuctionDetailPage() {
                     </div>
                     <div style={{ marginBottom: "0.5rem" }}>
                       <span style={{ color: "var(--muted)", fontWeight: 600 }}>Winning Bid: </span>
-                      <span style={{ fontWeight: 800, color: isWinner ? "var(--success)" : "var(--accent)", fontSize: "var(--font-sm)" }}>
+                      <span style={{ fontWeight: 500, color: isWinner ? "var(--success)" : "var(--accent)", fontSize: "var(--font-sm)" }}>
                         ₹{auction.currentPrice?.toLocaleString()}
                       </span>
                     </div>
@@ -871,12 +821,11 @@ export default function AuctionDetailPage() {
                         marginTop: "0.75rem",
                         paddingTop: "0.65rem",
                         borderTop: "1px solid var(--border)",
-                        fontFamily: "monospace",
-                        letterSpacing: "0.1em",
+
+
                         fontWeight: 700,
                         fontSize: "var(--font-sm)",
-                        color: "var(--muted)",
-                      }}
+                        color: "var(--muted)" }}
                     >
                       {verificationCode}
                     </div>
@@ -893,13 +842,12 @@ export default function AuctionDetailPage() {
                           color: "var(--success)",
                           fontSize: "var(--font-xs)",
                           fontWeight: 700,
-                          letterSpacing: "0.05em",
-                          textTransform: "uppercase",
+
+
                           display: "flex",
                           alignItems: "center",
                           gap: "0.4rem",
-                          marginBottom: "0.5rem",
-                        }}
+                          marginBottom: "0.5rem" }}
                       >
                         <span>Payment Auto-Settled (Escrow)</span>
                       </div>
@@ -907,26 +855,24 @@ export default function AuctionDetailPage() {
                       <div
                         style={{
                           background: "var(--surface-2)",
-                          border: "1.5px solid var(--border-hard)",
+                          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                           padding: "1rem",
-                          fontSize: "var(--font-xs)",
-                        }}
+                          fontSize: "var(--font-xs)" }}
                       >
                         <div
                           style={{
                             fontWeight: 700,
-                            letterSpacing: "0.06em",
-                            textTransform: "uppercase",
+
+
                             marginBottom: "0.5rem",
-                            color: "var(--muted)",
-                          }}
+                            color: "var(--muted)" }}
                         >
                           DELIVERY STEPS
                         </div>
                         <ol style={{ margin: 0, paddingLeft: "1.1rem", lineHeight: 1.7, color: "var(--text-soft)" }}>
                           <li>₹{auction.currentPrice?.toLocaleString()} has been credited to your wallet</li>
                           <li>Winner will contact you with their verification code</li>
-                          <li>Verify the code matches: <strong style={{ fontFamily: "monospace", color: "var(--accent)" }}>{`AH-${auction.id.slice(0, 8).toUpperCase()}`}</strong></li>
+                          <li>Verify the code matches: <strong style={{  color: "var(--accent)" }}>{`AH-${auction.id.slice(0, 8).toUpperCase()}`}</strong></li>
                           <li>Arrange delivery or pick-up, then mark complete</li>
                         </ol>
                       </div>
@@ -947,12 +893,11 @@ export default function AuctionDetailPage() {
                     style={{
                       padding: "1rem",
                       background: "var(--surface-2)",
-                      border: "1.5px solid var(--border-hard)",
+                      border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                       fontSize: "var(--font-xs)",
                       color: "var(--muted)",
                       marginBottom: "0.75rem",
-                      lineHeight: 1.5,
-                    }}
+                      lineHeight: 1.5 }}
                   >
                     <strong>[PRIVATE]</strong> Sealed bid — your bid is private. One bid per user; submitting again will update your bid.
                   </div>
@@ -966,8 +911,7 @@ export default function AuctionDetailPage() {
                       color: "var(--accent)",
                       fontSize: "var(--font-sm)",
                       fontWeight: 600,
-                      marginBottom: "0.75rem",
-                    }}
+                      marginBottom: "0.75rem" }}
                   >
                     {bidErr}
                   </div>
@@ -981,8 +925,7 @@ export default function AuctionDetailPage() {
                       color: "var(--success)",
                       fontSize: "var(--font-sm)",
                       fontWeight: 600,
-                      marginBottom: "0.75rem",
-                    }}
+                      marginBottom: "0.75rem" }}
                   >
                     {bidSuccess}
                   </div>
@@ -1000,17 +943,14 @@ export default function AuctionDetailPage() {
                     }
                     style={{
                       flex: 1,
-                      border: "1.5px solid var(--border-hard)",
-                      borderRight: "none",
-                      borderRadius: 0,
-                    }}
+                      border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                      borderRight: "none" }}
                     onKeyDown={(e) => e.key === "Enter" && placeBid()}
                   />
                   <button
                     onClick={placeBid}
                     disabled={bidLoading}
                     className="btn-primary"
-                    style={{ whiteSpace: "nowrap", borderRadius: 0 }}
                   >
                     {bidLoading
                       ? "..."
@@ -1023,9 +963,7 @@ export default function AuctionDetailPage() {
                   <div
                     style={{
                       fontSize: "var(--font-xs)",
-                      color: "var(--muted)",
-                      letterSpacing: "0.03em",
-                    }}
+                      color: "var(--muted)" }}
                   >
                     Minimum next bid: ₹
                     {(Number(auction.currentPrice) + Number(auction.minIncrement)).toLocaleString()}
@@ -1045,8 +983,7 @@ export default function AuctionDetailPage() {
                       border: "1.5px solid var(--accent)",
                       color: "var(--accent)",
                       fontSize: "var(--font-sm)",
-                      marginBottom: "0.75rem",
-                    }}
+                      marginBottom: "0.75rem" }}
                   >
                     {bidErr}
                   </div>
@@ -1059,8 +996,7 @@ export default function AuctionDetailPage() {
                     marginBottom: "0.75rem",
                     fontSize: "var(--font-sm)",
                     color: "var(--dutch)",
-                    fontWeight: 600,
-                  }}
+                    fontWeight: 600 }}
                 >
                   Dutch auction — price drops over time. Accept current price to win.
                 </div>
@@ -1077,11 +1013,10 @@ export default function AuctionDetailPage() {
                     padding: "0.75rem",
                     fontWeight: 700,
                     fontSize: "var(--font-base)",
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
+
+
                     width: "100%",
-                    cursor: bidLoading ? "not-allowed" : "pointer",
-                  }}
+                    cursor: bidLoading ? "not-allowed" : "pointer" }}
                 >
                   Accept ₹{auction.currentPrice?.toLocaleString()} →
                 </button>
@@ -1098,12 +1033,11 @@ export default function AuctionDetailPage() {
                   padding: "0.65rem",
                   fontWeight: 700,
                   fontSize: "var(--font-sm)",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
+
+
                   width: "100%",
                   marginTop: "0.75rem",
-                  cursor: "pointer",
-                }}
+                  cursor: "pointer" }}
               >
                 Buy Now — ₹{auction.buyNowPrice?.toLocaleString()}
               </button>
@@ -1122,10 +1056,9 @@ export default function AuctionDetailPage() {
                   width: "100%",
                   marginTop: "0.75rem",
                   cursor: "pointer",
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  transition: "all 0.15s",
-                }}
+
+
+                  transition: "all 0.15s" }}
               >
                 {watchlistData ? "WATCHING" : "WATCH"}
               </button>
@@ -1140,10 +1073,9 @@ export default function AuctionDetailPage() {
                 style={{
                   width: "100%",
                   marginTop: "0.75rem",
-                  borderRadius: 0,
+                  borderRadius: "var(--radius)",
                   opacity: cancelAuctionLoading ? 0.6 : 1,
-                  cursor: cancelAuctionLoading ? "not-allowed" : "pointer",
-                }}
+                  cursor: cancelAuctionLoading ? "not-allowed" : "pointer" }}
               >
                 {cancelAuctionLoading ? "Cancelling..." : "Cancel Auction"}
               </button>
@@ -1156,17 +1088,15 @@ export default function AuctionDetailPage() {
                   marginTop: "1rem",
                   padding: "1rem",
                   background: "var(--surface-2)",
-                  border: "1px solid var(--border)",
-                }}
+                  border: "1px solid var(--border)" }}
               >
                 <div
                   style={{
                     fontWeight: 700,
                     fontSize: "var(--font-xs)",
-                    letterSpacing: "0.07em",
-                    textTransform: "uppercase",
-                    marginBottom: "0.5rem",
-                  }}
+
+
+                    marginBottom: "0.5rem" }}
                 >
                   Rate {isWinner ? "Seller" : "Buyer"}
                 </div>
@@ -1182,8 +1112,7 @@ export default function AuctionDetailPage() {
                         cursor: "pointer",
                         color: star <= ratingValue ? "var(--warning)" : "var(--border)",
                         padding: "0.1rem",
-                        transition: "color 0.1s",
-                      }}
+                        transition: "color 0.1s" }}
                     >
                       ★
                     </button>
@@ -1202,9 +1131,8 @@ export default function AuctionDetailPage() {
                   className="btn-primary"
                   style={{
                     width: "100%",
-                    borderRadius: 0,
-                    opacity: !ratingValue || ratingLoading ? 0.5 : 1,
-                  }}
+                    borderRadius: "var(--radius)",
+                    opacity: !ratingValue || ratingLoading ? 0.5 : 1 }}
                 >
                   {ratingLoading ? "Submitting..." : "Submit Rating"}
                 </button>
@@ -1220,10 +1148,7 @@ export default function AuctionDetailPage() {
                   color: "var(--success)",
                   fontSize: "var(--font-xs)",
                   fontWeight: 700,
-                  textAlign: "center",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                }}
+                  textAlign: "center" }}
               >
                 [SUBMITTED] Rating recorded
               </div>
@@ -1234,19 +1159,17 @@ export default function AuctionDetailPage() {
           {canBid && (auction.type === "ENGLISH" || auction.type === "DUTCH") && (
             <div
               style={{
-                border: "1.5px solid var(--border-hard)",
+                border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                 padding: "2rem",
-                background: "var(--surface)",
-              }}
+                background: "var(--surface)" }}
             >
               <div
                 style={{
                   fontWeight: 700,
                   fontSize: "var(--font-sm)",
-                  letterSpacing: "0.07em",
-                  textTransform: "uppercase",
-                  marginBottom: "0.5rem",
-                }}
+
+
+                  marginBottom: "0.5rem" }}
               >
                 {auction.type === "DUTCH" ? "Auto-Accept" : "Auto-Bid"}
               </div>
@@ -1255,8 +1178,7 @@ export default function AuctionDetailPage() {
                   fontSize: "var(--font-xs)",
                   color: "var(--muted)",
                   marginBottom: "0.85rem",
-                  lineHeight: 1.5,
-                }}
+                  lineHeight: 1.5 }}
               >
                 {auction.type === "DUTCH" 
                   ? "Set a target price — system automatically accepts when price drops to this amount."
@@ -1273,8 +1195,7 @@ export default function AuctionDetailPage() {
                       fontSize: "var(--font-sm)",
                       fontWeight: 600,
                       color: "var(--accent)",
-                      marginBottom: "0.65rem",
-                    }}
+                      marginBottom: "0.65rem" }}
                   >
                     Active {auction.type === "DUTCH" ? "at or below" : "up to"} ₹{autoBidData.maxAmount?.toLocaleString()}
                   </div>
@@ -1282,7 +1203,7 @@ export default function AuctionDetailPage() {
                     onClick={cancelAutoBid}
                     disabled={cancelLoading}
                     className="btn-danger"
-                    style={{ width: "100%", borderRadius: 0, opacity: cancelLoading ? 0.6 : 1, cursor: cancelLoading ? "not-allowed" : "pointer" }}
+                    style={{ width: "100%", borderRadius: "var(--radius)", opacity: cancelLoading ? 0.6 : 1, cursor: cancelLoading ? "not-allowed" : "pointer" }}
                   >
                     {cancelLoading ? "Cancelling..." : `Cancel Auto-${auction.type === "DUTCH" ? "Accept" : "Bid"}`}
                   </button>
@@ -1296,16 +1217,14 @@ export default function AuctionDetailPage() {
                     placeholder={auction.type === "DUTCH" ? "Target price ₹" : "Max amount ₹"}
                     style={{
                       flex: 1,
-                      border: "1.5px solid var(--border-hard)",
-                      borderRight: "none",
-                      borderRadius: 0,
-                    }}
+                      border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                      borderRight: "none" }}
                   />
                   <button
                     onClick={setAutoBid}
                     disabled={autoBidLoading}
                     className="btn-primary"
-                    style={{ borderRadius: 0, whiteSpace: "nowrap", opacity: autoBidLoading ? 0.6 : 1 }}
+                    style={{ borderRadius: "var(--radius)", whiteSpace: "nowrap", opacity: autoBidLoading ? 0.6 : 1 }}
                   >
                     {autoBidLoading ? "..." : "Set"}
                   </button>
@@ -1320,20 +1239,18 @@ export default function AuctionDetailPage() {
               padding: "2rem",
               flex: 1,
               background: "var(--surface)",
-              border: "1.5px solid var(--border-hard)",
-            }}
+              border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)" }}
           >
             <div
               style={{
-                fontWeight: 800,
+                fontWeight: 500,
                 fontSize: "var(--font-sm)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+
+
                 color: "var(--text)",
                 marginBottom: "1.5rem",
                 paddingBottom: "0.75rem",
-                borderBottom: "1.5px solid var(--border-hard)",
-              }}
+                borderBottom: "1px solid var(--border)" }}
             >
               Auction Details
             </div>
@@ -1349,8 +1266,7 @@ export default function AuctionDetailPage() {
                     `Each bid must be ≥ ₹${auction.minIncrement} above the current price`,
                     "If you get outbid you are notified instantly",
                     `Last ${auction.antiSnipingMins} min bids extend the timer`,
-                  ],
-                },
+                  ] },
                 DUTCH: {
                   icon: "[DUT]",
                   title: "Dutch Auction",
@@ -1359,8 +1275,7 @@ export default function AuctionDetailPage() {
                     "Price only goes DOWN over time — never up",
                     "Click 'Accept' to win at the displayed price",
                     "First to accept wins — no further bidding",
-                  ],
-                },
+                  ] },
                 SEALED_BID: {
                   icon: "[S/B]",
                   title: "Sealed-Bid Auction",
@@ -1369,9 +1284,7 @@ export default function AuctionDetailPage() {
                     "Bidder names are hidden until auction ends",
                     "You get one shot — choose wisely",
                     "Highest bid wins at the winning price",
-                  ],
-                },
-              };
+                  ] } };
               const info = typeInfo[auction.type];
               if (!info) return null;
               return (
@@ -1380,24 +1293,20 @@ export default function AuctionDetailPage() {
                     background: "var(--surface)",
                     border: "1px solid var(--border)",
                     padding: "1rem",
-                    marginBottom: "1rem",
-                  }}
+                    marginBottom: "1rem" }}
                 >
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: "0.5rem",
-                      marginBottom: "0.5rem",
-                    }}
+                      marginBottom: "0.5rem" }}
                   >
                     <span style={{ fontSize: "1.1rem" }}>{info.icon}</span>
                     <span
                       style={{
                         fontWeight: 700,
-                        fontSize: "var(--font-sm)",
-                        letterSpacing: "0.03em",
-                      }}
+                        fontSize: "var(--font-sm)" }}
                     >
                       {info.title}
                     </span>
@@ -1407,8 +1316,7 @@ export default function AuctionDetailPage() {
                       fontSize: "var(--font-xs)",
                       color: "var(--text-soft)",
                       lineHeight: 1.6,
-                      marginBottom: "0.75rem",
-                    }}
+                      marginBottom: "0.75rem" }}
                   >
                     {info.desc}
                   </p>
@@ -1422,16 +1330,14 @@ export default function AuctionDetailPage() {
                           paddingLeft: "0.9rem",
                           position: "relative",
                           marginBottom: "0.3rem",
-                          lineHeight: 1.5,
-                        }}
+                          lineHeight: 1.5 }}
                       >
                         <span
                           style={{
                             position: "absolute",
                             left: 0,
                             color: "var(--accent)",
-                            fontWeight: 700,
-                          }}
+                            fontWeight: 700 }}
                         >
                           ·
                         </span>
@@ -1448,25 +1354,20 @@ export default function AuctionDetailPage() {
               [
                 {
                   label: "Drop Step",
-                  value: auction.dutchPriceStep ? `₹${auction.dutchPriceStep?.toLocaleString()} per drop` : "—",
-                },
+                  value: auction.dutchPriceStep ? `₹${auction.dutchPriceStep?.toLocaleString()} per drop` : "—" },
                 {
                   label: "Drop Interval",
-                  value: auction.dutchInterval ? `${auction.dutchInterval}s` : "—",
-                },
+                  value: auction.dutchInterval ? `${auction.dutchInterval}s` : "—" },
                 {
                   label: "Auto-Accept At",
                   value: auction.autoAcceptAmount
                     ? `₹${auction.autoAcceptAmount?.toLocaleString()}`
-                    : "Not set (runs until accepted)",
-                },
+                    : "Not set (runs until accepted)" },
                 {
                   label: "Ends",
                   value: new Date(effectiveEndTime).toLocaleString([], {
                     dateStyle: "medium",
-                    timeStyle: "short",
-                  }),
-                },
+                    timeStyle: "short" }) },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -1474,8 +1375,7 @@ export default function AuctionDetailPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     marginBottom: "0.65rem",
-                    fontSize: "var(--font-sm)",
-                  }}
+                    fontSize: "var(--font-sm)" }}
                 >
                   <span style={{ color: "var(--muted)", fontWeight: 600 }}>{item.label}</span>
                   <span style={{ fontWeight: 600 }}>{item.value}</span>
@@ -1487,15 +1387,12 @@ export default function AuctionDetailPage() {
                   label: "Anti-Sniping",
                   value: auction.antiSnipingMins > 0
                     ? `${auction.antiSnipingMins}m extension on late bids`
-                    : "Disabled",
-                },
+                    : "Disabled" },
                 {
                   label: "Ends",
                   value: new Date(effectiveEndTime).toLocaleString([], {
                     dateStyle: "medium",
-                    timeStyle: "short",
-                  }),
-                },
+                    timeStyle: "short" }) },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -1503,8 +1400,7 @@ export default function AuctionDetailPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     marginBottom: "0.65rem",
-                    fontSize: "var(--font-sm)",
-                  }}
+                    fontSize: "var(--font-sm)" }}
                 >
                   <span style={{ color: "var(--muted)", fontWeight: 600 }}>{item.label}</span>
                   <span style={{ fontWeight: 600 }}>{item.value}</span>

@@ -36,8 +36,7 @@ export default function RegisterPage() {
       style={{
         minHeight: "calc(100vh - var(--navbar-h))",
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-      }}
+        gridTemplateColumns: "1fr 1fr" }}
     >
       {/* Left — Brand panel */}
       <div
@@ -47,8 +46,7 @@ export default function RegisterPage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "3.5rem",
-          borderRight: "1.5px solid var(--border-hard)",
-        }}
+          borderRight: "1px solid var(--border)" }}
       >
         <div>
           <div
@@ -56,25 +54,20 @@ export default function RegisterPage() {
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
-              marginBottom: "3rem",
-            }}
+              marginBottom: "3rem" }}
           >
             <span
               style={{
                 display: "inline-block",
                 width: 12,
                 height: 12,
-                background: "#c41e1e",
-              }}
+                background: "#c41e1e" }}
             />
             <span
               style={{
                 color: "#fff",
-                fontWeight: 900,
-                fontSize: "var(--font-base)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-              }}
+                fontWeight: 600,
+                fontSize: "var(--font-base)" }}
             >
               AuctionHaus
             </span>
@@ -83,12 +76,11 @@ export default function RegisterPage() {
           <h2
             style={{
               fontSize: "clamp(1.75rem, 3.5vw, 3rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.04em",
+              fontWeight: 600,
+
               lineHeight: 1,
               color: "#fff",
-              marginBottom: "1.5rem",
-            }}
+              marginBottom: "1.5rem" }}
           >
             Join the
             <br />
@@ -100,8 +92,7 @@ export default function RegisterPage() {
               fontSize: "var(--font-sm)",
               color: "#888",
               lineHeight: 1.65,
-              maxWidth: 300,
-            }}
+              maxWidth: 300 }}
           >
             Create an account to bid on live auctions, list your own items,
             and manage your wallet.
@@ -111,10 +102,7 @@ export default function RegisterPage() {
         <div
           style={{
             fontSize: "var(--font-xs)",
-            color: "#555",
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-          }}
+            color: "#555" }}
         >
           CSE Major Project · Real-Time Platform
         </div>
@@ -127,18 +115,16 @@ export default function RegisterPage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "3rem",
-          background: "var(--bg)",
-        }}
+          background: "var(--bg)" }}
       >
         <div style={{ width: "100%", maxWidth: 380 }}>
           <div style={{ marginBottom: "2rem" }}>
             <h1
               style={{
                 fontSize: "var(--font-xl)",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
-                marginBottom: "0.4rem",
-              }}
+                fontWeight: 600,
+
+                marginBottom: "0.4rem" }}
             >
               Create Account
             </h1>
@@ -149,8 +135,7 @@ export default function RegisterPage() {
                 style={{
                   color: "var(--accent)",
                   fontWeight: 700,
-                  textDecoration: "underline",
-                }}
+                  textDecoration: "underline" }}
               >
                 Sign in
               </Link>
@@ -166,8 +151,7 @@ export default function RegisterPage() {
                 color: "var(--accent)",
                 fontSize: "var(--font-sm)",
                 fontWeight: 600,
-                marginBottom: "1.25rem",
-              }}
+                marginBottom: "1.25rem" }}
             >
               {err}
             </div>
@@ -178,7 +162,7 @@ export default function RegisterPage() {
             style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}
           >
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
                 Full Name
               </label>
               <input
@@ -186,11 +170,11 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 placeholder="Alice Sharma"
-                style={{ borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
                 Email
               </label>
               <input
@@ -199,11 +183,11 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="alice@example.com"
-                style={{ borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
                 Password
               </label>
               <input
@@ -213,7 +197,7 @@ export default function RegisterPage() {
                 required
                 minLength={6}
                 placeholder="min. 6 characters"
-                style={{ borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
               />
             </div>
 
@@ -225,11 +209,10 @@ export default function RegisterPage() {
                 width: "100%",
                 padding: "1rem",
                 marginTop: "0.5rem",
-                borderRadius: 0,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                fontWeight: 800,
-              }}
+                borderRadius: "var(--radius)",
+
+
+                fontWeight: 500 }}
             >
               {loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT →"}
             </button>

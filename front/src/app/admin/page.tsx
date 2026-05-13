@@ -50,26 +50,22 @@ export default function AdminPage() {
     queryKey: ["admin-stats"],
     queryFn: () => api.get("/admin/dashboard").then((r) => r.data),
     enabled: !!user && user.role === "ADMIN",
-    refetchInterval: 30000,
-  });
+    refetchInterval: 30000 });
 
   const { data: usersData } = useQuery({
     queryKey: ["admin-users", userSearch],
     queryFn: () => api.get("/admin/users", { params: { search: userSearch || undefined, limit: 50 } }).then((r) => r.data.users),
-    enabled: !!user && user.role === "ADMIN",
-  });
+    enabled: !!user && user.role === "ADMIN" });
 
   const { data: adminAuctionsData } = useQuery({
     queryKey: ["admin-auctions"],
     queryFn: () => api.get("/admin/auctions", { params: { limit: 50 } }).then((r) => r.data.auctions),
-    enabled: !!user && user.role === "ADMIN",
-  });
+    enabled: !!user && user.role === "ADMIN" });
 
   const { data: fraudData } = useQuery({
     queryKey: ["fraud-flags"],
     queryFn: () => api.get("/admin/fraud-flags").then((r) => r.data.flags),
-    enabled: !!user && user.role === "ADMIN",
-  });
+    enabled: !!user && user.role === "ADMIN" });
 
   const toggleSuspend = async (userId: string, suspended: boolean) => {
     await api.put(`/admin/users/${userId}/suspend`, { suspend: !suspended });
@@ -104,36 +100,33 @@ export default function AdminPage() {
       <div
         style={{
           padding: "2.5rem 2rem",
-          border: "1.5px solid var(--border-hard)",
+          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
           borderBottom: "none",
           background: "var(--surface)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-end",
           flexWrap: "wrap",
-          gap: "1.5rem",
-        }}
+          gap: "1.5rem" }}
       >
         <div>
           <div
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--muted)",
-              marginBottom: "0.35rem",
-            }}
+              marginBottom: "0.35rem" }}
           >
             Administration
           </div>
           <h1
             style={{
               fontSize: "var(--font-2xl)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              lineHeight: 1,
-            }}
+              fontWeight: 600,
+
+              lineHeight: 1 }}
           >
             Admin Panel
           </h1>
@@ -144,8 +137,7 @@ export default function AdminPage() {
             color: "var(--muted)",
             display: "flex",
             alignItems: "center",
-            gap: "0.4rem",
-          }}
+            gap: "0.4rem" }}
         >
           <span className="live-dot" />
            Real-time updates active
@@ -158,9 +150,8 @@ export default function AdminPage() {
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${statItems.length}, 1fr)`,
-            border: "1.5px solid var(--border-hard)",
-            borderBottom: "none",
-          }}
+            border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+            borderBottom: "none" }}
         >
           {statItems.map((s, i) => (
             <div
@@ -168,29 +159,26 @@ export default function AdminPage() {
               style={{
                 padding: "2rem",
                 borderRight: i < statItems.length - 1 ? "1.5px solid var(--border-hard)" : undefined,
-                background: "var(--surface)",
-              }}
+                background: "var(--surface)" }}
             >
               <div
                 style={{
                   fontSize: "var(--font-xs)",
                   fontWeight: 700,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
+
+
                   color: "var(--muted)",
-                  marginBottom: "0.5rem",
-                }}
+                  marginBottom: "0.5rem" }}
               >
                 {s.label}
               </div>
               <div
                 style={{
                   fontSize: "2.2rem",
-                  fontWeight: 900,
-                  letterSpacing: "-0.04em",
+                  fontWeight: 600,
+
                   color: typeof s.color === "string" ? s.color : "var(--text)",
-                  lineHeight: 1,
-                }}
+                  lineHeight: 1 }}
               >
                 {s.value}
               </div>
@@ -203,10 +191,9 @@ export default function AdminPage() {
       <div
         style={{
           display: "flex",
-          border: "1.5px solid var(--border-hard)",
-          borderBottom: "1.5px solid var(--border-hard)",
-          background: "var(--surface-2)",
-        }}
+          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--surface-2)" }}
       >
         {(
           [
@@ -222,8 +209,8 @@ export default function AdminPage() {
               padding: "0.85rem 1.5rem",
               fontWeight: 700,
               fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
+
+
               background: "none",
               border: "none",
               borderBottom: activeTab === tab.key ? "2.5px solid var(--accent)" : "2.5px solid transparent",
@@ -232,8 +219,7 @@ export default function AdminPage() {
               transition: "color 0.15s",
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
-            }}
+              gap: "0.5rem" }}
           >
             {tab.label}
             {tab.count > 0 && (
@@ -242,9 +228,8 @@ export default function AdminPage() {
                   background: tab.key === "fraud" && tab.count > 0 ? "var(--accent)" : "var(--border-hard)",
                   color: "#fff",
                   fontSize: "var(--font-xs)",
-                  fontWeight: 900,
-                  padding: "0.1rem 0.4rem",
-                }}
+                  fontWeight: 600,
+                  padding: "0.1rem 0.4rem" }}
               >
                 {tab.count}
               </span>
@@ -257,17 +242,17 @@ export default function AdminPage() {
       {activeTab === "users" && (
         <div>
           {/* Search bar */}
-          <div style={{ padding: "1.5rem 2rem", background: "var(--surface)", border: "1.5px solid var(--border-hard)", borderTop: "none", borderBottom: "none" }}>
+          <div style={{ padding: "1.5rem 2rem", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", borderTop: "none", borderBottom: "none" }}>
             <input
               type="text"
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               placeholder="SEARCH USERS BY NAME OR EMAIL..."
-              style={{ width: "100%", maxWidth: 600, borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--bg)", fontWeight: 700 }}
+              style={{ width: "100%", maxWidth: 600, borderRadius: "var(--radius)", border: "1px solid var(--border)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--bg)", fontWeight: 700 }}
             />
           </div>
 
-          <div style={{ border: "1.5px solid var(--border-hard)", borderTop: "none" }}>
+          <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", borderTop: "none" }}>
           {/* Table header */}
           <div
             style={{
@@ -275,13 +260,12 @@ export default function AdminPage() {
               gridTemplateColumns: "1fr 1fr auto 120px",
               padding: "0.85rem 2rem",
               background: "var(--surface-2)",
-              borderBottom: "1.5px solid var(--border-hard)",
+              borderBottom: "1px solid var(--border)",
               fontSize: "var(--font-xs)",
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--muted)",
-            }}
+              fontWeight: 500,
+
+
+              color: "var(--muted)" }}
           >
             <span>Name</span>
             <span>Email</span>
@@ -297,10 +281,9 @@ export default function AdminPage() {
                 gridTemplateColumns: "1fr 1fr auto 120px",
                 alignItems: "center",
                 padding: "1.25rem 2rem",
-                borderBottom: "1.5px solid var(--border-hard)",
+                borderBottom: "1px solid var(--border)",
                 background: u.isSuspended ? "rgba(196,30,30,0.04)" : "var(--surface)",
-                fontSize: "var(--font-sm)",
-              }}
+                fontSize: "var(--font-sm)" }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Link
@@ -313,13 +296,10 @@ export default function AdminPage() {
                   <span
                     style={{
                       fontSize: "var(--font-xs)",
-                      fontWeight: 800,
+                      fontWeight: 500,
                       color: "var(--accent)",
                       border: "1px solid var(--accent)",
-                      padding: "0 0.3rem",
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                    }}
+                      padding: "0 0.3rem" }}
                   >
                     Suspended
                   </span>
@@ -330,12 +310,11 @@ export default function AdminPage() {
                 style={{
                   fontSize: "var(--font-xs)",
                   fontWeight: 700,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
+
+
                   color: u.role === "ADMIN" ? "var(--accent)" : "var(--muted)",
                   textAlign: "center",
-                  minWidth: 60,
-                }}
+                  minWidth: 60 }}
               >
                 {u.role}
               </span>
@@ -350,10 +329,7 @@ export default function AdminPage() {
                       background: "none",
                       color: u.isSuspended ? "var(--success)" : "var(--accent)",
                       cursor: "pointer",
-                      fontWeight: 800,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                    }}
+                      fontWeight: 500 }}
                   >
                     {u.isSuspended ? "Unsuspend" : "Suspend"}
                   </button>
@@ -363,7 +339,7 @@ export default function AdminPage() {
           ))}
 
           {(!usersData || usersData.length === 0) && (
-            <div style={{ padding: "2.5rem 2rem", color: "var(--muted)", fontSize: "var(--font-sm)", fontWeight: 700, textTransform: "uppercase" }}>
+            <div style={{ padding: "2.5rem 2rem", color: "var(--muted)", fontSize: "var(--font-sm)", fontWeight: 700 }}>
               [EMPTY] No users found.
             </div>
           )}
@@ -374,7 +350,7 @@ export default function AdminPage() {
       {/* Auctions Tab */}
       {activeTab === "auctions" && (
         <div>
-          <div style={{ border: "1.5px solid var(--border-hard)", borderTop: "none" }}>
+          <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", borderTop: "none" }}>
           {/* Table header */}
           <div
             style={{
@@ -382,13 +358,12 @@ export default function AdminPage() {
               gridTemplateColumns: "1fr 120px 100px 100px 180px",
               padding: "0.85rem 2rem",
               background: "var(--surface-2)",
-              borderBottom: "1.5px solid var(--border-hard)",
+              borderBottom: "1px solid var(--border)",
               fontSize: "var(--font-xs)",
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--muted)",
-            }}
+              fontWeight: 500,
+
+
+              color: "var(--muted)" }}
           >
             <span>Title</span>
             <span style={{ textAlign: "right" }}>Price</span>
@@ -409,10 +384,9 @@ export default function AdminPage() {
                   gridTemplateColumns: "1fr 120px 100px 100px 180px",
                   alignItems: "center",
                   padding: "1.25rem 2rem",
-                  borderBottom: "1.5px solid var(--border-hard)",
+                  borderBottom: "1px solid var(--border)",
                   background: "var(--surface)",
-                  fontSize: "var(--font-sm)",
-                }}
+                  fontSize: "var(--font-sm)" }}
               >
                 <Link
                   href={`/auctions/${a.id}`}
@@ -421,8 +395,7 @@ export default function AdminPage() {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
-                    color: "var(--text)",
-                  }}
+                    color: "var(--text)" }}
                 >
                   {a.title}
                 </Link>
@@ -431,8 +404,7 @@ export default function AdminPage() {
                     fontWeight: 700,
                     color: "var(--accent)",
                     textAlign: "right",
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                    fontVariantNumeric: "tabular-nums" }}
                 >
                   ₹{a.currentPrice?.toLocaleString()}
                 </span>
@@ -440,11 +412,10 @@ export default function AdminPage() {
                   style={{
                     fontSize: "var(--font-xs)",
                     fontWeight: 700,
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
+
+
                     color: "var(--muted)",
-                    textAlign: "center",
-                  }}
+                    textAlign: "center" }}
                 >
                   {typeLabel[a.type] ?? a.type}
                 </span>
@@ -452,11 +423,10 @@ export default function AdminPage() {
                   style={{
                     fontSize: "var(--font-xs)",
                     fontWeight: 700,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
+
+
                     color: isActive ? "var(--success)" : isPending ? "var(--warning)" : "var(--muted)",
-                    textAlign: "center",
-                  }}
+                    textAlign: "center" }}
                 >
                   {a.status}
                 </span>
@@ -471,10 +441,7 @@ export default function AdminPage() {
                         background: "none",
                         color: "var(--accent)",
                         cursor: "pointer",
-                        fontWeight: 800,
-                        letterSpacing: "0.05em",
-                        textTransform: "uppercase",
-                      }}
+                        fontWeight: 500 }}
                     >
                       Cancel
                     </button>
@@ -489,10 +456,7 @@ export default function AdminPage() {
                         background: "none",
                         color: "var(--success)",
                         cursor: "pointer",
-                        fontWeight: 800,
-                        letterSpacing: "0.05em",
-                        textTransform: "uppercase",
-                      }}
+                        fontWeight: 500 }}
                     >
                       Activate
                     </button>
@@ -506,7 +470,7 @@ export default function AdminPage() {
           })}
 
           {(!adminAuctionsData || adminAuctionsData.length === 0) && (
-            <div style={{ padding: "2.5rem 2rem", color: "var(--muted)", fontSize: "var(--font-sm)", fontWeight: 700, textTransform: "uppercase" }}>
+            <div style={{ padding: "2.5rem 2rem", color: "var(--muted)", fontSize: "var(--font-sm)", fontWeight: 700 }}>
               [EMPTY] No auctions found.
             </div>
           )}
@@ -518,18 +482,15 @@ export default function AdminPage() {
       {activeTab === "fraud" && (
         <div>
           {fraudData && fraudData.length > 0 ? (
-            <div style={{ border: "1.5px solid var(--border-hard)", borderTop: "none" }}>
+            <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", borderTop: "none" }}>
               <div
                 style={{
                   padding: "0.85rem 2rem",
                   background: "rgba(196,30,30,0.05)",
-                  borderBottom: "1.5px solid var(--border-hard)",
+                  borderBottom: "1px solid var(--border)",
                   fontSize: "var(--font-xs)",
                   color: "var(--accent)",
-                  fontWeight: 800,
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                }}
+                  fontWeight: 500 }}
               >
                 {fraudCount} flagged {fraudCount === 1 ? "user" : "users"} detected
               </div>
@@ -546,9 +507,8 @@ export default function AdminPage() {
                       gridTemplateColumns: "1fr auto",
                       alignItems: "center",
                       padding: "1.25rem 2rem",
-                      borderBottom: "1.5px solid var(--border-hard)",
-                      background: "var(--surface)",
-                    }}
+                      borderBottom: "1px solid var(--border)",
+                      background: "var(--surface)" }}
                   >
                     <div>
                       <div style={{ fontWeight: 600, fontSize: "var(--font-sm)" }}>
@@ -558,8 +518,7 @@ export default function AdminPage() {
                         style={{
                           fontSize: "var(--font-xs)",
                           color: "var(--muted)",
-                          marginTop: "0.1rem",
-                        }}
+                          marginTop: "0.1rem" }}
                       >
                         {f.bidder?.email}
                       </div>
@@ -567,21 +526,19 @@ export default function AdminPage() {
                     <div
                       style={{
                         color: "var(--accent)",
-                        fontWeight: 800,
+                        fontWeight: 500,
                         fontSize: "var(--font-sm)",
                         display: "flex",
                         alignItems: "center",
-                        gap: "0.4rem",
-                      }}
+                        gap: "0.4rem" }}
                     >
                       <span
                         style={{
                           background: "var(--accent)",
                           color: "#fff",
                           fontSize: "var(--font-xs)",
-                          fontWeight: 900,
-                          padding: "0.15rem 0.45rem",
-                        }}
+                          fontWeight: 600,
+                          padding: "0.15rem 0.45rem" }}
                       >
                         {f._count?.id}
                       </span>
@@ -598,19 +555,18 @@ export default function AdminPage() {
                 textAlign: "center",
                 color: "var(--muted)",
                 background: "var(--surface)",
-                border: "1.5px solid var(--border-hard)",
+                border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                 borderTop: "none"
               }}
             >
               <div
                 style={{
                   fontSize: "var(--font-sm)",
-                  fontWeight: 800,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
+                  fontWeight: 500,
+
+
                   marginBottom: "0.3rem",
-                  color: "var(--success)",
-                }}
+                  color: "var(--success)" }}
               >
                 [CLEAR] No fraud flags detected
               </div>

@@ -59,5 +59,4 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/register",
-  ],
-};
+  ] };
