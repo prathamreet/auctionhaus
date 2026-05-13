@@ -5,10 +5,13 @@ on:
     branches: [ "main" ]
     paths:
       - 'back/**'
+      - 'package.json'
+      - 'package-lock.json'
   pull_request:
-    branches: [ "main" ]
     paths:
       - 'back/**'
+      - 'package.json'
+      - 'package-lock.json'
 
 jobs:
   test-and-build:
