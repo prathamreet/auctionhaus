@@ -141,15 +141,24 @@ async function endAuction(auctionId: string) {
         await prisma.bid.updateMany({ where: { id: { in: loserIds } }, data: { status: 'LOST' } });
 
         // Refund losers (release held amounts)
+        // Aggregate refunds by user to prevent N+1 query and multiple updates per user
+        const refunds: Record<string, number> = {};
         for (const loser of allBids.slice(1)) {
-          await prisma.wallet.update({
-            where: { userId: loser.bidderId },
-            data: {
-              balance: { increment: loser.amount },
-              heldAmount: { decrement: loser.amount },
-            },
-          });
+          refunds[loser.bidderId] = (refunds[loser.bidderId] || 0) + loser.amount;
         }
+
+        const refundUpdates = Object.entries(refunds).map(([userId, amount]) =>
+          prisma.wallet.update({
+            where: { userId },
+            data: {
+              balance: { increment: amount },
+              heldAmount: { decrement: amount },
+            },
+          })
+        );
+
+        // Execute batch updates atomically
+        await prisma.$transaction(refundUpdates);
       }
     }
   }
