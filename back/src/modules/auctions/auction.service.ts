@@ -159,22 +159,31 @@ export const cancelAuction = async (auctionId: string, userId: string, isAdmin =
     include: { bidder: { include: { wallet: true } } },
   });
 
+  const walletUpdates = [];
   for (const bid of topBids) {
     if (bid.bidder.wallet) {
-      await prisma.wallet.update({
-        where: { id: bid.bidder.wallet.id },
-        data: {
-          balance: { increment: bid.amount },
-          heldAmount: { decrement: bid.amount },
-        },
-      });
+      walletUpdates.push(
+        prisma.wallet.update({
+          where: { id: bid.bidder.wallet.id },
+          data: {
+            balance: { increment: bid.amount },
+            heldAmount: { decrement: bid.amount },
+          },
+        })
+      );
     }
   }
 
-  return prisma.auction.update({
-    where: { id: auctionId },
-    data: { status: AuctionStatus.CANCELLED },
-  });
+  // Execute all updates and the auction status update in a single transaction
+  const [auctionResult] = await prisma.$transaction([
+    prisma.auction.update({
+      where: { id: auctionId },
+      data: { status: AuctionStatus.CANCELLED },
+    }),
+    ...walletUpdates
+  ]);
+
+  return auctionResult;
 };
 
 export const buyNow = async (auctionId: string, buyerId: string) => {
