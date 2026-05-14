@@ -41,8 +41,7 @@ export default function DashboardPage() {
     queryKey: ["my-auctions"],
     queryFn: () => api.get("/users/me/auctions").then((r) => r.data.auctions ?? []).catch(() => []),
     enabled: !!user,
-    refetchInterval: 60000,
-  });
+    refetchInterval: 60000 });
 
   const { data: wonData } = useQuery({
     queryKey: ["my-won"],
@@ -79,30 +78,27 @@ export default function DashboardPage() {
           justifyContent: "space-between",
           alignItems: "flex-end",
           flexWrap: "wrap",
-          gap: "0.75rem",
-        }}
+          gap: "0.75rem" }}
       >
         <div>
           <div
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--muted)",
-              marginBottom: "0.35rem",
-            }}
+              marginBottom: "0.35rem" }}
           >
             Signed in as
           </div>
           <h1
             style={{
               fontSize: "var(--font-2xl)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
+              fontWeight: 600,
+
               color: "var(--text)",
-              lineHeight: 1,
-            }}
+              lineHeight: 1 }}
           >
             {user.name}
           </h1>
@@ -110,8 +106,7 @@ export default function DashboardPage() {
             style={{
               fontSize: "var(--font-sm)",
               color: "var(--muted)",
-              marginTop: "0.3rem",
-            }}
+              marginTop: "0.3rem" }}
           >
             {user.email}
           </div>
@@ -123,14 +118,13 @@ export default function DashboardPage() {
             style={{
               background: "transparent",
               color: "var(--text)",
-              border: "1.5px solid var(--border-hard)",
+              border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
               padding: "0.6rem 1.25rem",
               fontWeight: 700,
               fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-              display: "inline-block",
-            }}
+
+
+              display: "inline-block" }}
           >
             Profile
           </Link>
@@ -142,10 +136,9 @@ export default function DashboardPage() {
               padding: "0.6rem 1.5rem",
               fontWeight: 700,
               fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-              display: "inline-block",
-            }}
+
+
+              display: "inline-block" }}
           >
             + New Listing
           </Link>
@@ -158,38 +151,34 @@ export default function DashboardPage() {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
           gap: "1.5rem",
-          padding: "0 0 2rem",
-        }}
+          padding: "0 0 2rem" }}
       >
         {stats.map((s) => (
           <div
             key={s.label}
             style={{
               padding: "2rem",
-              border: "1.5px solid var(--border-hard)",
-              background: "var(--surface)",
-            }}
+              border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+              background: "var(--surface)" }}
           >
             <div
               style={{
                 fontSize: "var(--font-xs)",
                 fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
+
+
                 color: "var(--muted)",
-                marginBottom: "0.6rem",
-              }}
+                marginBottom: "0.6rem" }}
             >
               {s.label}
             </div>
             <div
               style={{
                 fontSize: "2.75rem",
-                fontWeight: 900,
-                letterSpacing: "-0.05em",
+                fontWeight: 600,
+
                 color: s.color,
-                lineHeight: 1,
-              }}
+                lineHeight: 1 }}
             >
               {s.value}
             </div>
@@ -228,7 +217,7 @@ export default function DashboardPage() {
           />
 
           {wonBids.length > 0 && (
-            <div style={{ padding: "1rem 2rem", background: "var(--surface-2)", border: "1.5px solid var(--border-hard)", fontSize: "var(--font-xs)", color: "var(--text)", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <div style={{ padding: "1rem 2rem", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", fontSize: "var(--font-xs)", color: "var(--text)", fontWeight: 700 }}>
               {wonBids.length} bid{wonBids.length !== 1 ? "s" : ""} marked as WON (payment auto-settled)
             </div>
           )}
@@ -260,8 +249,7 @@ function DashSection<T extends { id: string }>({
   count,
   allItems,
   emptyMsg,
-  renderRow,
-}: {
+  renderRow }: {
   title: string;
   count: number;
   allItems: T[];
@@ -273,7 +261,7 @@ function DashSection<T extends { id: string }>({
   const hasMore = allItems.length > PREVIEW;
 
   return (
-    <div style={{ border: "1.5px solid var(--border-hard)", background: "var(--surface)" }}>
+    <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface)" }}>
       {/* Section header */}
       <div
         style={{
@@ -282,17 +270,13 @@ function DashSection<T extends { id: string }>({
           justifyContent: "space-between",
           alignItems: "center",
           background: "var(--surface-2)",
-          borderBottom: "1.5px solid var(--border-hard)",
-        }}
+          borderBottom: "1px solid var(--border)" }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <span
             style={{
               fontWeight: 700,
-              fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-            }}
+              fontSize: "var(--font-sm)" }}
           >
             {title}
           </span>
@@ -302,9 +286,7 @@ function DashSection<T extends { id: string }>({
               color: "#fff",
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              padding: "0.1rem 0.45rem",
-              letterSpacing: "0.05em",
-            }}
+              padding: "0.1rem 0.45rem" }}
           >
             {count}
           </span>
@@ -319,11 +301,10 @@ function DashSection<T extends { id: string }>({
               fontSize: "var(--font-xs)",
               color: "var(--accent)",
               fontWeight: 700,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
+
+
               cursor: "pointer",
-              padding: 0,
-            }}
+              padding: 0 }}
           >
             {expanded ? "SHOW LESS" : `VIEW ALL ${count}`}
           </button>
@@ -340,10 +321,9 @@ function DashSection<T extends { id: string }>({
           borderBottom: "1px solid var(--border)",
           fontSize: "var(--font-xs)",
           fontWeight: 700,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--muted)",
-        }}
+
+
+          color: "var(--muted)" }}
       >
         <span>Title</span>
         <span style={{ minWidth: 120, textAlign: "right" }}>Date</span>
@@ -366,9 +346,7 @@ function DashSection<T extends { id: string }>({
             color: "var(--muted)",
             background: "var(--surface-2)",
             borderTop: "1px solid var(--border)",
-            textAlign: "center",
-            letterSpacing: "0.04em",
-          }}
+            textAlign: "center" }}
         >
           + {allItems.length - PREVIEW} more —{" "}
           <button
@@ -380,9 +358,8 @@ function DashSection<T extends { id: string }>({
               fontWeight: 700,
               cursor: "pointer",
               fontSize: "inherit",
-              letterSpacing: "inherit",
-              padding: 0,
-            }}
+
+              padding: 0 }}
           >
             View all
           </button>
@@ -399,8 +376,7 @@ function EmptyRow({ message }: { message: string }) {
         padding: "1.5rem 2rem",
         fontSize: "var(--font-sm)",
         color: "var(--muted)",
-        background: "var(--surface)",
-      }}
+        background: "var(--surface)" }}
     >
       {message}
     </div>
@@ -408,8 +384,7 @@ function EmptyRow({ message }: { message: string }) {
 }
 
 function BidRow({
-  bid,
-}: {
+  bid }: {
   bid: {
     id: string;
     amount: number;
@@ -434,19 +409,17 @@ function BidRow({
         background: displayStatus === "WON" ? "var(--surface-2)" : "var(--surface)",
         transition: "background 0.1s",
         alignItems: "center",
-        gap: "1rem",
-      }}
+        gap: "1rem" }}
     >
       <span
         style={{
           overflow: "hidden",
           textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
+          whiteSpace: "nowrap" }}
       >
         {bid.auction?.title}
         {displayStatus === "WON" && (
-          <span style={{ marginLeft: "0.5rem", fontSize: "0.65rem", fontWeight: 800, color: "var(--text)", border: "1px solid var(--border-hard)", padding: "0.1rem 0.3rem" }}>WON</span>
+          <span style={{ marginLeft: "0.5rem", fontSize: "0.65rem", fontWeight: 500, color: "var(--text)", border: "1px solid var(--border-hard)", padding: "0.1rem 0.3rem" }}>WON</span>
         )}
       </span>
       <span
@@ -455,8 +428,7 @@ function BidRow({
           color: "var(--muted)",
           minWidth: 120,
           textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-        }}
+          fontVariantNumeric: "tabular-nums" }}
       >
         {bid.createdAt ? new Date(bid.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "—"}
       </span>
@@ -466,8 +438,7 @@ function BidRow({
           color: "var(--accent)",
           minWidth: 80,
           textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-        }}
+          fontVariantNumeric: "tabular-nums" }}
       >
         ₹{bid.amount?.toLocaleString()}
       </span>
@@ -476,11 +447,10 @@ function BidRow({
           fontSize: "var(--font-xs)",
           color: isWon ? "var(--success)" : "var(--muted)",
           fontWeight: 700,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
+
+
           minWidth: 80,
-          textAlign: "right",
-        }}
+          textAlign: "right" }}
       >
         {displayStatus}
       </span>
@@ -490,8 +460,7 @@ function BidRow({
 
 function AuctionRow({
   auction,
-  forceStatus,
-}: {
+  forceStatus }: {
   auction: {
     id: string;
     title: string;
@@ -531,17 +500,15 @@ function AuctionRow({
         background: displayStatus === "WON" ? "var(--surface-2)" : "var(--surface)",
         transition: "background 0.1s",
         alignItems: "center",
-        gap: "1rem",
-      }}
+        gap: "1rem" }}
     >
       <span
         style={{
           overflow: "hidden",
           textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
+          whiteSpace: "nowrap" }}
       >
-        {displayStatus === "WON" && <span style={{ marginRight: "0.5rem", fontSize: "0.65rem", fontWeight: 800, color: "var(--text)", border: "1px solid var(--border-hard)", padding: "0.1rem 0.3rem" }}>WON</span>}
+        {displayStatus === "WON" && <span style={{ marginRight: "0.5rem", fontSize: "0.65rem", fontWeight: 500, color: "var(--text)", border: "1px solid var(--border-hard)", padding: "0.1rem 0.3rem" }}>WON</span>}
         {auction.title}
       </span>
       <span
@@ -550,8 +517,7 @@ function AuctionRow({
           color: "var(--muted)",
           minWidth: 120,
           textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-        }}
+          fontVariantNumeric: "tabular-nums" }}
       >
         {auction.endTime ? new Date(auction.endTime).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "—"}
       </span>
@@ -561,8 +527,7 @@ function AuctionRow({
           color: "var(--text)",
           minWidth: 80,
           textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-        }}
+          fontVariantNumeric: "tabular-nums" }}
       >
         ₹{auction.currentPrice?.toLocaleString()}
       </span>
@@ -571,11 +536,10 @@ function AuctionRow({
           fontSize: "var(--font-xs)",
           color: statusColor,
           fontWeight: 700,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
+
+
           minWidth: 80,
-          textAlign: "right",
-        }}
+          textAlign: "right" }}
       >
         {displayStatus}
       </span>

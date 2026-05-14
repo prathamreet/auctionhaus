@@ -92,8 +92,7 @@ export default function CreateAuctionPage() {
     startTime: "",
     endTime: "",
     dutchPriceStep: "",
-    dutchInterval: "",
-  });
+    dutchInterval: "" });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [globalError, setGlobalError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -144,8 +143,7 @@ export default function CreateAuctionPage() {
         type: form.type,
         startingPrice: parseFloat(form.startingPrice),
         reservePrice: parseFloat(form.reservePrice) || undefined,
-        startTime: toISO(form.startTime) ?? new Date().toISOString(),
-      };
+        startTime: toISO(form.startTime) ?? new Date().toISOString() };
       if (form.type !== "DUTCH") {
         body.endTime = toISO(form.endTime);
         body.minIncrement = parseFloat(form.minIncrement);
@@ -179,7 +177,7 @@ export default function CreateAuctionPage() {
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "4rem 4vw" }}>
-      <h1 style={{ fontWeight: 900, fontSize: "2rem", letterSpacing: "-0.03em", marginBottom: "0.5rem", textTransform: "uppercase" }}>
+      <h1 style={{ fontWeight: 600, fontSize: "2rem",  marginBottom: "0.5rem" }}>
         Create Auction
       </h1>
       <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginBottom: "2rem" }}>
@@ -189,7 +187,7 @@ export default function CreateAuctionPage() {
       {/* Global error banner */}
       {(globalError || hasErrors) && (
         <div style={bannerStyle}>
-          <span style={{ fontWeight: 800 }}>WARNING:</span>
+          <span style={{ fontWeight: 500 }}>WARNING:</span>
           <span>{globalError || "Please fix the highlighted fields below."}</span>
         </div>
       )}
@@ -311,7 +309,7 @@ export default function CreateAuctionPage() {
                 const s = totalSecs % 60;
                 const durText = h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`;
                 return (
-                  <div style={{ fontSize: "0.78rem", color: "var(--text)", fontWeight: 600, marginTop: "-0.75rem", padding: "1rem", border: "1.5px solid var(--border-hard)", borderRadius: 0, background: "var(--surface-2)" }}>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text)", fontWeight: 600, marginTop: "-0.75rem", padding: "1rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface-2)" }}>
                     INFO: Auction will last approximately <strong>{durText}</strong> ({drops} drops × {interval}s)
                     — end time is auto-computed.
                   </div>
@@ -372,8 +370,7 @@ function Field({
   label,
   hint,
   error,
-  children,
-}: {
+  children }: {
   label: string;
   hint?: string;
   error?: string;
@@ -399,22 +396,20 @@ function Field({
 const gridTwo: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
-  gap: "1rem",
-};
+  gap: "1rem" };
 
 const inputStyle = (hasError: boolean): React.CSSProperties => ({
   width: "100%",
   boxSizing: "border-box",
   border: hasError ? "1.5px solid #ef4444" : "1.5px solid var(--border-hard)",
-  borderRadius: 0,
+  borderRadius: "var(--radius)",
   padding: "0.85rem 1rem",
   fontSize: "0.95rem",
   fontWeight: 500,
   background: "var(--surface)",
   color: "var(--text)",
   outline: "none",
-  transition: "border-color 0.15s",
-});
+  transition: "border-color 0.15s" });
 
 const bannerStyle: React.CSSProperties = {
   display: "flex",
@@ -423,13 +418,12 @@ const bannerStyle: React.CSSProperties = {
   background: "var(--surface)",
   border: "1.5px solid #ef4444",
   color: "#ef4444",
-  borderRadius: 0,
+  borderRadius: "var(--radius)",
   padding: "1rem",
   fontSize: "0.85rem",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  marginBottom: "1rem",
-};
+
+
+  marginBottom: "1rem" };
 
 const fieldErrStyle: React.CSSProperties = {
   marginTop: "0.5rem",
@@ -438,22 +432,18 @@ const fieldErrStyle: React.CSSProperties = {
   color: "#ef4444",
   display: "flex",
   alignItems: "center",
-  gap: "0.25rem",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-};
+  gap: "0.25rem" };
 
 const submitStyle = (loading: boolean): React.CSSProperties => ({
   background: "var(--text)",
   color: "var(--bg)",
   border: "1.5px solid var(--text)",
-  borderRadius: 0,
+  borderRadius: "var(--radius)",
   padding: "1rem",
-  fontWeight: 800,
+  fontWeight: 500,
   fontSize: "0.95rem",
-  letterSpacing: "0.05em",
+
   cursor: loading ? "not-allowed" : "pointer",
   marginTop: "1rem",
   transition: "opacity 0.2s",
-  opacity: loading ? 0.5 : 1,
-});
+  opacity: loading ? 0.5 : 1 });

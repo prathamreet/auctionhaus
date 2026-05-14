@@ -1,21 +1,21 @@
 :root {
-  /* Swiss International Palette — Paper & Ink */
-  --bg: #f5f4f0;
+  /* Modern Premium Auction Palette */
+  --bg: #f9fafb;
   --surface: #ffffff;
-  --surface-2: #eeeeec;
-  --border: #d2d2d0;
-  --border-hard: #000000;
-  --accent: #e12d2d;
-  --accent-dark: #b82525;
-  --accent-hover: #ff3a3a;
-  --text: #000000;
-  --text-soft: #3c3c3b;
-  --muted: #8c8c8a;
-  --success: #1a7f3c;
-  --danger: #e12d2d;
+  --surface-2: #f3f4f6;
+  --border: #e5e7eb;
+  --border-hard: #d1d5db;
+  --accent: #3b82f6;
+  --accent-dark: #2563eb;
+  --accent-hover: #60a5fa;
+  --text: #111827;
+  --text-soft: #4b5563;
+  --muted: #9ca3af;
+  --success: #10b981;
+  --danger: #ef4444;
   --warning: #f59e0b;
-  --dutch: #1a6fa8;
-  --sealed: #6c3483;
+  --dutch: #0284c7;
+  --sealed: #7c3aed;
 
   /* Systematic Typography Scale (Modular) */
   --font-xs: 11px;
@@ -28,7 +28,7 @@
   --font-3xl: 64px;
 
   /* Geometry & Spacing */
-  --radius: 0px;
+  --radius: 8px;
   --navbar-h: 60px;
   --pad: 2rem;
 }
@@ -70,7 +70,8 @@ input, textarea, select {
 }
 input:focus, textarea:focus, select:focus {
   background: var(--surface);
-  box-shadow: 4px 4px 0px var(--border-hard);
+  box-shadow: 0 0 0 2px var(--accent-hover);
+  border-color: var(--accent);
 }
 select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23000' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
@@ -81,10 +82,8 @@ select {
 
 label {
   font-size: var(--font-xs);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   display: block;
   margin-bottom: 0.5rem;
 }
@@ -98,39 +97,39 @@ button {
 
 /* ── Components ── */
 .btn-primary {
-  background: var(--border-hard);
+  background: var(--accent);
   color: var(--surface);
-  border: 1px solid var(--border-hard);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
   padding: 1rem 2rem;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .btn-primary:disabled { background: var(--border); border-color: var(--border); cursor: not-allowed; }
 
 .btn-ghost {
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--border-hard);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 1rem 2rem;
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.btn-ghost:hover { background: var(--border-hard); color: var(--surface); }
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--border-hard); }
 
 .badge {
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border: 1px solid currentColor;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  background-color: var(--surface-2);
+  border-radius: 4px;
 }
 .badge-english { color: var(--accent); }
 .badge-dutch    { color: var(--dutch); }
@@ -140,13 +139,14 @@ button {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--border-hard);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: var(--radius);
 }
 
 .price-tag {
   font-size: var(--font-3xl);
-  font-weight: 900;
-  letter-spacing: -0.06em;
+  font-weight: 700;
   color: var(--text);
   line-height: 0.9;
   font-variant-numeric: tabular-nums;
@@ -154,16 +154,13 @@ button {
 
 .price-label {
   font-size: var(--font-xs);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .timer-display {
   font-size: var(--font-xl);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--text);
 }
@@ -172,11 +169,11 @@ button {
 /* ── Layout Utilities ── */
 .section-rule {
   border: none;
-  border-top: 1px solid var(--border-hard);
+  border-top: 1px solid var(--border);
 }
 
 .text-muted { color: var(--muted); }
-.uppercase { text-transform: uppercase; letter-spacing: 0.12em; }
+.uppercase { text-transform: uppercase; }
 .mono { font-family: "JetBrains Mono", "Courier New", monospace; font-variant-numeric: tabular-nums; }
 
 /* ── Live Indicator (Static/Modern) ── */

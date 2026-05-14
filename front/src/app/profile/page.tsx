@@ -54,8 +54,7 @@ export default function ProfilePage() {
         .get("/users/me/won")
         .then((r) => r.data.auctions ?? [])
         .catch(() => []),
-    enabled: !!user,
-  });
+    enabled: !!user });
 
   // Fetch wallet transactions to check payment history
   const { data: txData } = useQuery({
@@ -65,8 +64,7 @@ export default function ProfilePage() {
         .get("/wallet/transactions?limit=50")
         .then((r) => r.data.transactions ?? [])
         .catch(() => []),
-    enabled: !!user,
-  });
+    enabled: !!user });
 
   const update = async () => {
     if (!name.trim()) return setErr("Name cannot be empty");
@@ -103,8 +101,7 @@ export default function ProfilePage() {
   const typeLabel: Record<string, string> = {
     ENGLISH: "English",
     DUTCH: "Dutch",
-    SEALED_BID: "Sealed Bid",
-  };
+    SEALED_BID: "Sealed Bid" };
 
   // For each won auction, check if payment was auto-settled
   const settledAuctionIds = new Set(
@@ -120,13 +117,11 @@ export default function ProfilePage() {
       <div
         style={{
           padding: "2.5rem 2rem",
-          border: "1.5px solid var(--border-hard)",
           borderBottom: "none",
           background: "var(--surface)",
           display: "flex",
           alignItems: "center",
-          gap: "1.25rem",
-        }}
+          gap: "1.25rem" }}
       >
         {/* Avatar */}
         <div
@@ -137,12 +132,10 @@ export default function ProfilePage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontWeight: 900,
+            fontWeight: 600,
             fontSize: "1.2rem",
             color: "#fff",
-            flexShrink: 0,
-            letterSpacing: "-0.02em",
-          }}
+            flexShrink: 0 }}
         >
           {initials}
         </div>
@@ -152,22 +145,20 @@ export default function ProfilePage() {
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--muted)",
-              marginBottom: "0.25rem",
-            }}
+              marginBottom: "0.25rem" }}
           >
             Account Settings
           </div>
           <h1
             style={{
               fontSize: "var(--font-xl)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
+              fontWeight: 600,
+
               lineHeight: 1,
-              marginBottom: "0.3rem",
-            }}
+              marginBottom: "0.3rem" }}
           >
             {user.name}
           </h1>
@@ -178,20 +169,18 @@ export default function ProfilePage() {
               display: "flex",
               gap: "0.75rem",
               alignItems: "center",
-              flexWrap: "wrap",
-            }}
+              flexWrap: "wrap" }}
           >
             <span>{user.email}</span>
             <span
               style={{
                 fontSize: "var(--font-xs)",
                 fontWeight: 700,
-                letterSpacing: "0.07em",
-                textTransform: "uppercase",
+
+
                 color: "var(--accent)",
                 border: "1px solid var(--accent)",
-                padding: "0.1rem 0.45rem",
-              }}
+                padding: "0.1rem 0.45rem" }}
             >
               {user.role}
             </span>
@@ -200,8 +189,7 @@ export default function ProfilePage() {
                 style={{
                   fontSize: "var(--font-xs)",
                   color: "var(--success)",
-                  fontWeight: 700,
-                }}
+                  fontWeight: 700 }}
               >
                 {wonAuctions.length} won
               </span>
@@ -214,11 +202,10 @@ export default function ProfilePage() {
             href="/dashboard"
             style={{
               fontSize: "var(--font-xs)",
-              fontWeight: 800,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
+              fontWeight: 500,
+
+
               color: "var(--muted)",
-              border: "1.5px solid var(--border-hard)",
               padding: "0.5rem 0.75rem",
               flexShrink: 0,
               textDecoration: "none"
@@ -233,15 +220,14 @@ export default function ProfilePage() {
             }}
             style={{
               fontSize: "var(--font-xs)",
-              fontWeight: 800,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
+              fontWeight: 500,
+
+
               color: "var(--accent)",
               background: "none",
               border: "1.5px solid var(--accent)",
               padding: "0.5rem 0.75rem",
-              cursor: "pointer",
-            }}
+              cursor: "pointer" }}
           >
             LOGOUT
           </button>
@@ -251,20 +237,15 @@ export default function ProfilePage() {
       {/* ── Edit Name ── */}
       <div
         style={{
-          border: "1.5px solid var(--border-hard)",
-          borderBottom: "none",
-        }}
+          borderBottom: "none" }}
       >
         <div
           style={{
             padding: "0.85rem 2rem",
             background: "var(--surface-2)",
-            borderBottom: "1.5px solid var(--border-hard)",
-            fontWeight: 800,
-            fontSize: "var(--font-xs)",
-            letterSpacing: "0.07em",
-            textTransform: "uppercase",
-          }}
+            borderBottom: "1px solid var(--border)",
+            fontWeight: 500,
+            fontSize: "var(--font-xs)" }}
         >
           Edit Profile
         </div>
@@ -278,11 +259,10 @@ export default function ProfilePage() {
                 border: "1.5px solid var(--accent)",
                 color: "var(--accent)",
                 fontSize: "var(--font-sm)",
-                fontWeight: 800,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                marginBottom: "1.5rem",
-              }}
+                fontWeight: 500,
+
+
+                marginBottom: "1.5rem" }}
             >
               {err}
             </div>
@@ -295,11 +275,10 @@ export default function ProfilePage() {
                 border: "1.5px solid var(--success)",
                 color: "var(--success)",
                 fontSize: "var(--font-sm)",
-                fontWeight: 800,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                marginBottom: "1.5rem",
-              }}
+                fontWeight: 500,
+
+
+                marginBottom: "1.5rem" }}
             >
               {msg}
             </div>
@@ -307,14 +286,13 @@ export default function ProfilePage() {
 
           <div style={{ display: "flex", gap: "1rem", maxWidth: 460 }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
                 Display Name
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && update()}
-                style={{ width: "100%", borderRadius: 0, border: "1.5px solid var(--border-hard)", padding: "0.85rem 1rem", background: "var(--bg)" }}
               />
             </div>
             <button
@@ -323,13 +301,11 @@ export default function ProfilePage() {
               style={{
                 background: isUpdating ? "var(--surface-2)" : "var(--text)",
                 color: isUpdating ? "var(--muted)" : "var(--bg)",
-                border: "1.5px solid var(--border-hard)",
-                borderRadius: 0,
                 alignSelf: "flex-end",
                 whiteSpace: "nowrap",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                fontWeight: 500,
+
+
                 padding: "0.85rem 1.5rem",
                 cursor: isUpdating ? "not-allowed" : "pointer"
               }}
@@ -346,10 +322,8 @@ export default function ProfilePage() {
       <div
         style={{
           display: "flex",
-          border: "1.5px solid var(--border-hard)",
-          borderBottom: "1.5px solid var(--border-hard)",
-          background: "var(--surface-2)",
-        }}
+          borderBottom: "1px solid var(--border)",
+          background: "var(--surface-2)" }}
       >
         {(["won", "transactions"] as const).map((tab) => (
           <button
@@ -359,15 +333,14 @@ export default function ProfilePage() {
               padding: "0.85rem 1.5rem",
               fontWeight: 700,
               fontSize: "var(--font-sm)",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
+
+
               background: "none",
               border: "none",
               borderBottom: activeSection === tab ? "2.5px solid var(--accent)" : "2.5px solid transparent",
               color: activeSection === tab ? "var(--accent)" : "var(--muted)",
               cursor: "pointer",
-              transition: "color 0.15s",
-            }}
+              transition: "color 0.15s" }}
           >
             {tab === "won" ? `Won Auctions (${wonAuctions.length})` : `Transactions (${paymentTxs.length})`}
           </button>
@@ -384,11 +357,10 @@ export default function ProfilePage() {
                 textAlign: "center",
                 color: "var(--muted)",
                 fontSize: "var(--font-sm)",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                fontWeight: 500,
+
+
                 background: "var(--surface)",
-                border: "1.5px solid var(--border-hard)",
                 borderTop: "none"
               }}
             >
@@ -403,10 +375,8 @@ export default function ProfilePage() {
                   <div
                     key={a.id}
                     style={{
-                      border: "1.5px solid var(--border-hard)",
                       borderTop: "none",
-                      background: "var(--surface)",
-                    }}
+                      background: "var(--surface)" }}
                   >
                     <Link
                       href={`/auctions/${a.id}`}
@@ -418,8 +388,7 @@ export default function ProfilePage() {
                         textDecoration: "none",
                         color: "inherit",
                         transition: "background 0.15s",
-                        gap: "1rem",
-                      }}
+                        gap: "1rem" }}
                     >
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div
@@ -429,8 +398,7 @@ export default function ProfilePage() {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
-                            marginBottom: "0.25rem",
-                          }}
+                            marginBottom: "0.25rem" }}
                         >
                           {a.title}
                         </div>
@@ -440,21 +408,17 @@ export default function ProfilePage() {
                             color: "var(--muted)",
                             display: "flex",
                             gap: "0.75rem",
-                            alignItems: "center",
-                          }}
+                            alignItems: "center" }}
                         >
                           <span>{typeLabel[a.type] ?? a.type}</span>
                           <span>
                             {new Date(a.endTime).toLocaleDateString([], {
-                              dateStyle: "medium",
-                            })}
+                              dateStyle: "medium" })}
                           </span>
                           <span
                             style={{
-                              fontFamily: "monospace",
-                              color: "var(--muted)",
-                              letterSpacing: "0.05em",
-                            }}
+
+                              color: "var(--muted)" }}
                           >
                             {verificationCode}
                           </span>
@@ -463,11 +427,9 @@ export default function ProfilePage() {
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
                         <div
                           style={{
-                            fontWeight: 900,
+                            fontWeight: 600,
                             fontSize: "var(--font-lg)",
-                            color: "var(--success)",
-                            letterSpacing: "-0.02em",
-                          }}
+                            color: "var(--success)" }}
                         >
                           ₹{a.currentPrice?.toLocaleString()}
                         </div>
@@ -475,10 +437,9 @@ export default function ProfilePage() {
                           style={{
                             fontSize: "var(--font-xs)",
                             fontWeight: 700,
-                            letterSpacing: "0.05em",
-                            textTransform: "uppercase",
-                            color: isSettled ? "var(--success)" : "var(--muted)",
-                          }}
+
+
+                            color: isSettled ? "var(--success)" : "var(--muted)" }}
                         >
                           {isSettled ? "✓ Paid" : "Pending"}
                         </div>
@@ -494,8 +455,7 @@ export default function ProfilePage() {
                         alignItems: "center",
                         gap: "1rem",
                         justifyContent: "space-between",
-                        fontSize: "var(--font-xs)",
-                      }}
+                        fontSize: "var(--font-xs)" }}
                     >
                       <span style={{ color: "var(--muted)", fontWeight: 600 }}>
                         Show verification code to seller to claim your item
@@ -514,10 +474,10 @@ export default function ProfilePage() {
                           border: `1.5px solid ${copiedId === a.id ? "var(--success)" : "var(--border-hard)"}`,
                           color: copiedId === a.id ? "var(--bg)" : "var(--text)",
                           padding: "0.5rem 0.75rem",
-                          fontWeight: 800,
+                          fontWeight: 500,
                           fontSize: "var(--font-xs)",
-                          letterSpacing: "0.05em",
-                          textTransform: "uppercase",
+
+
                           cursor: "pointer",
                           flexShrink: 0,
                           transition: "all 0.2s"
@@ -544,11 +504,10 @@ export default function ProfilePage() {
                 textAlign: "center",
                 color: "var(--muted)",
                 fontSize: "var(--font-sm)",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                fontWeight: 500,
+
+
                 background: "var(--surface)",
-                border: "1.5px solid var(--border-hard)",
                 borderTop: "none"
               }}
             >
@@ -563,14 +522,12 @@ export default function ProfilePage() {
                   gridTemplateColumns: "1fr auto auto",
                   padding: "0.85rem 2rem",
                   background: "var(--surface-2)",
-                  border: "1.5px solid var(--border-hard)",
                   borderTop: "none",
                   fontSize: "var(--font-xs)",
-                  fontWeight: 800,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "var(--muted)",
-                }}
+                  fontWeight: 500,
+
+
+                  color: "var(--muted)" }}
               >
                 <span>Description</span>
                 <span style={{ minWidth: 80, textAlign: "right" }}>Amount</span>
@@ -583,12 +540,10 @@ export default function ProfilePage() {
                     display: "grid",
                     gridTemplateColumns: "1fr auto auto",
                     padding: "1rem 2rem",
-                    border: "1.5px solid var(--border-hard)",
                     borderTop: "none",
                     background: "var(--surface)",
                     alignItems: "center",
-                    gap: "1rem",
-                  }}
+                    gap: "1rem" }}
                 >
                   <div>
                     <div style={{ fontWeight: 600, fontSize: "var(--font-sm)" }}>
@@ -597,8 +552,7 @@ export default function ProfilePage() {
                     <div style={{ fontSize: "var(--font-xs)", color: "var(--muted)", marginTop: "0.15rem" }}>
                       {new Date(tx.createdAt).toLocaleString([], {
                         dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
+                        timeStyle: "short" })}
                     </div>
                   </div>
                   <span
@@ -607,8 +561,7 @@ export default function ProfilePage() {
                       fontVariantNumeric: "tabular-nums",
                       minWidth: 80,
                       textAlign: "right",
-                      color: tx.amount < 0 ? "var(--accent)" : "var(--success)",
-                    }}
+                      color: tx.amount < 0 ? "var(--accent)" : "var(--success)" }}
                   >
                     {tx.amount < 0 ? "-" : "+"}₹{Math.abs(tx.amount).toLocaleString()}
                   </span>
@@ -616,12 +569,11 @@ export default function ProfilePage() {
                     style={{
                       fontSize: "var(--font-xs)",
                       fontWeight: 700,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
+
+
                       minWidth: 80,
                       textAlign: "right",
-                      color: tx.status === "COMPLETED" ? "var(--success)" : "var(--muted)",
-                    }}
+                      color: tx.status === "COMPLETED" ? "var(--success)" : "var(--muted)" }}
                   >
                     {tx.status}
                   </span>

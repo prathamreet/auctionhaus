@@ -24,8 +24,7 @@ const TYPE_META: Record<string, { icon: string; color: string }> = {
   AUCTION_ENDED:    { icon: "🔔", color: "#f59e0b" },
   AUTO_BID_PLACED:  { icon: "🤖", color: "#6366f1" },
   PAYMENT_RECEIVED: { icon: "💰", color: "#22c55e" },
-  GENERAL:          { icon: "ℹ️",  color: "#6b7280" },
-};
+  GENERAL:          { icon: "ℹ️",  color: "#6b7280" } };
 
 export default function NotificationsPage() {
   const { user, token } = useAuthStore();
@@ -45,8 +44,7 @@ export default function NotificationsPage() {
         .catch(() => ({ notifications: [], unreadCount: 0, total: 0 })),
     enabled: !!user,
     // No polling — socket event 'notification:new' invalidates this query in real-time (see useEffect below)
-    staleTime: 60000,
-  });
+    staleTime: 60000 });
 
   // Real-time: invalidate on new notification
   useEffect(() => {
@@ -86,26 +84,23 @@ export default function NotificationsPage() {
       <div
         style={{
           padding: "2rem",
-          border: "1.5px solid var(--border-hard)",
           borderBottom: "none",
           background: "var(--surface)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "1.5rem",
-        }}
+          gap: "1.5rem" }}
       >
         <div>
           <div
             style={{
               fontSize: "var(--font-xs)",
               fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+
+
               color: "var(--muted)",
-              marginBottom: "0.3rem",
-            }}
+              marginBottom: "0.3rem" }}
           >
             Your account
           </div>
@@ -113,10 +108,9 @@ export default function NotificationsPage() {
             <h1
               style={{
                 fontSize: "var(--font-2xl)",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
-                lineHeight: 1,
-              }}
+                fontWeight: 600,
+
+                lineHeight: 1 }}
             >
               Notifications
             </h1>
@@ -126,10 +120,8 @@ export default function NotificationsPage() {
                   background: "var(--accent)",
                   color: "#fff",
                   fontSize: "var(--font-xs)",
-                  fontWeight: 900,
-                  padding: "0.2rem 0.55rem",
-                  letterSpacing: "0.03em",
-                }}
+                  fontWeight: 600,
+                  padding: "0.2rem 0.55rem" }}
               >
                 {unreadCount} unread
               </span>
@@ -143,16 +135,14 @@ export default function NotificationsPage() {
               onClick={markAllRead}
               style={{
                 background: "none",
-                border: "1.5px solid var(--border-hard)",
                 color: "var(--text)",
                 padding: "0.75rem 1.25rem",
                 fontSize: "var(--font-xs)",
-                fontWeight: 800,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+                fontWeight: 500,
+
+
                 cursor: "pointer",
-                transition: "all 0.12s",
-              }}
+                transition: "all 0.12s" }}
             >
               MARK ALL READ
             </button>
@@ -166,12 +156,11 @@ export default function NotificationsPage() {
                 color: "var(--accent)",
                 padding: "0.75rem 1.25rem",
                 fontSize: "var(--font-xs)",
-                fontWeight: 800,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+                fontWeight: 500,
+
+
                 cursor: "pointer",
-                transition: "all 0.12s",
-              }}
+                transition: "all 0.12s" }}
             >
               DELETE ALL
             </button>
@@ -186,10 +175,7 @@ export default function NotificationsPage() {
             padding: "4rem",
             textAlign: "center",
             color: "var(--muted)",
-            fontSize: "var(--font-sm)",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-          }}
+            fontSize: "var(--font-sm)" }}
         >
           Loading...
         </div>
@@ -198,16 +184,12 @@ export default function NotificationsPage() {
           style={{
             padding: "5rem 2rem",
             textAlign: "center",
-            color: "var(--muted)",
-          }}
+            color: "var(--muted)" }}
         >
           <div
             style={{
               fontSize: "var(--font-sm)",
-              fontWeight: 800,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-            }}
+              fontWeight: 500 }}
           >
             [EMPTY] No notifications yet
           </div>
@@ -215,14 +197,13 @@ export default function NotificationsPage() {
             style={{
               fontSize: "var(--font-xs)",
               marginTop: "0.4rem",
-              color: "var(--muted)",
-            }}
+              color: "var(--muted)" }}
           >
             Activity from your bids and auctions will appear here.
           </div>
         </div>
       ) : (
-        <div style={{ border: "1.5px solid var(--border-hard)", marginTop: "2rem" }}>
+        <div style={{ border: "1px solid var(--border)", marginTop: "2rem", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)" }}>
           {notifications.map((n, i) => {
             const meta = TYPE_META[n.type] ?? TYPE_META.GENERAL;
             return (
@@ -241,8 +222,7 @@ export default function NotificationsPage() {
                   borderLeft: n.isRead
                     ? "4px solid transparent"
                     : "4px solid var(--accent)",
-                  transition: "background 0.2s",
-                }}
+                  transition: "background 0.2s" }}
               >
                 {/* Content */}
                 <div>
@@ -250,11 +230,10 @@ export default function NotificationsPage() {
                     style={{
                       fontSize: "var(--font-xs)",
                       fontWeight: 700,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
+
+
                       color: meta.color,
-                      marginBottom: "0.2rem",
-                    }}
+                      marginBottom: "0.2rem" }}
                   >
                     {n.type.replace(/_/g, " ")}
                   </div>
@@ -264,8 +243,7 @@ export default function NotificationsPage() {
                         fontWeight: 700,
                         fontSize: "var(--font-sm)",
                         marginBottom: "0.15rem",
-                        color: "var(--text)",
-                      }}
+                        color: "var(--text)" }}
                     >
                       {n.title}
                     </div>
@@ -274,8 +252,7 @@ export default function NotificationsPage() {
                     style={{
                       fontSize: "var(--font-sm)",
                       color: "var(--text-soft)",
-                      lineHeight: 1.5,
-                    }}
+                      lineHeight: 1.5 }}
                   >
                     {n.message}
                   </div>
@@ -283,14 +260,11 @@ export default function NotificationsPage() {
                     style={{
                       fontSize: "var(--font-xs)",
                       color: "var(--muted)",
-                      marginTop: "0.4rem",
-                      letterSpacing: "0.02em",
-                    }}
+                      marginTop: "0.4rem" }}
                   >
                     {new Date(n.createdAt).toLocaleString([], {
                       dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
+                      timeStyle: "short" })}
                   </div>
                 </div>
 
@@ -299,8 +273,7 @@ export default function NotificationsPage() {
                   style={{
                     display: "flex",
                     gap: "0.5rem",
-                    paddingTop: "0.15rem",
-                  }}
+                    paddingTop: "0.15rem" }}
                 >
                   {!n.isRead && (
                     <button
@@ -330,14 +303,11 @@ export default function NotificationsPage() {
 
 const actionBtn: React.CSSProperties = {
   background: "none",
-  border: "1.5px solid var(--border-hard)",
   color: "var(--muted)",
   padding: "0.4rem 0.75rem",
   fontSize: "var(--font-xs)",
   cursor: "pointer",
-  fontWeight: 800,
-  letterSpacing: "0.05em",
+  fontWeight: 500,
+
   lineHeight: 1,
-  borderRadius: 0,
-  transition: "all 0.12s",
-};
+  transition: "all 0.12s" };

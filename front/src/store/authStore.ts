@@ -60,5 +60,4 @@ export const useAuthStore = create<AuthState>((set) => ({
       document.cookie = "ah_logged_in=;path=/;max-age=0";
     }
     set({ user: null, token: null });
-  },
-}));
+  } }));
