@@ -38,3 +38,6 @@ front/next-env.d.ts
 
 # Vercel
 .vercel
+
+.agents
+graphify-out/
