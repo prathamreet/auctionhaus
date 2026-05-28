@@ -187,22 +187,71 @@ export const placeBid = async (data: {
   });
 };
 
-export const getAuctionBids = async (auctionId: string, _type?: string) => {
-  const auction = await prisma.auction.findUnique({ where: { id: auctionId } });
+/**
+ * Return the bid list for an auction.
+ *
+ * Sealed-bid privacy contract:
+ *   While a SEALED_BID auction is ACTIVE, no caller may learn:
+ *     - other bidders' identities (id, name, avatar)
+ *     - other bidders' bid amounts (would reveal ranking)
+ *     - the rank-ordering of bids (must be insertion order, not amount-sorted)
+ *   The viewer is allowed to see their OWN bid in full so the UI can show "your bid".
+ *   When the auction status becomes ENDED, full bid data is returned.
+ *
+ * The previous implementation passed `bidder: { select: { id: true, name: false } }`
+ * which is a no-op in Prisma (you can't turn a field off via select=false), so it
+ * silently leaked bidder names AND ranked them by amount. Fixed here.
+ */
+export const getAuctionBids = async (auctionId: string, viewerId: string) => {
+  const auction = await prisma.auction.findUnique({
+    where: { id: auctionId },
+    select: { id: true, type: true, status: true },
+  });
   if (!auction) throw createError('Auction not found', 404);
 
-  // For sealed bid, hide bidder identities until ended
-  const isSealed = auction.type === AuctionType.SEALED_BID && auction.status === AuctionStatus.ACTIVE;
+  const isSealedLive =
+    auction.type === AuctionType.SEALED_BID &&
+    auction.status === AuctionStatus.ACTIVE;
 
-  const bids = await prisma.bid.findMany({
+  if (isSealedLive) {
+    // Order by createdAt so the response is stable but reveals no ranking.
+    const rawBids = await prisma.bid.findMany({
+      where: { auctionId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        auctionId: true,
+        bidderId: true,
+        amount: true,
+        status: true,
+        isAutoBid: true,
+        createdAt: true,
+      },
+    });
+
+    return rawBids.map((b) => {
+      const isOwn = b.bidderId === viewerId;
+      return {
+        id: b.id,
+        auctionId: b.auctionId,
+        status: b.status,
+        isAutoBid: b.isAutoBid,
+        createdAt: b.createdAt,
+        // Mask everything that could leak ranking or identity.
+        // The viewer's own bid is returned in full so the UI can render it.
+        amount: isOwn ? b.amount : null,
+        bidderId: isOwn ? b.bidderId : null,
+        bidder: isOwn ? { id: b.bidderId } : null,
+      };
+    });
+  }
+
+  // English/Dutch, or sealed auctions that have ENDED: return full data.
+  return prisma.bid.findMany({
     where: { auctionId },
     orderBy: { amount: 'desc' },
     include: {
-      bidder: isSealed
-        ? { select: { id: true, name: false } }
-        : { select: { id: true, name: true, avatar: true } },
+      bidder: { select: { id: true, name: true, avatar: true } },
     },
   });
-
-  return bids;
 };

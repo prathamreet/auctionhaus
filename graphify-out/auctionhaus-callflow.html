@@ -60,7 +60,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 <div class="container">
 
 <h1>auctionhaus — Complete Call Flow &amp; Architecture Documentation</h1>
-<p class="subtitle">Generated from graphify knowledge graph: 682 nodes, 932 edges, 84 communities. Commit: 68b06c1</p>
+<p class="subtitle">Generated from graphify knowledge graph: 742 nodes, 991 edges, 94 communities. Commit: 9403b7d</p>
 
 <div class="nav">
     <a href="#overview">Architecture Overview</a>
@@ -70,14 +70,14 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
     <a href="#serve-api">Serving API</a>
     <a href="#security-global">Security &amp; Global Graph</a>
     <a href="#tests-fixtures">Tests &amp; Fixtures</a>
-    <a href="#app-layout-providers">App Layout &amp; Providers</a>
+    <a href="#notification-controllers">Notification Controllers</a>
     <a href="#database-schema-design">Database Schema Design</a>
     <a href="#real-time-socket-layer">Real-Time Socket Layer</a>
-    <a href="#next-js-config">Next.js Config</a>
     <a href="#landing-page">Landing Page</a>
-    <a href="#system-documentation">System Documentation</a>
-    <a href="#english-auction-sniping">English Auction &amp; Sniping</a>
-    <a href="#auth-system-jwt">Auth System &amp; JWT</a>
+    <a href="#auto-bid-algorithm">Auto-Bid Algorithm</a>
+    <a href="#backend-architecture">Backend Architecture</a>
+    <a href="#tech-stack-rationale">Tech Stack Rationale</a>
+    <a href="#product-requirements">Product Requirements</a>
     <a href="#other">Other</a>
 </div>
 
@@ -88,45 +88,47 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    EXTRACT_PIPELINE_5F350230("Extraction Pipeline<br/><small>73 nodes</small>")
+    EXTRACT_PIPELINE_5F350230("Extraction Pipeline<br/><small>133 nodes</small>")
     class EXTRACT_PIPELINE_5F350230 module;
     OUTPUTS_DOCS_ED82387C("Outputs &amp; Docs<br/><small>28 nodes</small>")
     class OUTPUTS_DOCS_ED82387C module;
     INGEST_CACHE_UPDATE_FF457338("Ingestion &amp; Updates<br/><small>6 nodes</small>")
     class INGEST_CACHE_UPDATE_FF457338 module;
-    SERVE_API_35EC8E86("Serving API<br/><small>101 nodes</small>")
+    SERVE_API_35EC8E86("Serving API<br/><small>118 nodes</small>")
     class SERVE_API_35EC8E86 module;
     SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>18 nodes</small>")
     class SECURITY_GLOBAL_5B9C6A04 module;
-    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>263 nodes</small>")
+    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>246 nodes</small>")
     class TESTS_FIXTURES_B84B1DCC module;
-    APP_LAYOUT_PROVIDERS_7C54EE1E("App Layout &amp; Providers<br/><small>15 nodes</small>")
-    class APP_LAYOUT_PROVIDERS_7C54EE1E module;
+    NOTIFICATION_CONTROLLERS_3FDF04AE("Notification Controllers<br/><small>15 nodes</small>")
+    class NOTIFICATION_CONTROLLERS_3FDF04AE module;
     DATABASE_SCHEMA_DESIGN_E2A06D6F("Database Schema Design<br/><small>12 nodes</small>")
     class DATABASE_SCHEMA_DESIGN_E2A06D6F module;
     REAL_TIME_SOCKET_LAYER_23BCB3AC("Real-Time Socket Layer<br/><small>11 nodes</small>")
     class REAL_TIME_SOCKET_LAYER_23BCB3AC module;
-    NEXT_JS_CONFIG_F56504E3("Next.js Config<br/><small>10 nodes</small>")
-    class NEXT_JS_CONFIG_F56504E3 module;
     LANDING_PAGE_78DD97EC("Landing Page<br/><small>10 nodes</small>")
     class LANDING_PAGE_78DD97EC module;
-    SYSTEM_DOCUMENTATION_A9FF2F8B("System Documentation<br/><small>10 nodes</small>")
-    class SYSTEM_DOCUMENTATION_A9FF2F8B module;
-    ENGLISH_AUCTION_SNIPING_591F393A("English Auction &amp; Sniping<br/><small>9 nodes</small>")
-    class ENGLISH_AUCTION_SNIPING_591F393A module;
-    AUTH_SYSTEM_JWT_3386B49E("Auth System &amp; JWT<br/><small>8 nodes</small>")
-    class AUTH_SYSTEM_JWT_3386B49E module;
+    AUTO_BID_ALGORITHM_45ACC16F("Auto-Bid Algorithm<br/><small>10 nodes</small>")
+    class AUTO_BID_ALGORITHM_45ACC16F module;
+    BACKEND_ARCHITECTURE_06A15D87("Backend Architecture<br/><small>10 nodes</small>")
+    class BACKEND_ARCHITECTURE_06A15D87 module;
+    TECH_STACK_RATIONALE_FC15B6DD("Tech Stack Rationale<br/><small>9 nodes</small>")
+    class TECH_STACK_RATIONALE_FC15B6DD module;
+    PRODUCT_REQUIREMENTS_D53EF0ED("Product Requirements<br/><small>8 nodes</small>")
+    class PRODUCT_REQUIREMENTS_D53EF0ED module;
     OTHER_D0941E68("Other<br/><small>108 nodes</small>")
     class OTHER_D0941E68 module;
+    SERVE_API_35EC8E86 -->|imports x22| TESTS_FIXTURES_B84B1DCC
+    TESTS_FIXTURES_B84B1DCC -->|imports x13| SERVE_API_35EC8E86
     DATABASE_SCHEMA_DESIGN_E2A06D6F -->|contains x6| OTHER_D0941E68
     EXTRACT_PIPELINE_5F350230 -->|contains x2| SERVE_API_35EC8E86
     REAL_TIME_SOCKET_LAYER_23BCB3AC -->|imports| SERVE_API_35EC8E86
-    EXTRACT_PIPELINE_5F350230 -->|contains| AUTH_SYSTEM_JWT_3386B49E
+    EXTRACT_PIPELINE_5F350230 -->|contains| PRODUCT_REQUIREMENTS_D53EF0ED
     EXTRACT_PIPELINE_5F350230 -->|contains| OTHER_D0941E68
-    EXTRACT_PIPELINE_5F350230 -->|contains| NEXT_JS_CONFIG_F56504E3
+    EXTRACT_PIPELINE_5F350230 -->|contains| LANDING_PAGE_78DD97EC
     EXTRACT_PIPELINE_5F350230 -->|contains| TESTS_FIXTURES_B84B1DCC
     DATABASE_SCHEMA_DESIGN_E2A06D6F -->|contains| SERVE_API_35EC8E86
-    DATABASE_SCHEMA_DESIGN_E2A06D6F -->|contains| ENGLISH_AUCTION_SNIPING_591F393A
+    DATABASE_SCHEMA_DESIGN_E2A06D6F -->|contains| TECH_STACK_RATIONALE_FC15B6DD
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -143,19 +145,19 @@ flowchart LR
     <h4>Architecture Layers</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
-      <tr><td>Extraction Pipeline</td><td>73</td><td><code>11, 12, 15, 17, 23, 28, 34, 35</code></td></tr><tr><td>Outputs &amp; Docs</td><td>28</td><td><code>8, 30, 81, 82, 83</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>6</td><td><code>31</code></td></tr><tr><td>Serving API</td><td>101</td><td><code>1, 16, 19, 27, 74</code></td></tr><tr><td>Security &amp; Global Graph</td><td>18</td><td><code>7</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>263</td><td><code>0, 2, 3, 4, 5, 6, 9, 22, 24, 64</code></td></tr><tr><td>App Layout &amp; Providers</td><td>15</td><td><code>10</code></td></tr><tr><td>Database Schema Design</td><td>12</td><td><code>13</code></td></tr><tr><td>Real-Time Socket Layer</td><td>11</td><td><code>14</code></td></tr><tr><td>Next.js Config</td><td>10</td><td><code>18</code></td></tr><tr><td>Landing Page</td><td>10</td><td><code>20</code></td></tr><tr><td>System Documentation</td><td>10</td><td><code>21</code></td></tr><tr><td>English Auction &amp; Sniping</td><td>9</td><td><code>25</code></td></tr><tr><td>Auth System &amp; JWT</td><td>8</td><td><code>26</code></td></tr><tr><td>Other</td><td>108</td><td><code>29, 32, 33, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 75, 76, 77, 78, 79, 80</code></td></tr>
+      <tr><td>Extraction Pipeline</td><td>133</td><td><code>3, 4, 11, 15, 18, 19, 28, 36, 43, 44, 51</code></td></tr><tr><td>Outputs &amp; Docs</td><td>28</td><td><code>7, 37, 91, 92, 93</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>6</td><td><code>39</code></td></tr><tr><td>Serving API</td><td>118</td><td><code>0, 8, 17, 21, 33, 84</code></td></tr><tr><td>Security &amp; Global Graph</td><td>18</td><td><code>6</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>246</td><td><code>1, 2, 5, 10, 12, 16, 24, 25, 26, 27, 29, 31, 34, 38, 41, 74</code></td></tr><tr><td>Notification Controllers</td><td>15</td><td><code>9</code></td></tr><tr><td>Database Schema Design</td><td>12</td><td><code>13</code></td></tr><tr><td>Real-Time Socket Layer</td><td>11</td><td><code>14</code></td></tr><tr><td>Landing Page</td><td>10</td><td><code>20</code></td></tr><tr><td>Auto-Bid Algorithm</td><td>10</td><td><code>22</code></td></tr><tr><td>Backend Architecture</td><td>10</td><td><code>23</code></td></tr><tr><td>Tech Stack Rationale</td><td>9</td><td><code>30</code></td></tr><tr><td>Product Requirements</td><td>8</td><td><code>32</code></td></tr><tr><td>Other</td><td>108</td><td><code>35, 40, 42, 45, 46, 47, 48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 75, 76, 77, 78, 79, 80, 81, 82, 83, 85, 86, 87, 88, 89, 90</code></td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Core Flow</h4>
-    <div class="arrow-chain">Extraction Pipeline -&gt; Serving API -&gt; Outputs &amp; Docs -&gt; Ingestion &amp; Updates -&gt; Security &amp; Global Graph -&gt; Tests &amp; Fixtures -&gt; App Layout &amp; Providers</div>
+    <div class="arrow-chain">Extraction Pipeline -&gt; Serving API -&gt; Tests &amp; Fixtures -&gt; Outputs &amp; Docs -&gt; Ingestion &amp; Updates -&gt; Security &amp; Global Graph -&gt; Notification Controllers</div>
   </div>
 </div>
 <div class="grid">
   <div class="card">
     <h4>Graph Report Highlights</h4>
     <ul>
-      <li>682 nodes · 932 edges · 84 communities (59 shown, 25 thin omitted)</li>
+      <li>742 nodes · 991 edges · 94 communities (65 shown, 29 thin omitted)</li>
       <li>Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 22 edges (avg confidence: 0.83)</li>
       <li>Token cost: 0 input · 0 output</li>
       <li>1. `createError()` - 37 edges</li>
@@ -167,30 +169,40 @@ flowchart LR
 <hr>
 <!-- ====== 2. Extraction Pipeline ====== -->
 <h2 id="extract-pipeline">2. Extraction Pipeline</h2>
-<p>Extraction Pipeline groups implementation around learnmd, back, codetypescript, auction, mostly in back/learn.md. This section covers 73 nodes and 72 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Extraction Pipeline groups implementation around back, learnmd, suggesstionmd, codetypescript, mostly in back/learn.md, suggesstion.md. This section covers 133 nodes and 131 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Extraction Pipeline (73 nodes, 72 edges)
-    back_learn_auctionhaus_backend_full_technical_de_414b3688("AuctionHaus Backend — Full Technical De...<br/><small>back/learn.md</small>")
-    back_learn_10_background_jobs_bullmq_80f15a71("10. Background Jobs (BullMQ)<br/><small>back/learn.md</small>")
-    back_learn_4_authentication_system_0bdb1c73("4. Authentication System<br/><small>back/learn.md</small>")
-    back_learn_6_bidding_engine_core_logic_3776180d("6. Bidding Engine (Core Logic)<br/><small>back/learn.md</small>")
-    back_learn_9_real_time_layer_socket_io_cb5953a5("9. Real-Time Layer (Socket.io)<br/><small>back/learn.md</small>")
-    back_learn_13_admin_panel_e2794518("13. Admin Panel<br/><small>back/learn.md</small>")
-    back_learn_2_project_entry_point_39bab9ab("2. Project Entry Point<br/><small>back/learn.md</small>")
-    back_learn_middleware_in_this_project_2d6f2ee9("Middleware in This Project<br/><small>back/learn.md</small>")
-    back_learn_room_architecture_fc048ddb("Room Architecture<br/><small>back/learn.md</small>")
-    back_learn_11_notifications_68b8d825("11. Notifications<br/><small>back/learn.md</small>")
-    back_learn_12_watchlist_c94cd755("12. Watchlist<br/><small>back/learn.md</small>")
-    back_learn_14_middleware_stack_d8e637e3("14. Middleware Stack<br/><small>back/learn.md</small>")
-    back_learn_dutch_price_drop_job_recurring_38a00bef("Dutch Price Drop Job (Recurring)<br/><small>back/learn.md</small>")
-    back_learn_15_request_lifecycle_end_to_end_2431d5a3("15. Request Lifecycle (End to End)<br/><small>back/learn.md</small>")
-    back_learn_anti_sniping_logic_f6e14206("Anti-Sniping Logic<br/><small>back/learn.md</small>")
-    back_learn_auth_middleware_c773aef7("Auth Middleware<br/><small>back/learn.md</small>")
-    back_learn_authentication_for_sockets_48716890("Authentication for Sockets<br/><small>back/learn.md</small>")
-    back_learn_dual_delivery_system_3cfccb56("Dual Delivery System<br/><small>back/learn.md</small>")
+    %% Section: Extraction Pipeline (133 nodes, 131 edges)
+    subgraph extract_pipeline_back_learn_md_97267579["back/learn.md"]
+        back_learn_auctionhaus_backend_full_technical_de_414b3688("AuctionHaus Backend — Full Technical De...<br/><small>back/learn.md</small>")
+        back_learn_10_background_jobs_bullmq_80f15a71("10. Background Jobs (BullMQ)<br/><small>back/learn.md</small>")
+        back_learn_4_authentication_system_0bdb1c73("4. Authentication System<br/><small>back/learn.md</small>")
+        back_learn_6_bidding_engine_core_logic_3776180d("6. Bidding Engine (Core Logic)<br/><small>back/learn.md</small>")
+        back_learn_9_real_time_layer_socket_io_cb5953a5("9. Real-Time Layer (Socket.io)<br/><small>back/learn.md</small>")
+        back_learn_13_admin_panel_e2794518("13. Admin Panel<br/><small>back/learn.md</small>")
+        back_learn_2_project_entry_point_39bab9ab("2. Project Entry Point<br/><small>back/learn.md</small>")
+        back_learn_middleware_in_this_project_2d6f2ee9("Middleware in This Project<br/><small>back/learn.md</small>")
+        back_learn_room_architecture_fc048ddb("Room Architecture<br/><small>back/learn.md</small>")
+        back_learn_11_notifications_68b8d825("11. Notifications<br/><small>back/learn.md</small>")
+        back_learn_12_watchlist_c94cd755("12. Watchlist<br/><small>back/learn.md</small>")
+    end
+    subgraph extract_pipeline_suggesstion_md_fadc30d4["suggesstion.md"]
+        auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca("AuctionHaus — High-Concurrency &amp; Real-T...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_4_advanced_architectural_73abada6("4. Advanced Architectural Evolutions<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_5_major_project_feature_883bfea5("5. Major Project Feature Expansion (Bey...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_2_critical_concurrency_r_22badc25("2. Critical Concurrency &amp; Race Conditio...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_vulnerability_1_the_doub_2911b895("Vulnerability 1: The 'Double-Claim' Rac...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_vulnerability_2_standard_bbe6af94("Vulnerability 2: Standard findUnique...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_vulnerability_3_read_the_96c0f392("Vulnerability 3: Read-Then-Write Race C...<br/><small>suggesstion.md</small>")
+    end
+    auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca -->|contains| auctionhaus_suggesstion_2_critical_concurrency_r_22badc25
+    auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca -->|contains| auctionhaus_suggesstion_4_advanced_architectural_73abada6
+    auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca -->|contains| auctionhaus_suggesstion_5_major_project_feature_883bfea5
+    auctionhaus_suggesstion_2_critical_concurrency_r_22badc25 -->|contains| auctionhaus_suggesstion_vulnerability_1_the_doub_2911b895
+    auctionhaus_suggesstion_2_critical_concurrency_r_22badc25 -->|contains| auctionhaus_suggesstion_vulnerability_2_standard_bbe6af94
+    auctionhaus_suggesstion_2_critical_concurrency_r_22badc25 -->|contains| auctionhaus_suggesstion_vulnerability_3_read_the_96c0f392
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_2_project_entry_point_39bab9ab
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_4_authentication_system_0bdb1c73
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_6_bidding_engine_core_logic_3776180d
@@ -199,16 +211,8 @@ flowchart LR
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_11_notifications_68b8d825
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_12_watchlist_c94cd755
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_13_admin_panel_e2794518
-    back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_14_middleware_stack_d8e637e3
-    back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_15_request_lifecycle_end_to_end_2431d5a3
-    back_learn_4_authentication_system_0bdb1c73 -->|contains| back_learn_auth_middleware_c773aef7
-    back_learn_6_bidding_engine_core_logic_3776180d -->|contains| back_learn_anti_sniping_logic_f6e14206
     back_learn_9_real_time_layer_socket_io_cb5953a5 -->|contains| back_learn_room_architecture_fc048ddb
-    back_learn_9_real_time_layer_socket_io_cb5953a5 -->|contains| back_learn_authentication_for_sockets_48716890
-    back_learn_10_background_jobs_bullmq_80f15a71 -->|contains| back_learn_dutch_price_drop_job_recurring_38a00bef
-    back_learn_11_notifications_68b8d825 -->|contains| back_learn_dual_delivery_system_3cfccb56
-    back_learn_14_middleware_stack_d8e637e3 -->|contains| back_learn_middleware_in_this_project_2d6f2ee9
-    %% Omitted for readability: 55 nodes, 0 edges
+    %% Omitted for readability: 115 nodes, 0 edges
     class back_learn_auctionhaus_backend_full_technical_de_414b3688 concept;
     class back_learn_10_background_jobs_bullmq_80f15a71 concept;
     class back_learn_4_authentication_system_0bdb1c73 concept;
@@ -220,13 +224,13 @@ flowchart LR
     class back_learn_room_architecture_fc048ddb concept;
     class back_learn_11_notifications_68b8d825 concept;
     class back_learn_12_watchlist_c94cd755 concept;
-    class back_learn_14_middleware_stack_d8e637e3 concept;
-    class back_learn_dutch_price_drop_job_recurring_38a00bef concept;
-    class back_learn_15_request_lifecycle_end_to_end_2431d5a3 concept;
-    class back_learn_anti_sniping_logic_f6e14206 concept;
-    class back_learn_auth_middleware_c773aef7 concept;
-    class back_learn_authentication_for_sockets_48716890 concept;
-    class back_learn_dual_delivery_system_3cfccb56 concept;
+    class auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca concept;
+    class auctionhaus_suggesstion_4_advanced_architectural_73abada6 concept;
+    class auctionhaus_suggesstion_5_major_project_feature_883bfea5 concept;
+    class auctionhaus_suggesstion_2_critical_concurrency_r_22badc25 concept;
+    class auctionhaus_suggesstion_vulnerability_1_the_doub_2911b895 concept;
+    class auctionhaus_suggesstion_vulnerability_2_standard_bbe6af94 concept;
+    class auctionhaus_suggesstion_vulnerability_3_read_the_96c0f392 concept;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -250,243 +254,243 @@ flowchart LR
 </tr>
 <tr>
   <td>1</td>
-  <td><code>10. Background Jobs (BullMQ)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>suggesstion.md</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 10. Background Jobs (BullMQ).</td>
+  <td>Documentation node describing suggesstion.md.</td>
 </tr>
 <tr>
   <td>2</td>
-  <td><code>What is BullMQ?</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>AuctionHaus — High-Concurrency &amp; Real-Time Backend Architectural Suggestions</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing What is BullMQ?.</td>
+  <td>Documentation node describing AuctionHaus — High-Concurrency &amp; Real-Time Backend Architectural Suggestions.</td>
 </tr>
 <tr>
   <td>3</td>
-  <td><code>Queues in This Project</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>1. Deep Core Architecture Analysis</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Queues in This Project.</td>
+  <td>Documentation node describing 1. Deep Core Architecture Analysis.</td>
 </tr>
 <tr>
   <td>4</td>
-  <td><code>code:block32 (auction-scheduler  → start-auction, end-auction jobs)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>Current Architecture Topology</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block32 (auction-scheduler  → start-auction, end-auction jobs).</td>
+  <td>Documentation node describing Current Architecture Topology.</td>
 </tr>
 <tr>
   <td>5</td>
-  <td><code>Scheduling Auction Start/End</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:mermaid (graph TD)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Scheduling Auction Start/End.</td>
+  <td>Documentation node describing code:mermaid (graph TD).</td>
 </tr>
 <tr>
   <td>6</td>
-  <td><code>code:typescript (const startDelay = new Date(data.startTime).getTime() - Date)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>Architectural Verdict</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (const startDelay = new Date(data.startTime).getTime() - Date).</td>
+  <td>Documentation node describing Architectural Verdict.</td>
 </tr>
 <tr>
   <td>7</td>
-  <td><code>start-auction Job</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>2. Critical Concurrency &amp; Race Condition Audits (The &quot;Wow&quot; Factor for Teachers)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing start-auction Job.</td>
+  <td>Documentation node describing 2. Critical Concurrency &amp; Race Condition Audits (The &quot;Wow&quot; Factor for Teachers).</td>
 </tr>
 <tr>
   <td>8</td>
-  <td><code>code:block34 (1. Fetch auction from DB)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>Vulnerability 1: The &quot;Double-Claim&quot; Race Condition in `buyNow`</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block34 (1. Fetch auction from DB).</td>
+  <td>Documentation node describing Vulnerability 1: The &quot;Double-Claim&quot; Race Condition in `buyNow`.</td>
 </tr>
 <tr>
   <td>9</td>
-  <td><code>end-auction Job / endAuction Function</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Bug (Current Implementation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing end-auction Job / endAuction Function.</td>
+  <td>Documentation node describing The Bug (Current Implementation).</td>
 </tr>
 <tr>
   <td>10</td>
-  <td><code>code:block35 (1. Fetch auction with winning bid)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:typescript (// back/src/modules/auctions/auction.service.ts)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block35 (1. Fetch auction with winning bid).</td>
+  <td>Documentation node describing code:typescript (// back/src/modules/auctions/auction.service.ts).</td>
 </tr>
 <tr>
   <td>11</td>
-  <td><code>Dutch Price Drop Job (Recurring)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Exploit</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Dutch Price Drop Job (Recurring).</td>
+  <td>Documentation node describing The Exploit.</td>
 </tr>
 <tr>
   <td>12</td>
-  <td><code>code:typescript (dutchAuctionQueue.add()</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Architectural Solution (Transactional State Validation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (dutchAuctionQueue.add().</td>
+  <td>Documentation node describing The Architectural Solution (Transactional State Validation).</td>
 </tr>
 <tr>
   <td>13</td>
-  <td><code>code:block37 (Every 10 minutes:)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:typescript (return prisma.$transaction(async (tx) =&gt; {)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block37 (Every 10 minutes:).</td>
+  <td>Documentation node describing code:typescript (return prisma.$transaction(async (tx) =&gt; {).</td>
 </tr>
 <tr>
   <td>14</td>
-  <td><code>learn.md</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>Vulnerability 2: Standard `findUnique` Does NOT Pessimistically Lock in `placeBid`</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing learn.md.</td>
+  <td>Documentation node describing Vulnerability 2: Standard `findUnique` Does NOT Pessimistically Lock in `placeBid`.</td>
 </tr>
 <tr>
   <td>15</td>
-  <td><code>AuctionHaus Backend — Full Technical Deep Dive</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Bug (Current Implementation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing AuctionHaus Backend — Full Technical Deep Dive.</td>
+  <td>Documentation node describing The Bug (Current Implementation).</td>
 </tr>
 <tr>
   <td>16</td>
-  <td><code>Table of Contents</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:typescript (const auction = await tx.auction.findUnique({ where: { id: a)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Table of Contents.</td>
+  <td>Documentation node describing code:typescript (const auction = await tx.auction.findUnique({ where: { id: a).</td>
 </tr>
 <tr>
   <td>17</td>
-  <td><code>1. Tech Stack &amp; Why</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Concurrency Issue</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 1. Tech Stack &amp; Why.</td>
+  <td>Documentation node describing The Concurrency Issue.</td>
 </tr>
 <tr>
   <td>18</td>
-  <td><code>2. Project Entry Point</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Architectural Solution (True Pessimistic Locking)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 2. Project Entry Point.</td>
+  <td>Documentation node describing The Architectural Solution (True Pessimistic Locking).</td>
 </tr>
 <tr>
   <td>19</td>
-  <td><code>code:block1 (1. Load environment variables (.env))</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:typescript (return prisma.$transaction(async (tx) =&gt; {)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block1 (1. Load environment variables (.env)).</td>
+  <td>Documentation node describing code:typescript (return prisma.$transaction(async (tx) =&gt; {).</td>
 </tr>
 <tr>
   <td>20</td>
-  <td><code>code:typescript (const app = express();)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>Vulnerability 3: Read-Then-Write Race Condition in Wallet `withdraw`</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (const app = express();).</td>
+  <td>Documentation node describing Vulnerability 3: Read-Then-Write Race Condition in Wallet `withdraw`.</td>
 </tr>
 <tr>
   <td>21</td>
-  <td><code>code:typescript (app.use((req, _res, next) =&gt; {)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Bug (Current Implementation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (app.use((req, _res, next) =&gt; {).</td>
+  <td>Documentation node describing The Bug (Current Implementation).</td>
 </tr>
 <tr>
   <td>22</td>
-  <td><code>12. Watchlist</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:typescript (const wallet = await prisma.wallet.findUnique({ where: { use)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 12. Watchlist.</td>
+  <td>Documentation node describing code:typescript (const wallet = await prisma.wallet.findUnique({ where: { use).</td>
 </tr>
 <tr>
   <td>23</td>
-  <td><code>code:typescript (@@unique([userId, auctionId])  // can&#x27;t add same auction twi)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Exploit</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (@@unique([userId, auctionId])  // can&#x27;t add same auction twi).</td>
+  <td>Documentation node describing The Exploit.</td>
 </tr>
 <tr>
   <td>24</td>
-  <td><code>code:typescript (prisma.watchlistItem.upsert({)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Architectural Solution (Transactional Balance Validation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (prisma.watchlistItem.upsert({).</td>
+  <td>Documentation node describing The Architectural Solution (Transactional Balance Validation).</td>
 </tr>
 <tr>
   <td>25</td>
-  <td><code>15. Request Lifecycle (End to End)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:typescript (// Enforce positive balance directly in the database update )</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 15. Request Lifecycle (End to End).</td>
+  <td>Documentation node describing code:typescript (// Enforce positive balance directly in the database update ).</td>
 </tr>
 <tr>
   <td>26</td>
-  <td><code>code:block48 (Browser (Alice)                 Server                      )</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>3. High-Integrity Financial Data Hardening</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block48 (Browser (Alice)                 Server                      ).</td>
+  <td>Documentation node describing 3. High-Integrity Financial Data Hardening.</td>
 </tr>
 <tr>
   <td>27</td>
-  <td><code>4. Authentication System</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Float Precision Bug (IEEE 754 Drift)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 4. Authentication System.</td>
+  <td>Documentation node describing The Float Precision Bug (IEEE 754 Drift).</td>
 </tr>
 <tr>
   <td>28</td>
-  <td><code>How JWT Auth Works</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Problem</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing How JWT Auth Works.</td>
+  <td>Documentation node describing The Problem.</td>
 </tr>
 <tr>
   <td>29</td>
-  <td><code>code:block8 (Client                          Server)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>The Solution</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block8 (Client                          Server).</td>
+  <td>Documentation node describing The Solution.</td>
 </tr>
 <tr>
   <td>30</td>
-  <td><code>Password Hashing</code><br><small style="color:var(--muted)">back/learn.md</small></td>
+  <td><code>code:prisma (model Wallet {)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Password Hashing.</td>
+  <td>Documentation node describing code:prisma (model Wallet {).</td>
 </tr>
 </table>
 
@@ -496,11 +500,12 @@ flowchart LR
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>back/learn.md</code></td><td>73 nodes</td></tr>
+<tr><td><code>suggesstion.md</code></td><td>60 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x72. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x131. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -946,21 +951,16 @@ flowchart LR
 
 <!-- ====== 5. Serving API ====== -->
 <h2 id="serve-api">5. Serving API</h2>
-<p>Serving API groups implementation around front, pagetsx, app, back, mostly in back/learn.md, xdocs/bible.md, app/wallet/page.tsx. This section covers 101 nodes and 156 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Serving API groups implementation around front, pagetsx, app, back, mostly in back/learn.md, xdocs/bible.md, app/wallet/page.tsx. This section covers 118 nodes and 181 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Serving API (101 nodes, 156 edges)
+    %% Section: Serving API (118 nodes, 181 edges)
     subgraph serve_api_app_auctions_page_tsx_9fb55fa8["app/auctions/page.tsx"]
-        front_src_app_auctions_page_tsx_1da9f999("page.tsx")
         auctions_page_auctionspage_71ba11f5("AuctionsPage()<br/><small>app/auctions/page.tsx</small>")
         auctions_page_lotnumber_ad7c862c("lotNumber()<br/><small>app/auctions/page.tsx</small>")
         auctions_page_auctioncard_659c1180("AuctionCard()<br/><small>app/auctions/page.tsx</small>")
-    end
-    subgraph serve_api_app_admin_page_tsx_9ea8916e["app/admin/page.tsx"]
-        front_src_app_admin_page_tsx_7083ca1e("page.tsx")
-        admin_page_adminpage_d04df2b1("AdminPage()<br/><small>app/admin/page.tsx</small>")
     end
     subgraph serve_api_app_login_page_tsx_7a8b112d["app/login/page.tsx"]
         front_src_app_login_page_tsx_60aba4ef("page.tsx")
@@ -974,6 +974,11 @@ flowchart LR
         front_src_app_auctions_id_page_tsx_e75ec2a7("page.tsx")
         id_page_auctiondetailpage_029c5ff1("AuctionDetailPage()<br/><small>auctions/[id]/page.tsx</small>")
     end
+    subgraph serve_api_src_middleware_auth_middleware_ts_ff5ec4b8["src/middleware/auth.middleware.ts"]
+        back_src_middleware_auth_middleware_ts_059380e7("auth.middleware.ts")
+        middleware_auth_middleware_authenticate_2030e82e("authenticate()<br/><small>src/middleware/auth.middleware.ts</small>")
+    end
+    admin_page_adminpage_d04df2b1("AdminPage()<br/><small>app/admin/page.tsx</small>")
     dashboard_page_dashboardpage_6cc25d76("DashboardPage()<br/><small>app/dashboard/page.tsx</small>")
     notifications_page_notificationspage_d73a94fa("NotificationsPage()<br/><small>app/notifications/page.tsx</small>")
     profile_page_profilepage_337c7d47("ProfilePage()<br/><small>app/profile/page.tsx</small>")
@@ -990,25 +995,23 @@ flowchart LR
     profile_page_profilepage_337c7d47 -->|calls| store_authstore_useauthstore_4a03c2d9
     register_page_registerpage_3cf33b24 -->|calls| store_authstore_useauthstore_4a03c2d9
     wallet_page_walletpage_44b942fd -->|calls| store_authstore_useauthstore_4a03c2d9
-    front_src_app_admin_page_tsx_7083ca1e -->|imports| store_authstore_useauthstore_4a03c2d9
-    front_src_app_auctions_page_tsx_1da9f999 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_auctions_id_page_tsx_e75ec2a7 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_login_page_tsx_60aba4ef -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_register_page_tsx_085c7f55 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_components_navbar_tsx_4d28025d -->|imports| store_authstore_useauthstore_4a03c2d9
-    %% Omitted for readability: 83 nodes, 0 edges
-    class front_src_app_auctions_page_tsx_1da9f999 ui;
+    %% Omitted for readability: 100 nodes, 0 edges
     class auctions_page_auctionspage_71ba11f5 ui;
     class auctions_page_lotnumber_ad7c862c ui;
     class auctions_page_auctioncard_659c1180 ui;
-    class front_src_app_admin_page_tsx_7083ca1e ui;
-    class admin_page_adminpage_d04df2b1 ui;
     class front_src_app_login_page_tsx_60aba4ef ui;
     class login_page_loginpage_8743849c ui;
     class front_src_app_register_page_tsx_085c7f55 ui;
     class register_page_registerpage_3cf33b24 ui;
     class front_src_app_auctions_id_page_tsx_e75ec2a7 ui;
     class id_page_auctiondetailpage_029c5ff1 ui;
+    class back_src_middleware_auth_middleware_ts_059380e7 module;
+    class middleware_auth_middleware_authenticate_2030e82e function;
+    class admin_page_adminpage_d04df2b1 ui;
     class dashboard_page_dashboardpage_6cc25d76 ui;
     class notifications_page_notificationspage_d73a94fa ui;
     class profile_page_profilepage_337c7d47 ui;
@@ -1295,7 +1298,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x79, imports x36, imports x26, calls x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x88, imports x43, imports x35, calls x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -1545,12 +1548,12 @@ flowchart LR
 
 <!-- ====== 7. Tests & Fixtures ====== -->
 <h2 id="tests-fixtures">7. Tests &amp; Fixtures</h2>
-<p>Tests &amp; Fixtures groups implementation around back, modules, auto, bid, mostly in back/generate-tests.js, back/learn.md, modules/auctions/auction.controller.ts. This section covers 263 nodes and 502 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Tests &amp; Fixtures groups implementation around back, modules, auto, bid, mostly in back/generate-tests.js, back/learn.md, modules/auctions/auction.controller.ts. This section covers 246 nodes and 442 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Tests &amp; Fixtures (263 nodes, 502 edges)
+    %% Section: Tests &amp; Fixtures (246 nodes, 442 edges)
     subgraph tests_fixtures_modules_auctions_auction_service_9a4ddbb9["modules/auctions/auction.service.ts"]
         auctions_auction_service_createauction_c72a362f("createAuction()<br/><small>modules/auctions/auction.service.ts</small>")
         auctions_auction_service_getauctionbyid_612e4aa3("getAuctionById()<br/><small>modules/auctions/auction.service.ts</small>")
@@ -1572,7 +1575,7 @@ flowchart LR
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda("auto-bid.service.test.ts")
     gateway_socket_gateway_initsocketgateway_799231ed("initSocketGateway()<br/><small>src/gateway/socket.gateway.ts</small>")
     back_src_lib_prisma_ts_02d67d10("prisma.ts")
-    back_src_middleware_auth_middleware_ts_059380e7("auth.middleware.ts")
+    middleware_auth_middleware_authrequest_2fa0ad7d("AuthRequest<br/><small>src/middleware/auth.middleware.ts</small>")
     middleware_error_middleware_createerror_ef44a228("createError()<br/><small>src/middleware/error.middleware.ts</small>")
     workers_index_initworkers_ad3aaaaf("initWorkers()<br/><small>src/workers/index.ts</small>")
     src_index_bootstrap_bcc4a2a7 -->|calls| workers_index_initworkers_ad3aaaaf
@@ -1589,13 +1592,12 @@ flowchart LR
     back_src_index_ts_a93b2e32 -->|imports| back_src_lib_prisma_ts_02d67d10
     back_src_index_ts_a93b2e32 -->|imports| gateway_socket_gateway_initsocketgateway_799231ed
     back_src_index_ts_a93b2e32 -->|imports| workers_index_initworkers_ad3aaaaf
-    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_middleware_auth_middleware_ts_059380e7
     back_src_modules_auctions_auction_service_test_t_6d86a6eb -->|imports| auctions_auction_service_createauction_c72a362f
     back_src_modules_auctions_auction_service_test_t_6d86a6eb -->|imports| auctions_auction_service_getauctionbyid_612e4aa3
     back_src_modules_auctions_auction_service_test_t_6d86a6eb -->|imports| auctions_auction_service_updateauction_ac79c954
     back_src_modules_auctions_auction_service_test_t_6d86a6eb -->|imports| auctions_auction_service_cancelauction_77615903
     back_src_modules_auctions_auction_service_test_t_6d86a6eb -->|imports| auctions_auction_service_buynow_1c0c6f31
-    %% Omitted for readability: 245 nodes, 0 edges
+    %% Omitted for readability: 228 nodes, 0 edges
     class auctions_auction_service_createauction_c72a362f function;
     class auctions_auction_service_getauctionbyid_612e4aa3 function;
     class auctions_auction_service_updateauction_ac79c954 function;
@@ -1611,7 +1613,7 @@ flowchart LR
     class back_src_modules_auto_bid_auto_bid_service_test_4934cdda test;
     class gateway_socket_gateway_initsocketgateway_799231ed function;
     class back_src_lib_prisma_ts_02d67d10 module;
-    class back_src_middleware_auth_middleware_ts_059380e7 module;
+    class middleware_auth_middleware_authrequest_2fa0ad7d klass;
     class middleware_error_middleware_createerror_ef44a228 function;
     class workers_index_initworkers_ad3aaaaf function;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
@@ -1637,46 +1639,6 @@ flowchart LR
 </tr>
 <tr>
   <td>1</td>
-  <td><code>io</code><br><small style="color:var(--muted)">back/src/index.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br><code>index.ts</code><br><small style="color:var(--muted)">src/workers/index.ts</small><br>+2 more</td>
-  <td>io node in back/src/index.ts.</td>
-</tr>
-<tr>
-  <td>2</td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>index.ts</code><br><small style="color:var(--muted)">back/src/index.ts</small></td>
-  <td><code>add-custom-user.ts</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small><br><code>admin.service.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small><br><code>auction.service.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.service.ts</small><br>+16 more</td>
-  <td>Module file in src/lib/prisma.ts.</td>
-</tr>
-<tr>
-  <td>3</td>
-  <td><code>globalForPrisma</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>globalForPrisma node in src/lib/prisma.ts.</td>
-</tr>
-<tr>
-  <td>4</td>
-  <td><code>auth.middleware.test.ts</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>auth.middleware.ts</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>authenticate()</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>AuthRequest</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br>+3 more</td>
-  <td>Module file in src/middleware/auth.middleware.test.ts.</td>
-</tr>
-<tr>
-  <td>5</td>
-  <td><code>nextFunction</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>nextFunction node in src/middleware/auth.middleware.test.ts.</td>
-</tr>
-<tr>
-  <td>6</td>
   <td><code>error.middleware.test.ts</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
@@ -1684,7 +1646,7 @@ flowchart LR
   <td>Module file in src/middleware/error.middleware.test.ts.</td>
 </tr>
 <tr>
-  <td>7</td>
+  <td>2</td>
   <td><code>nextFunction</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
@@ -1692,7 +1654,7 @@ flowchart LR
   <td>nextFunction node in src/middleware/error.middleware.test.ts.</td>
 </tr>
 <tr>
-  <td>8</td>
+  <td>3</td>
   <td><code>err</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
@@ -1700,7 +1662,7 @@ flowchart LR
   <td>err node in src/middleware/error.middleware.test.ts.</td>
 </tr>
 <tr>
-  <td>9</td>
+  <td>4</td>
   <td><code>issues</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
@@ -1708,7 +1670,7 @@ flowchart LR
   <td>issues node in src/middleware/error.middleware.test.ts.</td>
 </tr>
 <tr>
-  <td>10</td>
+  <td>5</td>
   <td><code>zodError</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
@@ -1716,7 +1678,7 @@ flowchart LR
   <td>zodError node in src/middleware/error.middleware.test.ts.</td>
 </tr>
 <tr>
-  <td>11</td>
+  <td>6</td>
   <td><code>error.middleware.ts</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>error.middleware.test.ts</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small><br><code>index.ts</code><br><small style="color:var(--muted)">back/src/index.ts</small></td>
@@ -1724,7 +1686,7 @@ flowchart LR
   <td>Module file in src/middleware/error.middleware.ts.</td>
 </tr>
 <tr>
-  <td>12</td>
+  <td>7</td>
   <td><code>AppError</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
   <td><span class="tag tag-class">Class</span></td>
   <td><code>error.middleware.test.ts</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
@@ -1732,7 +1694,7 @@ flowchart LR
   <td>AppError node in src/middleware/error.middleware.ts.</td>
 </tr>
 <tr>
-  <td>13</td>
+  <td>8</td>
   <td><code>errorHandler()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td><code>error.middleware.test.ts</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small><br><code>index.ts</code><br><small style="color:var(--muted)">back/src/index.ts</small></td>
@@ -1740,7 +1702,7 @@ flowchart LR
   <td>errorHandler() node in src/middleware/error.middleware.ts.</td>
 </tr>
 <tr>
-  <td>14</td>
+  <td>9</td>
   <td><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td><code>error.middleware.test.ts</code><br><small style="color:var(--muted)">src/middleware/error.middleware.test.ts</small></td>
@@ -1748,132 +1710,172 @@ flowchart LR
   <td>createError() node in src/middleware/error.middleware.ts.</td>
 </tr>
 <tr>
-  <td>15</td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
+  <td>10</td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
-  <td><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br><code>cancelAutoBid()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br>+8 more</td>
-  <td>Module file in modules/auto-bid/auto-bid.service.test.ts.</td>
+  <td><code>admin.service.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small><br><code>getAllAuctions()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small><br><code>getAllUsers()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small><br>+6 more</td>
+  <td>Module file in modules/admin/admin.service.test.ts.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>mockGroupBy</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>mockGroupBy node in modules/admin/admin.service.test.ts.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>admin.service.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>admin.controller.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.controller.test.ts</small><br><code>admin.controller.ts</code><br><small style="color:var(--muted)">modules/admin/admin.controller.ts</small><br><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small><br>+3 more</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in modules/admin/admin.service.ts.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>getDashboardStats()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>getDashboardStats() node in modules/admin/admin.service.ts.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>getAllUsers()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>getAllUsers() node in modules/admin/admin.service.ts.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>suspendUser()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small><br><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>suspendUser() node in modules/admin/admin.service.ts.</td>
 </tr>
 <tr>
   <td>16</td>
-  <td><code>defaultAuction</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
+  <td><code>getAllAuctions()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small></td>
   <td>No direct outbound edge</td>
-  <td>defaultAuction node in modules/auto-bid/auto-bid.service.test.ts.</td>
+  <td>getAllAuctions() node in modules/admin/admin.service.ts.</td>
 </tr>
 <tr>
   <td>17</td>
-  <td><code>dutchAuction</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
+  <td><code>moderateAuction()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small><br><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
   <td>No direct outbound edge</td>
-  <td>dutchAuction node in modules/auto-bid/auto-bid.service.test.ts.</td>
+  <td>moderateAuction() node in modules/admin/admin.service.ts.</td>
 </tr>
 <tr>
   <td>18</td>
-  <td><code>topAutoBid</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
+  <td><code>getFraudFlags()</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>admin.service.test.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.test.ts</small></td>
   <td>No direct outbound edge</td>
-  <td>topAutoBid node in modules/auto-bid/auto-bid.service.test.ts.</td>
+  <td>getFraudFlags() node in modules/admin/admin.service.ts.</td>
 </tr>
 <tr>
   <td>19</td>
-  <td><code>secondAutoBid</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
+  <td><code>auction.controller.test.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>secondAutoBid node in modules/auto-bid/auto-bid.service.test.ts.</td>
+  <td><code>auction.controller.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small><br><code>auction.service.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.service.ts</small></td>
+  <td>Module file in modules/auctions/auction.controller.test.ts.</td>
 </tr>
 <tr>
   <td>20</td>
-  <td><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>auto-bid.controller.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.controller.test.ts</small><br><code>auto-bid.controller.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.controller.ts</small><br><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small><br>+3 more</td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small><br><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br>+3 more</td>
-  <td>Module file in modules/auto-bid/auto-bid.service.ts.</td>
+  <td><code>auction</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.test.ts</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>auction node in modules/auctions/auction.controller.test.ts.</td>
 </tr>
 <tr>
   <td>21</td>
-  <td><code>setAutoBid()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small><br><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>setAutoBid() node in modules/auto-bid/auto-bid.service.ts.</td>
+  <td><code>auction.controller.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>auction.controller.test.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.test.ts</small><br><code>AuthRequest</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small><br>+1 more</td>
+  <td><code>auction.service.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.service.ts</small></td>
+  <td>Module file in modules/auctions/auction.controller.ts.</td>
 </tr>
 <tr>
   <td>22</td>
-  <td><code>cancelAutoBid()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
+  <td><code>createAuctionSchema</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
+  <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>cancelAutoBid() node in modules/auto-bid/auto-bid.service.ts.</td>
+  <td>createAuctionSchema node in modules/auctions/auction.controller.ts.</td>
 </tr>
 <tr>
   <td>23</td>
-  <td><code>processAutoBids()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
+  <td><code>createAuction()</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small><br><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br>+2 more</td>
-  <td>processAutoBids() node in modules/auto-bid/auto-bid.service.ts.</td>
+  <td><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>createAuction() node in modules/auctions/auction.controller.ts.</td>
 </tr>
 <tr>
   <td>24</td>
-  <td><code>getMyAutoBid()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
+  <td><code>getAuctions()</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small></td>
+  <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>getMyAutoBid() node in modules/auto-bid/auto-bid.service.ts.</td>
+  <td>getAuctions() node in modules/auctions/auction.controller.ts.</td>
 </tr>
 <tr>
   <td>25</td>
-  <td><code>bid.controller.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
+  <td><code>getAuctionById()</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td>Module file in modules/bidding/bid.controller.test.ts.</td>
+  <td>No direct outbound edge</td>
+  <td>getAuctionById() node in modules/auctions/auction.controller.ts.</td>
 </tr>
 <tr>
   <td>26</td>
-  <td><code>bid</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
+  <td><code>updateAuction()</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>bid node in modules/bidding/bid.controller.test.ts.</td>
+  <td>updateAuction() node in modules/auctions/auction.controller.ts.</td>
 </tr>
 <tr>
   <td>27</td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>auth.middleware.ts</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>AuthRequest</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br>+2 more</td>
-  <td><code>bid.routes.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.routes.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td>Module file in modules/bidding/bid.controller.ts.</td>
-</tr>
-<tr>
-  <td>28</td>
-  <td><code>placeBid()</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>processAutoBids()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>placeBid() node in modules/bidding/bid.controller.ts.</td>
-</tr>
-<tr>
-  <td>29</td>
-  <td><code>getAuctionBids()</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small></td>
+  <td><code>cancelAuction()</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>getAuctionBids() node in modules/bidding/bid.controller.ts.</td>
+  <td>cancelAuction() node in modules/auctions/auction.controller.ts.</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>buyNow()</code><br><small style="color:var(--muted)">modules/auctions/auction.controller.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>buyNow() node in modules/auctions/auction.controller.ts.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>auction.service.test.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.service.test.ts</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>auction.queue.ts</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small><br><code>auction.service.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.service.ts</small><br><code>auctionQueue</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small><br>+7 more</td>
+  <td>Module file in modules/auctions/auction.service.test.ts.</td>
 </tr>
 <tr>
   <td>30</td>
-  <td><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small></td>
+  <td><code>mockData</code><br><small style="color:var(--muted)">modules/auctions/auction.service.test.ts</small></td>
   <td><span class="tag tag-func">Test</span></td>
-  <td><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br><code>index.ts</code><br><small style="color:var(--muted)">back/src/index.ts</small><br><code>io</code><br><small style="color:var(--muted)">back/src/index.ts</small><br>+1 more</td>
-  <td><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br><code>getAuctionBids()</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br><code>notification.service.ts</code><br><small style="color:var(--muted)">modules/notifications/notification.service.ts</small><br>+4 more</td>
-  <td>Module file in modules/bidding/bid.service.test.ts.</td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>mockData node in modules/auctions/auction.service.test.ts.</td>
 </tr>
 </table>
 
@@ -1894,19 +1896,19 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x187, imports x154, imports x129, calls x32. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x177, imports x119, imports x114, calls x32. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
 
-<!-- ====== 8. App Layout & Providers ====== -->
-<h2 id="app-layout-providers">8. App Layout &amp; Providers</h2>
-<p>App Layout &amp; Providers groups implementation around frontend, suggestionmd, xdocs, not, mostly in xdocs/not-for-ai/frontend_suggestion.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 8. Notification Controllers ====== -->
+<h2 id="notification-controllers">8. Notification Controllers</h2>
+<p>Notification Controllers groups implementation around frontend, suggestionmd, xdocs, not, mostly in xdocs/not-for-ai/frontend_suggestion.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: App Layout &amp; Providers (15 nodes, 14 edges)
+    %% Section: Notification Controllers (15 nodes, 14 edges)
     not_for_ai_frontend_suggestion_the_production_re_04bd0390("🚀 The 'Production-Ready' Upgrade Path<br/><small>xdocs/not-for-ai/frontend_suggestion.md</small>")
     not_for_ai_frontend_suggestion_frontend_codebase_6efc4dae("Frontend Codebase Review (Production Gr...<br/><small>xdocs/not-for-ai/frontend_suggestion.md</small>")
     not_for_ai_frontend_suggestion_issues_and_bugs_f_761f6823("🐞 Issues and Bugs Found (QA Testing Rep...<br/><small>xdocs/not-for-ai/frontend_suggestion.md</small>")
@@ -2444,14 +2446,14 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 11. Next.js Config ====== -->
-<h2 id="next-js-config">11. Next.js Config</h2>
-<p>Next.js Config groups implementation around back, learnmd, api, reference, mostly in back/learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 11. Landing Page ====== -->
+<h2 id="landing-page">11. Landing Page</h2>
+<p>Landing Page groups implementation around back, learnmd, api, reference, mostly in back/learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Next.js Config (10 nodes, 9 edges)
+    %% Section: Landing Page (10 nodes, 9 edges)
     back_learn_16_api_reference_575d8321("16. API Reference<br/><small>back/learn.md</small>")
     back_learn_auth_406d329b("Auth<br/><small>back/learn.md</small>")
     back_learn_users_b8f53343("Users<br/><small>back/learn.md</small>")
@@ -2599,14 +2601,14 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 12. Landing Page ====== -->
-<h2 id="landing-page">12. Landing Page</h2>
-<p>Landing Page groups implementation around redis, dockermd, xdocs, not, mostly in xdocs/not-for-ai/redis-docker.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 12. Auto-Bid Algorithm ====== -->
+<h2 id="auto-bid-algorithm">12. Auto-Bid Algorithm</h2>
+<p>Auto-Bid Algorithm groups implementation around redis, dockermd, xdocs, not, mostly in xdocs/not-for-ai/redis-docker.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Landing Page (10 nodes, 9 edges)
+    %% Section: Auto-Bid Algorithm (10 nodes, 9 edges)
     not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98("Local Redis Setup for Development<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
     not_for_ai_redis_docker_option_1_quick_start_sin_521f0bcf("Option 1: Quick Start (Single Command)<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
     not_for_ai_redis_docker_option_2_docker_compose_d2b6c183("Option 2: Docker Compose Setup<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
@@ -2754,27 +2756,27 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 13. System Documentation ====== -->
-<h2 id="system-documentation">13. System Documentation</h2>
-<p>System Documentation groups implementation around xdocs, biblemd, escrow, not, mostly in xdocs/bible.md, xdocs/not-for-ai/done.md, back/learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 13. Backend Architecture ====== -->
+<h2 id="backend-architecture">13. Backend Architecture</h2>
+<p>Backend Architecture groups implementation around xdocs, biblemd, escrow, not, mostly in xdocs/bible.md, xdocs/not-for-ai/done.md, back/learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: System Documentation (10 nodes, 9 edges)
-    subgraph system_documentation_xdocs_bible_md_f651b4cc["xdocs/bible.md"]
+    %% Section: Backend Architecture (10 nodes, 9 edges)
+    subgraph backend_architecture_xdocs_bible_md_97e053f7["xdocs/bible.md"]
         bible_bidding_engine_75c0352a("Bidding Engine Architecture<br/><small>xdocs/bible.md</small>")
         bible_escrow_service_87842543("Escrow Service Settlement<br/><small>xdocs/bible.md</small>")
         bible_wallet_system_a24a61c9("Wallet System (Pessimistic Lock)<br/><small>xdocs/bible.md</small>")
         pessimistic_locking_pattern_22089ad7("Pessimistic Locking Pattern<br/><small>xdocs/bible.md</small>")
         sealed_bid_auction_type_c8c88069("Sealed Bid Auction Type<br/><small>xdocs/bible.md</small>")
     end
-    subgraph system_documentation_xdocs_not_for_ai_done_md_1ea1b0c4["xdocs/not-for-ai/done.md"]
+    subgraph backend_architecture_xdocs_not_for_ai_done_md_213f3604["xdocs/not-for-ai/done.md"]
         done_deep_audit_concurrency_e61cea4b("Deep Audit: Concurrency Fixes<br/><small>xdocs/not-for-ai/done.md</small>")
         done_escrow_centralization_cacbce32("Escrow Centralization<br/><small>xdocs/not-for-ai/done.md</small>")
         done_critical_bugfixes_470e630c("Critical Bug Fixes (Phase 1)<br/><small>xdocs/not-for-ai/done.md</small>")
     end
-    subgraph system_documentation_back_learn_md_0b6b25f9["back/learn.md"]
+    subgraph backend_architecture_back_learn_md_6ac9b7af["back/learn.md"]
         learn_wallet_escrow_design_866d7d26("Wallet Escrow Design<br/><small>back/learn.md</small>")
         prisma_transaction_pattern_d415a807("Prisma Transaction Pattern<br/><small>back/learn.md</small>")
     end
@@ -2917,14 +2919,14 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 14. English Auction & Sniping ====== -->
-<h2 id="english-auction-sniping">14. English Auction &amp; Sniping</h2>
-<p>English Auction &amp; Sniping groups implementation around xdocs, biblemd, auction, auto, mostly in xdocs/bible.md. This section covers 9 nodes and 8 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 14. Tech Stack Rationale ====== -->
+<h2 id="tech-stack-rationale">14. Tech Stack Rationale</h2>
+<p>Tech Stack Rationale groups implementation around xdocs, biblemd, auction, auto, mostly in xdocs/bible.md. This section covers 9 nodes and 8 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: English Auction &amp; Sniping (9 nodes, 8 edges)
+    %% Section: Tech Stack Rationale (9 nodes, 8 edges)
     xdocs_bible_7_core_business_logic_c6195dd0("7. Core Business Logic<br/><small>xdocs/bible.md</small>")
     xdocs_bible_7_1_bidding_engine_bid_service_ts_09cfcd44("7.1 Bidding Engine (bid.service.ts)<br/><small>xdocs/bible.md</small>")
     xdocs_bible_7_2_auto_bid_engine_auto_bid_service_f23cb012("7.2 Auto-Bid Engine (auto-bid.service....<br/><small>xdocs/bible.md</small>")
@@ -3061,14 +3063,14 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 15. Auth System & JWT ====== -->
-<h2 id="auth-system-jwt">15. Auth System &amp; JWT</h2>
-<p>Auth System &amp; JWT groups implementation around back, learnmd, prisma, design, mostly in back/learn.md. This section covers 8 nodes and 7 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 15. Product Requirements ====== -->
+<h2 id="product-requirements">15. Product Requirements</h2>
+<p>Product Requirements groups implementation around back, learnmd, prisma, design, mostly in back/learn.md. This section covers 8 nodes and 7 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Auth System &amp; JWT (8 nodes, 7 edges)
+    %% Section: Product Requirements (8 nodes, 7 edges)
     back_learn_3_database_design_prisma_schema_af5d4943("3. Database Design (Prisma Schema)<br/><small>back/learn.md</small>")
     back_learn_key_design_decisions_59ada918("Key Design Decisions<br/><small>back/learn.md</small>")
     back_learn_models_overview_56b30ed9("Models Overview<br/><small>back/learn.md</small>")
@@ -3466,38 +3468,6 @@ flowchart LR
 </tr>
 <tr>
   <td>24</td>
-  <td><code>8. Real-Time System (Socket.io)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 8. Real-Time System (Socket.io).</td>
-</tr>
-<tr>
-  <td>25</td>
-  <td><code>Server Setup (`index.ts`)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing Server Setup (`index.ts`).</td>
-</tr>
-<tr>
-  <td>26</td>
-  <td><code>Gateway Events (`socket.gateway.ts`)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing Gateway Events (`socket.gateway.ts`).</td>
-</tr>
-<tr>
-  <td>27</td>
-  <td><code>Client Usage</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing Client Usage.</td>
-</tr>
-<tr>
-  <td>28</td>
   <td><code>4. Database Schema (Prisma)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3505,7 +3475,7 @@ flowchart LR
   <td>Documentation node describing 4. Database Schema (Prisma).</td>
 </tr>
 <tr>
-  <td>29</td>
+  <td>25</td>
   <td><code>Models &amp; Key Fields</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3513,12 +3483,44 @@ flowchart LR
   <td>Documentation node describing Models &amp; Key Fields.</td>
 </tr>
 <tr>
-  <td>30</td>
+  <td>26</td>
   <td><code>Key Relations</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
   <td>Documentation node describing Key Relations.</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>DB Hardening Script (`scripts/db-hardening.ts`)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing DB Hardening Script (`scripts/db-hardening.ts`).</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>8. Real-Time System (Socket.io)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 8. Real-Time System (Socket.io).</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>Server Setup (`index.ts`)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Server Setup (`index.ts`).</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>Gateway Events (`socket.gateway.ts`)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Gateway Events (`socket.gateway.ts`).</td>
 </tr>
 </table>
 
@@ -3584,17 +3586,17 @@ flowchart LR
   <div class="card">
     <h4>Graph</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>Nodes</td><td>682</td></tr>
-      <tr><td>Edges</td><td>932</td></tr>
+      <tr><td>Nodes</td><td>742</td></tr>
+      <tr><td>Edges</td><td>991</td></tr>
       <tr><td>Hyperedges</td><td>3</td></tr>
-      <tr><td>Communities</td><td>84</td></tr>
+      <tr><td>Communities</td><td>94</td></tr>
       <tr><td>Documented Sections</td><td>15</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Edge Confidence</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>EXTRACTED</td><td>910</td></tr>
+      <tr><td>EXTRACTED</td><td>969</td></tr>
       <tr><td>INFERRED</td><td>22</td></tr>
       <tr><td>AMBIGUOUS</td><td>0</td></tr>
     </table>
@@ -3603,7 +3605,7 @@ flowchart LR
 
 <div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
   <p>auctionhaus — Architecture Documentation</p>
-  <p>Generated: 2026-05-23 14:43 UTC · graphify callflow-html</p>
+  <p>Generated: 2026-05-23 15:13 UTC · graphify callflow-html</p>
 </div>
 
 </div><!-- .container -->

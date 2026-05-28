@@ -126,25 +126,44 @@ describe('Bid Service', () => {
   });
 
   describe('getAuctionBids', () => {
-    it('should hide names for active sealed bids', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue({ id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ACTIVE } as any);
-      prismaMock.bid.findMany.mockResolvedValue([{ id: 'b1', amount: 200 }] as any);
+    it('masks amount + identity for other bidders, reveals own bid, while sealed+ACTIVE', async () => {
+      prismaMock.auction.findUnique.mockResolvedValue({
+        id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ACTIVE,
+      } as any);
+      prismaMock.bid.findMany.mockResolvedValue([
+        { id: 'b1', auctionId: 'a1', bidderId: 'viewer', amount: 200, status: 'ACTIVE', isAutoBid: false, createdAt: new Date('2026-01-01') },
+        { id: 'b2', auctionId: 'a1', bidderId: 'other',  amount: 500, status: 'ACTIVE', isAutoBid: false, createdAt: new Date('2026-01-02') },
+      ] as any);
 
-      await getAuctionBids('a1');
+      const out = await getAuctionBids('a1', 'viewer');
 
+      // findMany must use createdAt order (not amount desc) and a select (not include)
+      // so no leaked field can sneak in.
       expect(prismaMock.bid.findMany).toHaveBeenCalledWith(expect.objectContaining({
-        include: { bidder: { select: { id: true, name: false } } }
+        orderBy: { createdAt: 'asc' },
       }));
+      const call = (prismaMock.bid.findMany as any).mock.calls[0][0];
+      expect(call.select).toBeDefined();
+      expect(call.include).toBeUndefined();
+
+      // Viewer sees their own bid amount; everyone else's amount + identity is null.
+      expect(out).toEqual([
+        expect.objectContaining({ id: 'b1', amount: 200, bidderId: 'viewer', bidder: { id: 'viewer' } }),
+        expect.objectContaining({ id: 'b2', amount: null,  bidderId: null,     bidder: null }),
+      ]);
     });
 
-    it('should show names for ended sealed bids', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue({ id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ENDED } as any);
+    it('returns full bid data (name + avatar) once a sealed auction has ENDED', async () => {
+      prismaMock.auction.findUnique.mockResolvedValue({
+        id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ENDED,
+      } as any);
       prismaMock.bid.findMany.mockResolvedValue([{ id: 'b1', amount: 200 }] as any);
 
-      await getAuctionBids('a1');
+      await getAuctionBids('a1', 'viewer');
 
       expect(prismaMock.bid.findMany).toHaveBeenCalledWith(expect.objectContaining({
-        include: { bidder: { select: { id: true, name: true, avatar: true } } }
+        orderBy: { amount: 'desc' },
+        include: { bidder: { select: { id: true, name: true, avatar: true } } },
       }));
     });
   });
