@@ -148,6 +148,10 @@ User had ~40% capacity left after the first commit and asked for more. Used it t
 - `plan.md` Phase A4 fully struck through with implementation note and commit refs.
 - This continuation block.
 
+### Commit
+
+- `6a90b54` on branch `bliss` — `fix(sealed-bid): close Phase A4 -- stop currentPrice leak, mask detail-page bids, widen FE type`. 8 files changed, 118 insertions, 11 deletions. Not pushed.
+
 ### Next Up (revised, supersedes earlier Next Up)
 
 1. **Phase A1 — Decimal money migration.** `back/prisma/schema.prisma` Float → `Decimal @db.Decimal(18,2)` on every money field, add `back/src/lib/decimal.ts` for JSON serialization, update every service that does arithmetic, generate the migration. Multi-file but mechanical. User should ack before starting because it requires `prisma migrate dev` which they will run themselves.
