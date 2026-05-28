@@ -8,8 +8,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { Server } from 'socket.io';
 
+import { createAdapter } from '@socket.io/redis-adapter';
+
 import { prisma } from './lib/prisma';
-import { redis } from './lib/redis';
+import { redis, redisPub, redisSub } from './lib/redis';
 import { initSocketGateway } from './gateway/socket.gateway';
 import { initWorkers } from './workers';
 
@@ -94,11 +96,20 @@ async function bootstrap() {
       ]);
       console.log('✅ Redis connected');
 
+      // Phase A8: wire the Socket.io Redis adapter so a multi-instance deploy
+      // can broadcast across nodes. Single-instance dev keeps working since
+      // the adapter just routes through Redis pub/sub for the room fan-out.
+      // The two redisPub / redisSub connections were already allocated in
+      // lib/redis.ts and unused -- they earn their keep here.
+      io.adapter(createAdapter(redisPub, redisSub));
+      console.log('✅ Socket.io Redis adapter connected');
+
       initWorkers();
       console.log('✅ BullMQ workers started');
     } catch (_redisErr) {
       console.warn('⚠️ Could not connect to Redis on startup. Real-time features and scheduled jobs will be disabled.');
-      // Proceed without crashing the server
+      // Proceed without crashing the server. Socket.io falls back to its
+      // in-memory adapter (single-instance only).
     }
 
     initSocketGateway(io);

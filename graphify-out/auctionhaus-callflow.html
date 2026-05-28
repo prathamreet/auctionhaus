@@ -60,7 +60,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 <div class="container">
 
 <h1>auctionhaus — Complete Call Flow &amp; Architecture Documentation</h1>
-<p class="subtitle">Generated from graphify knowledge graph: 1119 nodes, 1437 edges, 135 communities. Commit: 34db43f</p>
+<p class="subtitle">Generated from graphify knowledge graph: 1137 nodes, 1466 edges, 136 communities. Commit: dc64efa</p>
 
 <div class="nav">
     <a href="#overview">Architecture Overview</a>
@@ -72,12 +72,12 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
     <a href="#serve-api">Serving API</a>
     <a href="#security-global">Security &amp; Global Graph</a>
     <a href="#tests-fixtures">Tests &amp; Fixtures</a>
-    <a href="#auction-create-form">Auction Create Form</a>
     <a href="#api-routes-catalogue">API Routes &amp; Catalogue</a>
+    <a href="#frontend-eslint-config">Frontend ESLint Config</a>
     <a href="#backend-architecture">Backend Architecture</a>
     <a href="#design-system-philosophy">Design System Philosophy</a>
     <a href="#auth-system-jwt">Auth System &amp; JWT</a>
-    <a href="#development-rules">Development Rules</a>
+    <a href="#phase-tracker">Phase Tracker</a>
     <a href="#other">Other</a>
 </div>
 
@@ -94,39 +94,42 @@ flowchart LR
     class BUILD_GRAPH_321CBB04 module;
     OUTPUTS_DOCS_ED82387C("Outputs &amp; Docs<br/><small>46 nodes</small>")
     class OUTPUTS_DOCS_ED82387C module;
-    CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>5 nodes</small>")
+    CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>21 nodes</small>")
     class CLI_SKILLS_9964CBB8 module;
     INGEST_CACHE_UPDATE_FF457338("Ingestion &amp; Updates<br/><small>6 nodes</small>")
     class INGEST_CACHE_UPDATE_FF457338 module;
-    SERVE_API_35EC8E86("Serving API<br/><small>129 nodes</small>")
+    SERVE_API_35EC8E86("Serving API<br/><small>146 nodes</small>")
     class SERVE_API_35EC8E86 module;
-    SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>80 nodes</small>")
+    SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>65 nodes</small>")
     class SECURITY_GLOBAL_5B9C6A04 module;
-    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>289 nodes</small>")
+    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>305 nodes</small>")
     class TESTS_FIXTURES_B84B1DCC module;
-    AUCTION_CREATE_FORM_A9B830EC("Auction Create Form<br/><small>31 nodes</small>")
-    class AUCTION_CREATE_FORM_A9B830EC module;
     API_ROUTES_CATALOGUE_6E0CC230("API Routes &amp; Catalogue<br/><small>15 nodes</small>")
     class API_ROUTES_CATALOGUE_6E0CC230 module;
+    FRONTEND_ESLINT_CONFIG_144F2D28("Frontend ESLint Config<br/><small>15 nodes</small>")
+    class FRONTEND_ESLINT_CONFIG_144F2D28 module;
     BACKEND_ARCHITECTURE_06A15D87("Backend Architecture<br/><small>12 nodes</small>")
     class BACKEND_ARCHITECTURE_06A15D87 module;
     DESIGN_SYSTEM_PHILOSOPHY_745A1FC4("Design System Philosophy<br/><small>12 nodes</small>")
     class DESIGN_SYSTEM_PHILOSOPHY_745A1FC4 module;
     AUTH_SYSTEM_JWT_3386B49E("Auth System &amp; JWT<br/><small>11 nodes</small>")
     class AUTH_SYSTEM_JWT_3386B49E module;
-    DEVELOPMENT_RULES_5CDF5DA1("Development Rules<br/><small>10 nodes</small>")
-    class DEVELOPMENT_RULES_5CDF5DA1 module;
+    PHASE_TRACKER_F7337BFE("Phase Tracker<br/><small>10 nodes</small>")
+    class PHASE_TRACKER_F7337BFE module;
     OTHER_D0941E68("Other<br/><small>236 nodes</small>")
     class OTHER_D0941E68 module;
+    SERVE_API_35EC8E86 -->|imports x23| TESTS_FIXTURES_B84B1DCC
+    TESTS_FIXTURES_B84B1DCC -->|imports x12| SERVE_API_35EC8E86
+    CLI_SKILLS_9964CBB8 -->|imports x12| TESTS_FIXTURES_B84B1DCC
     BACKEND_ARCHITECTURE_06A15D87 -->|contains x7| OTHER_D0941E68
     DESIGN_SYSTEM_PHILOSOPHY_745A1FC4 -->|contains x7| OTHER_D0941E68
     EXTRACT_PIPELINE_5F350230 -->|contains x5| OTHER_D0941E68
     EXTRACT_PIPELINE_5F350230 -->|contains x4| SERVE_API_35EC8E86
     EXTRACT_PIPELINE_5F350230 -->|contains x2| TESTS_FIXTURES_B84B1DCC
+    TESTS_FIXTURES_B84B1DCC -->|imports| CLI_SKILLS_9964CBB8
+    CLI_SKILLS_9964CBB8 -->|imports| SERVE_API_35EC8E86
     AUTH_SYSTEM_JWT_3386B49E -->|imports| SERVE_API_35EC8E86
-    EXTRACT_PIPELINE_5F350230 -->|contains| DEVELOPMENT_RULES_5CDF5DA1
-    BACKEND_ARCHITECTURE_06A15D87 -->|contains| SERVE_API_35EC8E86
-    DESIGN_SYSTEM_PHILOSOPHY_745A1FC4 -->|contains| SERVE_API_35EC8E86
+    EXTRACT_PIPELINE_5F350230 -->|contains| PHASE_TRACKER_F7337BFE
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -143,19 +146,19 @@ flowchart LR
     <h4>Architecture Layers</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
-      <tr><td>Extraction Pipeline</td><td>206</td><td><code>2, 8, 18, 19, 20, 21, 27, 28, 31, 38, 48, 52, 62, 64, 73, 74, 79, 80</code></td></tr><tr><td>Graph Build</td><td>31</td><td><code>4</code></td></tr><tr><td>Outputs &amp; Docs</td><td>46</td><td><code>11, 12, 66, 132, 133, 134</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>5</td><td><code>72</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>6</td><td><code>68</code></td></tr><tr><td>Serving API</td><td>129</td><td><code>0, 32, 34, 36, 39, 58, 59, 125</code></td></tr><tr><td>Security &amp; Global Graph</td><td>80</td><td><code>1, 10, 15</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>289</td><td><code>3, 6, 7, 9, 13, 14, 17, 22, 25, 29, 30, 41, 42, 43, 44, 45, 46, 47, 53, 55, 56, 61, 67, 112</code></td></tr><tr><td>Auction Create Form</td><td>31</td><td><code>5</code></td></tr><tr><td>API Routes &amp; Catalogue</td><td>15</td><td><code>16</code></td></tr><tr><td>Backend Architecture</td><td>12</td><td><code>23</code></td></tr><tr><td>Design System Philosophy</td><td>12</td><td><code>24</code></td></tr><tr><td>Auth System &amp; JWT</td><td>11</td><td><code>26</code></td></tr><tr><td>Development Rules</td><td>10</td><td><code>33</code></td></tr><tr><td>Other</td><td>236</td><td><code>35, 37, 40, 49, 50, 51, 54, 57, 60, 63, 65, 69, 70, 71, 75, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 98, 99, 110, 111, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 126, 127, 128, 129, 130, 131</code></td></tr>
+      <tr><td>Extraction Pipeline</td><td>206</td><td><code>3, 7, 19, 20, 21, 22, 27, 28, 33, 40, 47, 53, 63, 65, 74, 75, 80, 81</code></td></tr><tr><td>Graph Build</td><td>31</td><td><code>4</code></td></tr><tr><td>Outputs &amp; Docs</td><td>46</td><td><code>11, 12, 66, 133, 134, 135</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>21</td><td><code>14, 73</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>6</td><td><code>69</code></td></tr><tr><td>Serving API</td><td>146</td><td><code>0, 13, 35, 36, 38, 41, 55, 58, 126</code></td></tr><tr><td>Security &amp; Global Graph</td><td>65</td><td><code>1, 10</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>305</td><td><code>2, 5, 6, 8, 9, 15, 18, 25, 29, 30, 31, 32, 43, 44, 45, 46, 48, 52, 59, 60, 61, 67, 68, 113</code></td></tr><tr><td>API Routes &amp; Catalogue</td><td>15</td><td><code>16</code></td></tr><tr><td>Frontend ESLint Config</td><td>15</td><td><code>17</code></td></tr><tr><td>Backend Architecture</td><td>12</td><td><code>23</code></td></tr><tr><td>Design System Philosophy</td><td>12</td><td><code>24</code></td></tr><tr><td>Auth System &amp; JWT</td><td>11</td><td><code>26</code></td></tr><tr><td>Phase Tracker</td><td>10</td><td><code>34</code></td></tr><tr><td>Other</td><td>236</td><td><code>37, 39, 42, 49, 50, 51, 54, 56, 57, 62, 64, 70, 71, 72, 76, 77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 99, 111, 112, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128, 129, 130, 131, 132</code></td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Core Flow</h4>
-    <div class="arrow-chain">Extraction Pipeline -&gt; Other -&gt; Graph Build -&gt; Outputs &amp; Docs -&gt; CLI &amp; Skill Installers -&gt; Ingestion &amp; Updates -&gt; Serving API</div>
+    <div class="arrow-chain">Extraction Pipeline -&gt; Other -&gt; Graph Build -&gt; Outputs &amp; Docs -&gt; CLI &amp; Skill Installers -&gt; Tests &amp; Fixtures -&gt; Serving API</div>
   </div>
 </div>
 <div class="grid">
   <div class="card">
     <h4>Graph Report Highlights</h4>
     <ul>
-      <li>1119 nodes · 1437 edges · 135 communities (105 shown, 30 thin omitted)</li>
+      <li>1137 nodes · 1466 edges · 136 communities (105 shown, 31 thin omitted)</li>
       <li>Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 22 edges (avg confidence: 0.83)</li>
       <li>Token cost: 0 input · 0 output</li>
       <li>1. `createError()` - 37 edges</li>
@@ -1197,26 +1200,74 @@ flowchart LR
 
 <!-- ====== 5. CLI & Skill Installers ====== -->
 <h2 id="cli-skills">5. CLI &amp; Skill Installers</h2>
-<p>CLI &amp; Skill Installers groups implementation around claudemd, session, read, order, mostly in CLAUDE.md. This section covers 5 nodes and 4 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>CLI &amp; Skill Installers groups implementation around back, scripts, create, auctionts, mostly in CLAUDE.md, src/lib/prisma.ts, src/scripts/add-custom-user.ts. This section covers 21 nodes and 19 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: CLI &amp; Skill Installers (5 nodes, 4 edges)
-    claude_md_c26df1fa("CLAUDE.md")
-    auctionhaus_claude_read_order_at_session_start_s_5ccfd3e1("Read order at session start (strict)<br/><small>CLAUDE.md</small>")
-    auctionhaus_claude_session_memory_protocol_95ff2943("Session memory protocol<br/><small>CLAUDE.md</small>")
-    auctionhaus_claude_graphify_c1ab3b4f("graphify<br/><small>CLAUDE.md</small>")
-    auctionhaus_claude_hard_rules_from_the_user_do_n_03ed11fc("Hard rules (from the user, do not violate)<br/><small>CLAUDE.md</small>")
-    claude_md_c26df1fa -->|contains| auctionhaus_claude_read_order_at_session_start_s_5ccfd3e1
-    claude_md_c26df1fa -->|contains| auctionhaus_claude_session_memory_protocol_95ff2943
-    claude_md_c26df1fa -->|contains| auctionhaus_claude_graphify_c1ab3b4f
-    claude_md_c26df1fa -->|contains| auctionhaus_claude_hard_rules_from_the_user_do_n_03ed11fc
+    %% Section: CLI &amp; Skill Installers (21 nodes, 19 edges)
+    subgraph cli_skills_CLAUDE_md_27387765["CLAUDE.md"]
+        claude_md_c26df1fa("CLAUDE.md")
+        auctionhaus_claude_hard_rules_from_the_user_do_n_03ed11fc("Hard rules (from the user, do not violate)<br/><small>CLAUDE.md</small>")
+    end
+    subgraph cli_skills_src_lib_prisma_ts_28dbfa41["src/lib/prisma.ts"]
+        back_src_lib_prisma_ts_02d67d10("prisma.ts")
+        lib_prisma_globalforprisma_e72ab7b4("globalForPrisma<br/><small>src/lib/prisma.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_add_custom_user_ts_e3e24ab6["src/scripts/add-custom-user.ts"]
+        back_src_scripts_add_custom_user_ts_b6d76b79("add-custom-user.ts")
+        scripts_add_custom_user_main_ceb68a8d("main()<br/><small>src/scripts/add-custom-user.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_clear_auctions_ts_ab927ff1["src/scripts/clear-auctions.ts"]
+        back_src_scripts_clear_auctions_ts_741457da("clear-auctions.ts")
+        scripts_clear_auctions_main_01c32807("main()<br/><small>src/scripts/clear-auctions.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_clear_users_ts_fb38d9bb["src/scripts/clear-users.ts"]
+        back_src_scripts_clear_users_ts_f82e9d9e("clear-users.ts")
+        scripts_clear_users_main_1116a3d3("main()<br/><small>src/scripts/clear-users.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_create_dutch_auction_ts_b0640cf9["src/scripts/create-dutch-auction.ts"]
+        back_src_scripts_create_dutch_auction_ts_5c47f3ba("create-dutch-auction.ts")
+        scripts_create_dutch_auction_main_7393b01c("main()<br/><small>src/scripts/create-dutch-auction.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_create_english_auction_ts_7b002c67["src/scripts/create-english-auction.ts"]
+        back_src_scripts_create_english_auction_ts_a160dc51("create-english-auction.ts")
+        scripts_create_english_auction_main_42868c09("main()<br/><small>src/scripts/create-english-auction.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_create_sealed_bid_auction_7056cf47["src/scripts/create-sealed-bid-auction.ts"]
+        back_src_scripts_create_sealed_bid_auction_ts_0522d658("create-sealed-bid-auction.ts")
+        scripts_create_sealed_bid_auction_main_3bf6e793("main()<br/><small>src/scripts/create-sealed-bid-auction.ts</small>")
+    end
+    subgraph cli_skills_src_scripts_seed_users_ts_1703e2c1["src/scripts/seed-users.ts"]
+        back_src_scripts_seed_users_ts_4598104a("seed-users.ts")
+        scripts_seed_users_main_846a06aa("main()<br/><small>src/scripts/seed-users.ts</small>")
+    end
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_add_custom_user_ts_b6d76b79
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_clear_auctions_ts_741457da
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_clear_users_ts_f82e9d9e
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_create_dutch_auction_ts_5c47f3ba
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_create_english_auction_ts_a160dc51
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_create_sealed_bid_auction_ts_0522d658
+    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_scripts_seed_users_ts_4598104a
+    %% Omitted for readability: 3 nodes, 0 edges
     class claude_md_c26df1fa concept;
-    class auctionhaus_claude_read_order_at_session_start_s_5ccfd3e1 concept;
-    class auctionhaus_claude_session_memory_protocol_95ff2943 concept;
-    class auctionhaus_claude_graphify_c1ab3b4f concept;
     class auctionhaus_claude_hard_rules_from_the_user_do_n_03ed11fc concept;
+    class back_src_lib_prisma_ts_02d67d10 module;
+    class lib_prisma_globalforprisma_e72ab7b4 function;
+    class back_src_scripts_add_custom_user_ts_b6d76b79 module;
+    class scripts_add_custom_user_main_ceb68a8d function;
+    class back_src_scripts_clear_auctions_ts_741457da module;
+    class scripts_clear_auctions_main_01c32807 function;
+    class back_src_scripts_clear_users_ts_f82e9d9e module;
+    class scripts_clear_users_main_1116a3d3 function;
+    class back_src_scripts_create_dutch_auction_ts_5c47f3ba module;
+    class scripts_create_dutch_auction_main_7393b01c function;
+    class back_src_scripts_create_english_auction_ts_a160dc51 module;
+    class scripts_create_english_auction_main_42868c09 function;
+    class back_src_scripts_create_sealed_bid_auction_ts_0522d658 module;
+    class scripts_create_sealed_bid_auction_main_3bf6e793 function;
+    class back_src_scripts_seed_users_ts_4598104a module;
+    class scripts_seed_users_main_846a06aa function;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -1240,6 +1291,134 @@ flowchart LR
 </tr>
 <tr>
   <td>1</td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>add-custom-user.ts</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small><br><code>clear-auctions.ts</code><br><small style="color:var(--muted)">src/scripts/clear-auctions.ts</small><br><code>clear-users.ts</code><br><small style="color:var(--muted)">src/scripts/clear-users.ts</small><br>+4 more</td>
+  <td>Module file in src/lib/prisma.ts.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>globalForPrisma</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>globalForPrisma node in src/lib/prisma.ts.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>add-custom-user.ts</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/add-custom-user.ts.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/add-custom-user.ts.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>clear-auctions.ts</code><br><small style="color:var(--muted)">src/scripts/clear-auctions.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/clear-auctions.ts.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/clear-auctions.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/clear-auctions.ts.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>clear-users.ts</code><br><small style="color:var(--muted)">src/scripts/clear-users.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/clear-users.ts.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/clear-users.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/clear-users.ts.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>create-dutch-auction.ts</code><br><small style="color:var(--muted)">src/scripts/create-dutch-auction.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/create-dutch-auction.ts.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/create-dutch-auction.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/create-dutch-auction.ts.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>create-english-auction.ts</code><br><small style="color:var(--muted)">src/scripts/create-english-auction.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/create-english-auction.ts.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/create-english-auction.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/create-english-auction.ts.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>create-sealed-bid-auction.ts</code><br><small style="color:var(--muted)">src/scripts/create-sealed-bid-auction.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/create-sealed-bid-auction.ts.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/create-sealed-bid-auction.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/create-sealed-bid-auction.ts.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>seed-users.ts</code><br><small style="color:var(--muted)">src/scripts/seed-users.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/scripts/seed-users.ts.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/seed-users.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in src/scripts/seed-users.ts.</td>
+</tr>
+<tr>
+  <td>17</td>
   <td><code>CLAUDE.md</code><br><small style="color:var(--muted)">CLAUDE.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -1247,7 +1426,7 @@ flowchart LR
   <td>Documentation node describing CLAUDE.md.</td>
 </tr>
 <tr>
-  <td>2</td>
+  <td>18</td>
   <td><code>Read order at session start (strict)</code><br><small style="color:var(--muted)">CLAUDE.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -1255,7 +1434,7 @@ flowchart LR
   <td>Documentation node describing Read order at session start (strict).</td>
 </tr>
 <tr>
-  <td>3</td>
+  <td>19</td>
   <td><code>Session memory protocol</code><br><small style="color:var(--muted)">CLAUDE.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -1263,7 +1442,7 @@ flowchart LR
   <td>Documentation node describing Session memory protocol.</td>
 </tr>
 <tr>
-  <td>4</td>
+  <td>20</td>
   <td><code>graphify</code><br><small style="color:var(--muted)">CLAUDE.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -1271,7 +1450,7 @@ flowchart LR
   <td>Documentation node describing graphify.</td>
 </tr>
 <tr>
-  <td>5</td>
+  <td>21</td>
   <td><code>Hard rules (from the user, do not violate)</code><br><small style="color:var(--muted)">CLAUDE.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -1286,11 +1465,18 @@ flowchart LR
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>CLAUDE.md</code></td><td>5 nodes</td></tr>
+<tr><td><code>src/lib/prisma.ts</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/scripts/add-custom-user.ts</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/scripts/clear-auctions.ts</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/scripts/clear-users.ts</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/scripts/create-dutch-auction.ts</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/scripts/create-english-auction.ts</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/scripts/create-sealed-bid-auction.ts</code></td><td>2 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x4. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x12, imports x7. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -1408,14 +1594,19 @@ flowchart LR
 
 <!-- ====== 7. Serving API ====== -->
 <h2 id="serve-api">7. Serving API</h2>
-<p>Serving API groups implementation around front, pagetsx, app, xdocs, mostly in back/learn.md, xdocs/archive/back-learn.md, xdocs/archive/bible.md. This section covers 129 nodes and 181 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Serving API groups implementation around front, pagetsx, back, app, mostly in back/learn.md, xdocs/archive/back-learn.md, xdocs/archive/bible.md. This section covers 146 nodes and 205 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Serving API (129 nodes, 181 edges)
+    %% Section: Serving API (146 nodes, 205 edges)
+    subgraph serve_api_src_middleware_auth_middleware_ts_ff5ec4b8["src/middleware/auth.middleware.ts"]
+        back_src_middleware_auth_middleware_ts_059380e7("auth.middleware.ts")
+        middleware_auth_middleware_cacheget_479d5b9f("cacheGet()<br/><small>src/middleware/auth.middleware.ts</small>")
+        middleware_auth_middleware_authenticate_2030e82e("authenticate()<br/><small>src/middleware/auth.middleware.ts</small>")
+        middleware_auth_middleware_cacheset_1c69f980("cacheSet()<br/><small>src/middleware/auth.middleware.ts</small>")
+    end
     subgraph serve_api_app_auctions_page_tsx_9fb55fa8["app/auctions/page.tsx"]
-        front_src_app_auctions_page_tsx_1da9f999("page.tsx")
         auctions_page_auctionspage_71ba11f5("AuctionsPage()<br/><small>app/auctions/page.tsx</small>")
         auctions_page_lotnumber_ad7c862c("lotNumber()<br/><small>app/auctions/page.tsx</small>")
         auctions_page_auctioncard_659c1180("AuctionCard()<br/><small>app/auctions/page.tsx</small>")
@@ -1428,20 +1619,17 @@ flowchart LR
         front_src_app_login_page_tsx_60aba4ef("page.tsx")
         login_page_loginpage_8743849c("LoginPage()<br/><small>app/login/page.tsx</small>")
     end
-    subgraph serve_api_app_register_page_tsx_e713abd3["app/register/page.tsx"]
-        front_src_app_register_page_tsx_085c7f55("page.tsx")
-        register_page_registerpage_3cf33b24("RegisterPage()<br/><small>app/register/page.tsx</small>")
-    end
     subgraph serve_api_auctions_id_page_tsx_6526fdc3["auctions/[id]/page.tsx"]
         front_src_app_auctions_id_page_tsx_e75ec2a7("page.tsx")
         id_page_auctiondetailpage_029c5ff1("AuctionDetailPage()<br/><small>auctions/[id]/page.tsx</small>")
     end
     dashboard_page_dashboardpage_6cc25d76("DashboardPage()<br/><small>app/dashboard/page.tsx</small>")
     notifications_page_notificationspage_d73a94fa("NotificationsPage()<br/><small>app/notifications/page.tsx</small>")
-    profile_page_profilepage_337c7d47("ProfilePage()<br/><small>app/profile/page.tsx</small>")
-    wallet_page_walletpage_44b942fd("WalletPage()<br/><small>app/wallet/page.tsx</small>")
+    front_src_app_register_page_tsx_085c7f55("page.tsx")
     front_src_components_navbar_tsx_4d28025d("Navbar.tsx")
     store_authstore_useauthstore_4a03c2d9("useAuthStore<br/><small>src/store/authStore.ts</small>")
+    middleware_auth_middleware_cacheget_479d5b9f -->|calls| middleware_auth_middleware_authenticate_2030e82e
+    middleware_auth_middleware_cacheset_1c69f980 -->|calls| middleware_auth_middleware_authenticate_2030e82e
     admin_page_adminpage_d04df2b1 -->|calls| store_authstore_useauthstore_4a03c2d9
     auctions_page_auctionspage_71ba11f5 -->|calls| store_authstore_useauthstore_4a03c2d9
     auctions_page_lotnumber_ad7c862c -->|calls| auctions_page_auctioncard_659c1180
@@ -1449,17 +1637,16 @@ flowchart LR
     dashboard_page_dashboardpage_6cc25d76 -->|calls| store_authstore_useauthstore_4a03c2d9
     login_page_loginpage_8743849c -->|calls| store_authstore_useauthstore_4a03c2d9
     notifications_page_notificationspage_d73a94fa -->|calls| store_authstore_useauthstore_4a03c2d9
-    profile_page_profilepage_337c7d47 -->|calls| store_authstore_useauthstore_4a03c2d9
-    register_page_registerpage_3cf33b24 -->|calls| store_authstore_useauthstore_4a03c2d9
-    wallet_page_walletpage_44b942fd -->|calls| store_authstore_useauthstore_4a03c2d9
     front_src_app_admin_page_tsx_7083ca1e -->|imports| store_authstore_useauthstore_4a03c2d9
-    front_src_app_auctions_page_tsx_1da9f999 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_auctions_id_page_tsx_e75ec2a7 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_login_page_tsx_60aba4ef -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_register_page_tsx_085c7f55 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_components_navbar_tsx_4d28025d -->|imports| store_authstore_useauthstore_4a03c2d9
-    %% Omitted for readability: 111 nodes, 0 edges
-    class front_src_app_auctions_page_tsx_1da9f999 ui;
+    %% Omitted for readability: 128 nodes, 0 edges
+    class back_src_middleware_auth_middleware_ts_059380e7 module;
+    class middleware_auth_middleware_cacheget_479d5b9f function;
+    class middleware_auth_middleware_authenticate_2030e82e function;
+    class middleware_auth_middleware_cacheset_1c69f980 function;
     class auctions_page_auctionspage_71ba11f5 ui;
     class auctions_page_lotnumber_ad7c862c ui;
     class auctions_page_auctioncard_659c1180 ui;
@@ -1467,14 +1654,11 @@ flowchart LR
     class admin_page_adminpage_d04df2b1 ui;
     class front_src_app_login_page_tsx_60aba4ef ui;
     class login_page_loginpage_8743849c ui;
-    class front_src_app_register_page_tsx_085c7f55 ui;
-    class register_page_registerpage_3cf33b24 ui;
     class front_src_app_auctions_id_page_tsx_e75ec2a7 ui;
     class id_page_auctiondetailpage_029c5ff1 ui;
     class dashboard_page_dashboardpage_6cc25d76 ui;
     class notifications_page_notificationspage_d73a94fa ui;
-    class profile_page_profilepage_337c7d47 ui;
-    class wallet_page_walletpage_44b942fd ui;
+    class front_src_app_register_page_tsx_085c7f55 ui;
     class front_src_components_navbar_tsx_4d28025d ui;
     class store_authstore_useauthstore_4a03c2d9 ui;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
@@ -1749,27 +1933,38 @@ flowchart LR
 <tr><td><code>xdocs/archive/back-learn.md</code></td><td>18 nodes</td></tr>
 <tr><td><code>xdocs/archive/bible.md</code></td><td>10 nodes</td></tr>
 <tr><td><code>xdocs/bible.md</code></td><td>10 nodes</td></tr>
+<tr><td><code>src/middleware/auth.middleware.ts</code></td><td>7 nodes</td></tr>
 <tr><td><code>app/wallet/page.tsx</code></td><td>7 nodes</td></tr>
 <tr><td><code>app/dashboard/page.tsx</code></td><td>6 nodes</td></tr>
 <tr><td><code>src/lib/api.ts</code></td><td>6 nodes</td></tr>
-<tr><td><code>auctions/[id]/page.tsx</code></td><td>5 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x104, imports x36, imports x26, calls x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x115, imports x41, imports x32, calls x17. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
 
 <!-- ====== 8. Security & Global Graph ====== -->
 <h2 id="security-global">8. Security &amp; Global Graph</h2>
-<p>Security &amp; Global Graph groups implementation around xdocs, 2026, audit, planmd, mostly in xdocs/sessions/2026-05-28-audit-and-plan.md, xdocs/prd.md, xdocs/archive/frontend_suggestion.md. This section covers 80 nodes and 79 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Security &amp; Global Graph groups implementation around xdocs, 2026, audit, planmd, mostly in xdocs/sessions/2026-05-28-audit-and-plan.md, xdocs/prd.md. This section covers 65 nodes and 65 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Security &amp; Global Graph (80 nodes, 79 edges)
+    %% Section: Security &amp; Global Graph (65 nodes, 65 edges)
+    subgraph security_global_xdocs_prd_md_c8ce3cb5["xdocs/prd.md"]
+        xdocs_prd_core_features_high_level_2715c1d5("🔥 Core Features (High-Level)<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_auctionhaus_f853d7d5("🏛️ AuctionHaus<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_md_39e7f067("prd.md")
+        xdocs_prd_tech_stack_dual_repo_d9e7fb73("⚙️ Tech Stack (Dual Repo)<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_frontend_in_terms_of_styleing_and_ui_m_7bfccf5c("frontend in terms of styleing and ui ma...<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_make_the_backend_very_strong_6a4d699d("make the backend very strong<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_payment_will_be_mock_like_u_got_me_rig_a244007a("payment will be mock like u got me righ...<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_the_app_is_for_collage_project_so_keep_45f4b537("the app is for collage project so keep...<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_frontend_repo_844a3fba("🎨 Frontend Repo<br/><small>xdocs/prd.md</small>")
+    end
     subgraph security_global_xdocs_sessions_2026_05_28_audit_2d798bae["xdocs/sessions/2026-05-28-audit-and-plan.md"]
         sessions_2026_05_28_audit_and_plan_session_close_30e3e748("SESSION CLOSED — Where We Are Leaving (...<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
         sessions_2026_05_28_audit_and_plan_session_2026_3edbff13("Session: 2026-05-28 — Audit &amp; Plan<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
@@ -1781,26 +1976,14 @@ flowchart LR
         sessions_2026_05_28_audit_and_plan_phase_a3_inde_efd84df9("Phase A3 (Indexes) — pre-flight notes<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
         sessions_2026_05_28_audit_and_plan_phase_a8_sock_e3ce7fb0("Phase A8 (Socket.io Redis adapter) — qu...<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
     end
-    subgraph security_global_xdocs_archive_frontend_suggestio_4ccdcf61["xdocs/archive/frontend_suggestion.md"]
-        archive_frontend_suggestion_the_production_ready_2f4fb76c("🚀 The 'Production-Ready' Upgrade Path<br/><small>xdocs/archive/frontend_suggestion.md</small>")
-        archive_frontend_suggestion_frontend_codebase_re_0dcd5fae("Frontend Codebase Review (Production Gr...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
-        archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6("🐞 Issues and Bugs Found (QA Testing Rep...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
-        archive_frontend_suggestion_1_extracted_reusable_ac91aab4("1. Extracted Reusable UI Components (Hi...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
-        archive_frontend_suggestion_2_unified_error_hand_cb4410b5("2. Unified Error Handling &amp; Validation...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
-    end
-    subgraph security_global_xdocs_prd_md_c8ce3cb5["xdocs/prd.md"]
-        xdocs_prd_core_features_high_level_2715c1d5("🔥 Core Features (High-Level)<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_auctionhaus_f853d7d5("🏛️ AuctionHaus<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_md_39e7f067("prd.md")
-        xdocs_prd_tech_stack_dual_repo_d9e7fb73("⚙️ Tech Stack (Dual Repo)<br/><small>xdocs/prd.md</small>")
-    end
     xdocs_prd_md_39e7f067 -->|contains| xdocs_prd_auctionhaus_f853d7d5
     xdocs_prd_md_39e7f067 -->|contains| xdocs_prd_tech_stack_dual_repo_d9e7fb73
+    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_make_the_backend_very_strong_6a4d699d
+    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_frontend_in_terms_of_styleing_and_ui_m_7bfccf5c
+    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_the_app_is_for_collage_project_so_keep_45f4b537
+    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_payment_will_be_mock_like_u_got_me_rig_a244007a
     xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_core_features_high_level_2715c1d5
-    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae -->|contains| archive_frontend_suggestion_the_production_ready_2f4fb76c
-    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae -->|contains| archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6
-    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_1_extracted_reusable_ac91aab4
-    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_2_unified_error_hand_cb4410b5
+    xdocs_prd_tech_stack_dual_repo_d9e7fb73 -->|contains| xdocs_prd_frontend_repo_844a3fba
     sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 -->|contains| sessions_2026_05_28_audit_and_plan_continuation_0ec48115
     sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 -->|contains| sessions_2026_05_28_audit_and_plan_continuation_31f137ba
     sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 -->|contains| sessions_2026_05_28_audit_and_plan_continuation_23e09560
@@ -1811,7 +1994,16 @@ flowchart LR
     sessions_2026_05_28_audit_and_plan_session_close_30e3e748 -->|contains| sessions_2026_05_28_audit_and_plan_phase_a8_sock_e3ce7fb0
     sessions_2026_05_28_audit_and_plan_session_close_30e3e748 -->|contains| sessions_2026_05_28_audit_and_plan_next_up_revis_99d753fb
     sessions_2026_05_28_audit_and_plan_session_close_30e3e748 -->|contains| sessions_2026_05_28_audit_and_plan_next_up_overr_fa18a45d
-    %% Omitted for readability: 62 nodes, 0 edges
+    %% Omitted for readability: 47 nodes, 0 edges
+    class xdocs_prd_core_features_high_level_2715c1d5 concept;
+    class xdocs_prd_auctionhaus_f853d7d5 concept;
+    class xdocs_prd_md_39e7f067 concept;
+    class xdocs_prd_tech_stack_dual_repo_d9e7fb73 concept;
+    class xdocs_prd_frontend_in_terms_of_styleing_and_ui_m_7bfccf5c concept;
+    class xdocs_prd_make_the_backend_very_strong_6a4d699d concept;
+    class xdocs_prd_payment_will_be_mock_like_u_got_me_rig_a244007a concept;
+    class xdocs_prd_the_app_is_for_collage_project_so_keep_45f4b537 concept;
+    class xdocs_prd_frontend_repo_844a3fba concept;
     class sessions_2026_05_28_audit_and_plan_session_close_30e3e748 concept;
     class sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 concept;
     class sessions_2026_05_28_audit_and_plan_continuation_23e09560 concept;
@@ -1821,15 +2013,6 @@ flowchart LR
     class sessions_2026_05_28_audit_and_plan_next_up_revis_99d753fb concept;
     class sessions_2026_05_28_audit_and_plan_phase_a3_inde_efd84df9 concept;
     class sessions_2026_05_28_audit_and_plan_phase_a8_sock_e3ce7fb0 concept;
-    class archive_frontend_suggestion_the_production_ready_2f4fb76c concept;
-    class archive_frontend_suggestion_frontend_codebase_re_0dcd5fae concept;
-    class archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6 concept;
-    class archive_frontend_suggestion_1_extracted_reusable_ac91aab4 concept;
-    class archive_frontend_suggestion_2_unified_error_hand_cb4410b5 concept;
-    class xdocs_prd_core_features_high_level_2715c1d5 concept;
-    class xdocs_prd_auctionhaus_f853d7d5 concept;
-    class xdocs_prd_md_39e7f067 concept;
-    class xdocs_prd_tech_stack_dual_repo_d9e7fb73 concept;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -2100,27 +2283,27 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>xdocs/sessions/2026-05-28-audit-and-plan.md</code></td><td>47 nodes</td></tr>
 <tr><td><code>xdocs/prd.md</code></td><td>18 nodes</td></tr>
-<tr><td><code>xdocs/archive/frontend_suggestion.md</code></td><td>15 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x79. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x65. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
 
 <!-- ====== 9. Tests & Fixtures ====== -->
 <h2 id="tests-fixtures">9. Tests &amp; Fixtures</h2>
-<p>Tests &amp; Fixtures groups implementation around back, modules, auto, bid, mostly in src/workers/index.ts, back/generate-tests.js, xdocs/archive/back-learn.md. This section covers 289 nodes and 604 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Tests &amp; Fixtures groups implementation around back, modules, xdocs, phase, mostly in xdocs/sessions/2026-05-28-phase-a1-decimal-money.md, src/workers/index.ts, back/generate-tests.js. This section covers 305 nodes and 575 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Tests &amp; Fixtures (289 nodes, 604 edges)
+    %% Section: Tests &amp; Fixtures (305 nodes, 575 edges)
     subgraph tests_fixtures_src_lib_decimal_ts_68993209["src/lib/decimal.ts"]
         lib_decimal_serializemoney_474709c4("serializeMoney()<br/><small>src/lib/decimal.ts</small>")
         lib_decimal_d_8aab39f1("D()<br/><small>src/lib/decimal.ts</small>")
+        back_src_lib_decimal_ts_28131515("decimal.ts")
         lib_decimal_neg_936f8f99("neg()<br/><small>src/lib/decimal.ts</small>")
         lib_decimal_tonum_7639e157("toNum()<br/><small>src/lib/decimal.ts</small>")
     end
@@ -2140,11 +2323,10 @@ flowchart LR
         workers_index_initworkers_ad3aaaaf("initWorkers()<br/><small>src/workers/index.ts</small>")
         workers_index_endauction_1980c8ef("endAuction()<br/><small>src/workers/index.ts</small>")
     end
+    admin_admin_service_getdashboardstats_f3f6ecc4("getDashboardStats()<br/><small>modules/admin/admin.service.ts</small>")
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda("auto-bid.service.test.ts")
     bidding_bid_service_placebid_891c0e30("placeBid()<br/><small>modules/bidding/bid.service.ts</small>")
     gateway_socket_gateway_initsocketgateway_799231ed("initSocketGateway()<br/><small>src/gateway/socket.gateway.ts</small>")
-    back_src_lib_prisma_ts_02d67d10("prisma.ts")
-    back_src_middleware_auth_middleware_ts_059380e7("auth.middleware.ts")
     middleware_error_middleware_createerror_ef44a228("createError()<br/><small>src/middleware/error.middleware.ts</small>")
     src_index_bootstrap_bcc4a2a7 -->|calls| workers_index_initworkers_ad3aaaaf
     src_index_bootstrap_bcc4a2a7 -->|calls| gateway_socket_gateway_initsocketgateway_799231ed
@@ -2155,24 +2337,25 @@ flowchart LR
     lib_decimal_d_8aab39f1 -->|calls| wallet_wallet_service_withdraw_35276ac5
     lib_decimal_d_8aab39f1 -->|calls| workers_index_endauction_1980c8ef
     lib_decimal_d_8aab39f1 -->|calls| auto_bid_auto_bid_service_processautobids_e96a4860
+    lib_decimal_tonum_7639e157 -->|calls| admin_admin_service_getdashboardstats_f3f6ecc4
     lib_decimal_tonum_7639e157 -->|calls| workers_index_endauction_1980c8ef
     lib_decimal_tonum_7639e157 -->|calls| auto_bid_auto_bid_service_processautobids_e96a4860
+    lib_decimal_serializemoney_474709c4 -->|calls| admin_admin_service_getdashboardstats_f3f6ecc4
     lib_decimal_serializemoney_474709c4 -->|calls| auto_bid_auto_bid_service_setautobid_dcbcf3b2
     lib_decimal_serializemoney_474709c4 -->|calls| wallet_wallet_service_deposit_8c38187e
     lib_decimal_serializemoney_474709c4 -->|calls| wallet_wallet_service_withdraw_35276ac5
     middleware_error_middleware_createerror_ef44a228 -->|calls| auto_bid_auto_bid_service_setautobid_dcbcf3b2
     middleware_error_middleware_createerror_ef44a228 -->|calls| wallet_wallet_service_deposit_8c38187e
     middleware_error_middleware_createerror_ef44a228 -->|calls| wallet_wallet_service_withdraw_35276ac5
-    back_src_index_ts_a93b2e32 -->|imports| back_src_lib_prisma_ts_02d67d10
     back_src_index_ts_a93b2e32 -->|imports| gateway_socket_gateway_initsocketgateway_799231ed
     back_src_index_ts_a93b2e32 -->|imports| workers_index_initworkers_ad3aaaaf
-    back_src_lib_prisma_ts_02d67d10 -->|imports| back_src_middleware_auth_middleware_ts_059380e7
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda -->|imports| auto_bid_auto_bid_service_setautobid_dcbcf3b2
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda -->|imports| auto_bid_auto_bid_service_processautobids_e96a4860
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda -->|imports| bidding_bid_service_placebid_891c0e30
-    %% Omitted for readability: 271 nodes, 0 edges
+    %% Omitted for readability: 287 nodes, 0 edges
     class lib_decimal_serializemoney_474709c4 function;
     class lib_decimal_d_8aab39f1 function;
+    class back_src_lib_decimal_ts_28131515 module;
     class lib_decimal_neg_936f8f99 function;
     class lib_decimal_tonum_7639e157 function;
     class back_src_index_ts_a93b2e32 module;
@@ -2183,359 +2366,11 @@ flowchart LR
     class wallet_wallet_service_withdraw_35276ac5 function;
     class workers_index_initworkers_ad3aaaaf function;
     class workers_index_endauction_1980c8ef function;
+    class admin_admin_service_getdashboardstats_f3f6ecc4 function;
     class back_src_modules_auto_bid_auto_bid_service_test_4934cdda test;
     class bidding_bid_service_placebid_891c0e30 function;
     class gateway_socket_gateway_initsocketgateway_799231ed function;
-    class back_src_lib_prisma_ts_02d67d10 module;
-    class back_src_middleware_auth_middleware_ts_059380e7 module;
     class middleware_error_middleware_createerror_ef44a228 function;
-    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
-    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
-    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
-    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
-    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
-    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
-    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
-    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
-    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
-</div>
-
-<h3>Call Details</h3>
-<table class="call-table">
-<tr>
-  <th style="width:5%">#</th>
-  <th style="width:28%">Node</th>
-  <th style="width:10%">Type</th>
-  <th style="width:17%">Caller</th>
-  <th style="width:20%">Callees</th>
-  <th style="width:20%">Description</th>
-</tr>
-<tr>
-  <td>1</td>
-  <td><code>toNum()</code><br><small style="color:var(--muted)">src/lib/decimal.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>admin.service.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small><br><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br>+5 more</td>
-  <td>toNum() node in src/lib/decimal.ts.</td>
-</tr>
-<tr>
-  <td>2</td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>index.ts</code><br><small style="color:var(--muted)">back/src/index.ts</small></td>
-  <td><code>add-custom-user.ts</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small><br><code>admin.service.ts</code><br><small style="color:var(--muted)">modules/admin/admin.service.ts</small><br><code>auction.service.ts</code><br><small style="color:var(--muted)">modules/auctions/auction.service.ts</small><br>+17 more</td>
-  <td>Module file in src/lib/prisma.ts.</td>
-</tr>
-<tr>
-  <td>3</td>
-  <td><code>globalForPrisma</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>globalForPrisma node in src/lib/prisma.ts.</td>
-</tr>
-<tr>
-  <td>4</td>
-  <td><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>auto-bid.controller.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.controller.test.ts</small><br><code>auto-bid.controller.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.controller.ts</small><br><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small><br>+7 more</td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small><br><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br>+3 more</td>
-  <td>Module file in modules/auto-bid/auto-bid.service.ts.</td>
-</tr>
-<tr>
-  <td>5</td>
-  <td><code>bid.controller.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td>Module file in modules/bidding/bid.controller.test.ts.</td>
-</tr>
-<tr>
-  <td>6</td>
-  <td><code>bid</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>bid node in modules/bidding/bid.controller.test.ts.</td>
-</tr>
-<tr>
-  <td>7</td>
-  <td><code>bid.controller.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>auth.middleware.ts</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>AuthRequest</code><br><small style="color:var(--muted)">src/middleware/auth.middleware.ts</small><br><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br>+2 more</td>
-  <td><code>bid.routes.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.routes.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br><code>processAutoBids()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
-  <td>Module file in modules/bidding/bid.controller.ts.</td>
-</tr>
-<tr>
-  <td>8</td>
-  <td><code>placeBid()</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>processAutoBids()</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small></td>
-  <td>placeBid() node in modules/bidding/bid.controller.ts.</td>
-</tr>
-<tr>
-  <td>9</td>
-  <td><code>getAuctionBids()</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>getAuctionBids() node in modules/bidding/bid.controller.ts.</td>
-</tr>
-<tr>
-  <td>10</td>
-  <td><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br><code>index.ts</code><br><small style="color:var(--muted)">back/src/index.ts</small><br><code>io</code><br><small style="color:var(--muted)">back/src/index.ts</small></td>
-  <td><code>auction.queue.ts</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small><br><code>autoBidQueue</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small><br>+9 more</td>
-  <td>Module file in modules/bidding/bid.service.test.ts.</td>
-</tr>
-<tr>
-  <td>11</td>
-  <td><code>defaultAuction</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>defaultAuction node in modules/bidding/bid.service.test.ts.</td>
-</tr>
-<tr>
-  <td>12</td>
-  <td><code>prevBid</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>prevBid node in modules/bidding/bid.service.test.ts.</td>
-</tr>
-<tr>
-  <td>13</td>
-  <td><code>dutchAuction</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small></td>
-  <td><span class="tag tag-func">Test</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>dutchAuction node in modules/bidding/bid.service.test.ts.</td>
-</tr>
-<tr>
-  <td>14</td>
-  <td><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small><br><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br><code>bid.controller.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.controller.test.ts</small><br>+11 more</td>
-  <td><code>auction.queue.ts</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small><br><code>autoBidQueue</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small><br><code>notification.service.ts</code><br><small style="color:var(--muted)">modules/notifications/notification.service.ts</small><br>+2 more</td>
-  <td>Module file in modules/bidding/bid.service.ts.</td>
-</tr>
-<tr>
-  <td>15</td>
-  <td><code>placeBid()</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>auto-bid.service.test.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.test.ts</small><br><code>auto-bid.service.ts</code><br><small style="color:var(--muted)">modules/auto-bid/auto-bid.service.ts</small><br><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br>+1 more</td>
-  <td>No direct outbound edge</td>
-  <td>placeBid() node in modules/bidding/bid.service.ts.</td>
-</tr>
-<tr>
-  <td>16</td>
-  <td><code>getAuctionBids()</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br><code>createError()</code><br><small style="color:var(--muted)">src/middleware/error.middleware.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>getAuctionBids() node in modules/bidding/bid.service.ts.</td>
-</tr>
-<tr>
-  <td>17</td>
-  <td><code>autoBidQueue</code><br><small style="color:var(--muted)">src/queues/auction.queue.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>bid.service.test.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.test.ts</small><br><code>bid.service.ts</code><br><small style="color:var(--muted)">modules/bidding/bid.service.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>autoBidQueue node in src/queues/auction.queue.ts.</td>
-</tr>
-<tr>
-  <td>18</td>
-  <td><code>add-custom-user.ts</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/add-custom-user.ts.</td>
-</tr>
-<tr>
-  <td>19</td>
-  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/add-custom-user.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>main() node in src/scripts/add-custom-user.ts.</td>
-</tr>
-<tr>
-  <td>20</td>
-  <td><code>clear-auctions.ts</code><br><small style="color:var(--muted)">src/scripts/clear-auctions.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/clear-auctions.ts.</td>
-</tr>
-<tr>
-  <td>21</td>
-  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/clear-auctions.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>main() node in src/scripts/clear-auctions.ts.</td>
-</tr>
-<tr>
-  <td>22</td>
-  <td><code>clear-users.ts</code><br><small style="color:var(--muted)">src/scripts/clear-users.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/clear-users.ts.</td>
-</tr>
-<tr>
-  <td>23</td>
-  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/clear-users.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>main() node in src/scripts/clear-users.ts.</td>
-</tr>
-<tr>
-  <td>24</td>
-  <td><code>create-dutch-auction.ts</code><br><small style="color:var(--muted)">src/scripts/create-dutch-auction.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/create-dutch-auction.ts.</td>
-</tr>
-<tr>
-  <td>25</td>
-  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/create-dutch-auction.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>main() node in src/scripts/create-dutch-auction.ts.</td>
-</tr>
-<tr>
-  <td>26</td>
-  <td><code>create-english-auction.ts</code><br><small style="color:var(--muted)">src/scripts/create-english-auction.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/create-english-auction.ts.</td>
-</tr>
-<tr>
-  <td>27</td>
-  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/create-english-auction.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>main() node in src/scripts/create-english-auction.ts.</td>
-</tr>
-<tr>
-  <td>28</td>
-  <td><code>create-sealed-bid-auction.ts</code><br><small style="color:var(--muted)">src/scripts/create-sealed-bid-auction.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/create-sealed-bid-auction.ts.</td>
-</tr>
-<tr>
-  <td>29</td>
-  <td><code>main()</code><br><small style="color:var(--muted)">src/scripts/create-sealed-bid-auction.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>main() node in src/scripts/create-sealed-bid-auction.ts.</td>
-</tr>
-<tr>
-  <td>30</td>
-  <td><code>seed-users.ts</code><br><small style="color:var(--muted)">src/scripts/seed-users.ts</small></td>
-  <td><span class="tag tag-class">Module</span></td>
-  <td><code>prisma.ts</code><br><small style="color:var(--muted)">src/lib/prisma.ts</small></td>
-  <td>No direct outbound edge</td>
-  <td>Module file in src/scripts/seed-users.ts.</td>
-</tr>
-</table>
-
-<div class="grid">
-  <div class="card">
-    <h4>Key Files</h4>
-    <table style="width:100%;font-size:0.85rem;">
-      <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>back/generate-tests.js</code></td><td>9 nodes</td></tr>
-<tr><td><code>back/learn.md</code></td><td>9 nodes</td></tr>
-<tr><td><code>src/workers/index.ts</code></td><td>9 nodes</td></tr>
-<tr><td><code>xdocs/archive/back-learn.md</code></td><td>9 nodes</td></tr>
-<tr><td><code>modules/auctions/auction.controller.ts</code></td><td>8 nodes</td></tr>
-<tr><td><code>src/lib/decimal.ts</code></td><td>7 nodes</td></tr>
-<tr><td><code>src/lib/redis.ts</code></td><td>7 nodes</td></tr>
-<tr><td><code>modules/admin/admin.controller.ts</code></td><td>7 nodes</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x210, imports x173, imports x159, calls x62. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
-  </div>
-</div>
-<hr>
-
-<!-- ====== 10. Auction Create Form ====== -->
-<h2 id="auction-create-form">10. Auction Create Form</h2>
-<p>Auction Create Form groups implementation around phase, decimal, 2026, moneymd, mostly in xdocs/sessions/2026-05-28-phase-a1-decimal-money.md. This section covers 31 nodes and 30 internal edges; the diagram shows only representative relationships to stay readable.</p>
-
-<div class="mermaid">
-%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
-flowchart LR
-    %% Section: Auction Create Form (31 nodes, 30 edges)
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230("Session: 2026-05-28 — Phase A1 Decimal...<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_conti_86d7bf3c("Continuation 2 — Phase A6 atomic auto-b...<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_what_5fb9d0e7("What Landed<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_conti_9cd36638("Continuation — Phase A3 perf indexes (r...<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_notes_5821d961("Notes for Future Self<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    xdocs_sessions_2026_05_28_phase_a1_decimal_money_879c489b("2026-05-28-phase-a1-decimal-money.md")
-    sessions_2026_05_28_phase_a1_decimal_money_accep_bc987c76("Acceptance signals (run together with A...<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_accep_912f2c74("Acceptance signals for the user to run<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_accep_c3beffee("Acceptance signals for the user to run<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_commi_fb2a8723("Commit<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_commi_43b4e10c("Commit<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_conte_fc020de2("Context Loaded<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_goal_c11fd3c2("Goal<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_log_4e237e5d("Log<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_new_h_0e84ad6c("New helper<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_next_8f63badc("Next Up<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_notes_a23c14d4("Notes for Future Self<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    sessions_2026_05_28_phase_a1_decimal_money_notes_09b9104e("Notes for Future Self<br/><small>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small>")
-    xdocs_sessions_2026_05_28_phase_a1_decimal_money_879c489b -->|contains| sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_goal_c11fd3c2
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_conte_fc020de2
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_log_4e237e5d
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_what_5fb9d0e7
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_next_8f63badc
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_notes_5821d961
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_conti_9cd36638
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_conti_86d7bf3c
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_notes_a23c14d4
-    sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_notes_09b9104e
-    sessions_2026_05_28_phase_a1_decimal_money_what_5fb9d0e7 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_new_h_0e84ad6c
-    sessions_2026_05_28_phase_a1_decimal_money_notes_5821d961 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_accep_912f2c74
-    sessions_2026_05_28_phase_a1_decimal_money_notes_5821d961 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_commi_fb2a8723
-    sessions_2026_05_28_phase_a1_decimal_money_conti_9cd36638 -->|contains| sessions_2026_05_28_phase_a1_decimal_money_accep_bc987c76
-    sessions_2026_05_28_phase_a1_decimal_money_conti_86d7bf3c -->|contains| sessions_2026_05_28_phase_a1_decimal_money_accep_c3beffee
-    sessions_2026_05_28_phase_a1_decimal_money_conti_86d7bf3c -->|contains| sessions_2026_05_28_phase_a1_decimal_money_commi_43b4e10c
-    %% Omitted for readability: 13 nodes, 0 edges
-    class sessions_2026_05_28_phase_a1_decimal_money_sessi_39b7c230 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_conti_86d7bf3c concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_what_5fb9d0e7 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_conti_9cd36638 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_notes_5821d961 concept;
-    class xdocs_sessions_2026_05_28_phase_a1_decimal_money_879c489b concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_accep_bc987c76 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_accep_912f2c74 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_accep_c3beffee concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_commi_fb2a8723 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_commi_43b4e10c concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_conte_fc020de2 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_goal_c11fd3c2 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_log_4e237e5d concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_new_h_0e84ad6c concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_next_8f63badc concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_notes_a23c14d4 concept;
-    class sessions_2026_05_28_phase_a1_decimal_money_notes_09b9104e concept;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -2791,11 +2626,11 @@ flowchart LR
 </tr>
 <tr>
   <td>30</td>
-  <td><code>Notes for Future Self</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small></td>
+  <td><code>Continuation 3 — A8 + A6.x + A7 + A9 (40% capacity push)</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Notes for Future Self.</td>
+  <td>Documentation node describing Continuation 3 — A8 + A6.x + A7 + A9 (40% capacity push).</td>
 </tr>
 </table>
 
@@ -2804,24 +2639,241 @@ flowchart LR
     <h4>Key Files</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</code></td><td>31 nodes</td></tr>
+      <tr><td><code>xdocs/sessions/2026-05-28-phase-a1-decimal-money.md</code></td><td>43 nodes</td></tr>
+<tr><td><code>src/workers/index.ts</code></td><td>10 nodes</td></tr>
+<tr><td><code>back/generate-tests.js</code></td><td>9 nodes</td></tr>
+<tr><td><code>back/learn.md</code></td><td>9 nodes</td></tr>
+<tr><td><code>xdocs/archive/back-learn.md</code></td><td>9 nodes</td></tr>
+<tr><td><code>modules/auctions/auction.controller.ts</code></td><td>8 nodes</td></tr>
+<tr><td><code>src/lib/decimal.ts</code></td><td>7 nodes</td></tr>
+<tr><td><code>src/lib/redis.ts</code></td><td>7 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x30. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x237, imports x151, imports x124, calls x63. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
 
-<!-- ====== 11. API Routes & Catalogue ====== -->
-<h2 id="api-routes-catalogue">11. API Routes &amp; Catalogue</h2>
-<p>API Routes &amp; Catalogue groups implementation around frontend, suggestionmd, xdocs, not, mostly in xdocs/not-for-ai/frontend_suggestion.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 10. API Routes & Catalogue ====== -->
+<h2 id="api-routes-catalogue">10. API Routes &amp; Catalogue</h2>
+<p>API Routes &amp; Catalogue groups implementation around frontend, suggestionmd, xdocs, archive, mostly in xdocs/archive/frontend_suggestion.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
     %% Section: API Routes &amp; Catalogue (15 nodes, 14 edges)
+    archive_frontend_suggestion_the_production_ready_2f4fb76c("🚀 The 'Production-Ready' Upgrade Path<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae("Frontend Codebase Review (Production Gr...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6("🐞 Issues and Bugs Found (QA Testing Rep...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    xdocs_archive_frontend_suggestion_md_982ed4a6("frontend_suggestion.md")
+    archive_frontend_suggestion_executive_summary_8a98cf9c("📌 Executive Summary<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_what_makes_the_codeb_9b6a76f8("🏆 What Makes the Codebase 'Awesome' (Cu...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_1_extracted_reusable_ac91aab4("1. Extracted Reusable UI Components (Hi...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_2_unified_error_hand_cb4410b5("2. Unified Error Handling &amp; Validation...<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_3_next_js_middleware_5be68f46("3. Next.js Middleware Route Protection<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_4_dedicated_websocke_532d86c9("4. Dedicated WebSocket Custom Hook<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_5_skeleton_loaders_i_d82947be("5. Skeleton Loaders instead of Text<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_6_centralized_error_6a2daeaa("6. Centralized Error Normalization<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_critical_high_priori_a975e4f9("Critical &amp; High Priority<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_medium_priority_91d30a6a("Medium Priority<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    archive_frontend_suggestion_minor_code_smells_91fe564b("Minor / Code Smells<br/><small>xdocs/archive/frontend_suggestion.md</small>")
+    xdocs_archive_frontend_suggestion_md_982ed4a6 -->|contains| archive_frontend_suggestion_frontend_codebase_re_0dcd5fae
+    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae -->|contains| archive_frontend_suggestion_executive_summary_8a98cf9c
+    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae -->|contains| archive_frontend_suggestion_what_makes_the_codeb_9b6a76f8
+    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae -->|contains| archive_frontend_suggestion_the_production_ready_2f4fb76c
+    archive_frontend_suggestion_frontend_codebase_re_0dcd5fae -->|contains| archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6
+    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_1_extracted_reusable_ac91aab4
+    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_2_unified_error_hand_cb4410b5
+    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_3_next_js_middleware_5be68f46
+    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_4_dedicated_websocke_532d86c9
+    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_5_skeleton_loaders_i_d82947be
+    archive_frontend_suggestion_the_production_ready_2f4fb76c -->|contains| archive_frontend_suggestion_6_centralized_error_6a2daeaa
+    archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6 -->|contains| archive_frontend_suggestion_critical_high_priori_a975e4f9
+    archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6 -->|contains| archive_frontend_suggestion_medium_priority_91d30a6a
+    archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6 -->|contains| archive_frontend_suggestion_minor_code_smells_91fe564b
+    class archive_frontend_suggestion_the_production_ready_2f4fb76c concept;
+    class archive_frontend_suggestion_frontend_codebase_re_0dcd5fae concept;
+    class archive_frontend_suggestion_issues_and_bugs_foun_08c75ff6 concept;
+    class xdocs_archive_frontend_suggestion_md_982ed4a6 concept;
+    class archive_frontend_suggestion_executive_summary_8a98cf9c concept;
+    class archive_frontend_suggestion_what_makes_the_codeb_9b6a76f8 concept;
+    class archive_frontend_suggestion_1_extracted_reusable_ac91aab4 concept;
+    class archive_frontend_suggestion_2_unified_error_hand_cb4410b5 concept;
+    class archive_frontend_suggestion_3_next_js_middleware_5be68f46 concept;
+    class archive_frontend_suggestion_4_dedicated_websocke_532d86c9 concept;
+    class archive_frontend_suggestion_5_skeleton_loaders_i_d82947be concept;
+    class archive_frontend_suggestion_6_centralized_error_6a2daeaa concept;
+    class archive_frontend_suggestion_critical_high_priori_a975e4f9 concept;
+    class archive_frontend_suggestion_medium_priority_91d30a6a concept;
+    class archive_frontend_suggestion_minor_code_smells_91fe564b concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>frontend_suggestion.md</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing frontend_suggestion.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>Frontend Codebase Review (Production Grade Analysis)</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Frontend Codebase Review (Production Grade Analysis).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>📌 Executive Summary</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📌 Executive Summary.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>🏆 What Makes the Codebase &quot;Awesome&quot; (Current Wins)</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏆 What Makes the Codebase &quot;Awesome&quot; (Current Wins).</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>🚀 The &quot;Production-Ready&quot; Upgrade Path</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 The &quot;Production-Ready&quot; Upgrade Path.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>1. Extracted Reusable UI Components (High Priority)</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Extracted Reusable UI Components (High Priority).</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>2. Unified Error Handling &amp; Validation (Form Level)</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Unified Error Handling &amp; Validation (Form Level).</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>3. Next.js Middleware Route Protection</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Next.js Middleware Route Protection.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>4. Dedicated WebSocket Custom Hook</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 4. Dedicated WebSocket Custom Hook.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>5. Skeleton Loaders instead of Text</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 5. Skeleton Loaders instead of Text.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>6. Centralized Error Normalization</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 6. Centralized Error Normalization.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>🐞 Issues and Bugs Found (QA Testing Report)</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🐞 Issues and Bugs Found (QA Testing Report).</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>Critical &amp; High Priority</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Critical &amp; High Priority.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>Medium Priority</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Medium Priority.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>Minor / Code Smells</code><br><small style="color:var(--muted)">xdocs/archive/frontend_suggestion.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Minor / Code Smells.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>xdocs/archive/frontend_suggestion.md</code></td><td>15 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x14. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 11. Frontend ESLint Config ====== -->
+<h2 id="frontend-eslint-config">11. Frontend ESLint Config</h2>
+<p>Frontend ESLint Config groups implementation around frontend, suggestionmd, xdocs, not, mostly in xdocs/not-for-ai/frontend_suggestion.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Frontend ESLint Config (15 nodes, 14 edges)
     not_for_ai_frontend_suggestion_the_production_re_04bd0390("🚀 The 'Production-Ready' Upgrade Path<br/><small>xdocs/not-for-ai/frontend_suggestion.md</small>")
     not_for_ai_frontend_suggestion_frontend_codebase_6efc4dae("Frontend Codebase Review (Production Gr...<br/><small>xdocs/not-for-ai/frontend_suggestion.md</small>")
     not_for_ai_frontend_suggestion_issues_and_bugs_f_761f6823("🐞 Issues and Bugs Found (QA Testing Rep...<br/><small>xdocs/not-for-ai/frontend_suggestion.md</small>")
@@ -3536,14 +3588,14 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 15. Development Rules ====== -->
-<h2 id="development-rules">15. Development Rules</h2>
-<p>Development Rules groups implementation around xdocs, archive, back, learnmd, mostly in xdocs/archive/back-learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 15. Phase Tracker ====== -->
+<h2 id="phase-tracker">15. Phase Tracker</h2>
+<p>Phase Tracker groups implementation around xdocs, archive, back, learnmd, mostly in xdocs/archive/back-learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Development Rules (10 nodes, 9 edges)
+    %% Section: Phase Tracker (10 nodes, 9 edges)
     archive_back_learn_16_api_reference_d5bd754f("16. API Reference<br/><small>xdocs/archive/back-learn.md</small>")
     archive_back_learn_auth_8cab3997("Auth<br/><small>xdocs/archive/back-learn.md</small>")
     archive_back_learn_users_71b08dec("Users<br/><small>xdocs/archive/back-learn.md</small>")
@@ -4078,17 +4130,17 @@ flowchart LR
   <div class="card">
     <h4>Graph</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>Nodes</td><td>1119</td></tr>
-      <tr><td>Edges</td><td>1437</td></tr>
+      <tr><td>Nodes</td><td>1137</td></tr>
+      <tr><td>Edges</td><td>1466</td></tr>
       <tr><td>Hyperedges</td><td>3</td></tr>
-      <tr><td>Communities</td><td>135</td></tr>
+      <tr><td>Communities</td><td>136</td></tr>
       <tr><td>Documented Sections</td><td>15</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Edge Confidence</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>EXTRACTED</td><td>1415</td></tr>
+      <tr><td>EXTRACTED</td><td>1444</td></tr>
       <tr><td>INFERRED</td><td>22</td></tr>
       <tr><td>AMBIGUOUS</td><td>0</td></tr>
     </table>
@@ -4097,7 +4149,7 @@ flowchart LR
 
 <div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
   <p>auctionhaus — Architecture Documentation</p>
-  <p>Generated: 2026-05-28 17:18 UTC · graphify callflow-html</p>
+  <p>Generated: 2026-05-28 17:25 UTC · graphify callflow-html</p>
 </div>
 
 </div><!-- .container -->

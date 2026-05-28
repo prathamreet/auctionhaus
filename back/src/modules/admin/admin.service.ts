@@ -2,6 +2,7 @@ import { AuctionStatus, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
 import { serializeMoney, toNum } from '../../lib/decimal';
+import { invalidateUser } from '../../middleware/auth.middleware';
 
 export const getDashboardStats = async () => {
   const [
@@ -84,11 +85,18 @@ export const suspendUser = async (userId: string, suspend: boolean) => {
   if (!user) throw createError('User not found', 404);
   if (user.role === 'ADMIN') throw createError('Cannot suspend admin', 400);
 
-  return prisma.user.update({
+  const updated = await prisma.user.update({
     where: { id: userId },
     data: { isSuspended: suspend },
     select: { id: true, name: true, email: true, isSuspended: true },
   });
+
+  // Phase A9: evict the auth-middleware cache so the suspended user can't
+  // keep getting through on a TTL-cached entry for up to 30s. Single-process
+  // only -- a multi-instance deployment would need Redis pub/sub here.
+  invalidateUser(userId);
+
+  return updated;
 };
 
 export const getAllAuctions = async (params: {

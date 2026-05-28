@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { AuctionStatus, AuctionType, Prisma } from '@prisma/client';
+import { AuctionStatus, AuctionType, NotificationType, Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { bullMQConnection } from '../lib/redis';
 import { io } from '../index';
@@ -460,6 +460,47 @@ export async function processAutoBidLadder(
   return steps;
 }
 
+/**
+ * Phase A7: notifications worker.
+ *
+ * Consumes `deliver` jobs from `notificationQueue`. For each one, writes a
+ * Notification row and emits `notification:new` to the user's personal
+ * socket room. This moves the DB write + socket fan-out off the request /
+ * bid-transaction critical path that previously paid for it inline in
+ * notifyUser().
+ *
+ * Failure semantics: if the DB write fails, BullMQ will retry (the queue
+ * is configured with 3 attempts, exponential backoff). If the socket emit
+ * fails (rare -- emits are best-effort, no ack), we shrug; the user will
+ * see the notification on next inbox fetch.
+ */
+const notificationWorker = new Worker(
+  'notifications',
+  async (job: Job) => {
+    if (job.name !== 'deliver') return;
+    const { userId, type, title, message, data } = job.data as {
+      userId: string;
+      type: NotificationType;
+      title: string;
+      message: string;
+      data?: Prisma.InputJsonValue;
+    };
+
+    const notification = await prisma.notification.create({
+      data: {
+        userId,
+        type,
+        title,
+        message,
+        data: data ?? {},
+      },
+    });
+
+    io.to(`user:${userId}`).emit('notification:new', notification);
+  },
+  { ...workerOptions, concurrency: 10 },
+);
+
 const autoBidWorker = new Worker(
   'auto-bid',
   async (job: Job) => {
@@ -504,6 +545,7 @@ export const initWorkers = () => {
   auctionWorker.on('error', handleWorkerError('auction-scheduler'));
   dutchWorker.on('error', handleWorkerError('dutch-auction'));
   autoBidWorker.on('error', handleWorkerError('auto-bid'));
+  notificationWorker.on('error', handleWorkerError('notifications'));
 
   auctionWorker.on('completed', (job) => {
     console.log(`[Worker] Job ${job.name} (${job.id}) completed`);
@@ -519,6 +561,10 @@ export const initWorkers = () => {
 
   autoBidWorker.on('failed', (job, err) => {
     console.error(`[AutoBid Worker] Job ${job?.name} failed:`, err.message);
+  });
+
+  notificationWorker.on('failed', (job, err) => {
+    console.error(`[Notifications Worker] Job ${job?.name} failed:`, err.message);
   });
 
   console.log('BullMQ workers initialized');

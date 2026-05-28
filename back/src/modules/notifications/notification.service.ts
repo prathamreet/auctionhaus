@@ -1,8 +1,26 @@
 import { NotificationType, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
-import { io } from '../../index';
+import { notificationQueue } from '../../queues/auction.queue';
 
+/**
+ * Phase A7: notifyUser is now a fire-and-forget producer onto the
+ * notifications BullMQ queue. Previously it did the Notification row insert
+ * + socket emit inline, which meant a bid/payment transaction was paying
+ * the cost (and risk) of a DB write + socket fan-out on its critical path.
+ *
+ * The producer returns void -- callers that were `await notifyUser(...)`
+ * still work because awaiting a Promise<void> resolves immediately. Callers
+ * that were `notifyUser(...).catch(...)` keep working because we return a
+ * Promise.
+ *
+ * If Redis is down, BullMQ's queue.add() will eventually fail. The catch
+ * here logs but never throws -- the calling business logic must not fail
+ * because a notification couldn't queue.
+ *
+ * The consumer (notificationWorker in back/src/workers/index.ts) does the
+ * DB write + socket emit.
+ */
 export const notifyUser = async (
   userId: string,
   data: {
@@ -11,24 +29,17 @@ export const notifyUser = async (
     message: string;
     data?: Prisma.InputJsonValue;
   }
-) => {
+): Promise<void> => {
   try {
-    const notification = await prisma.notification.create({
-      data: {
-        userId,
-        type: data.type,
-        title: data.title,
-        message: data.message,
-        data: data.data || {},
-      },
+    await notificationQueue.add('deliver', {
+      userId,
+      type: data.type,
+      title: data.title,
+      message: data.message,
+      data: data.data || {},
     });
-
-    // Push via socket if user is connected
-    io.to(`user:${userId}`).emit('notification:new', notification);
-
-    return notification;
   } catch (err) {
-    console.error('Failed to create notification:', err);
+    console.error('Failed to enqueue notification:', err);
   }
 };
 

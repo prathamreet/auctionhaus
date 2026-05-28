@@ -215,6 +215,60 @@ User said `resume`. Per the protocol the previous "Next Up" is the brief — and
 
 - _(this section gets the actual `<hash>` after the commit lands.)_
 
+---
+
+## Continuation 3 — A8 + A6.x + A7 + A9 (40% capacity push)
+
+User said "work more, still 40% usage limit left". Used the remaining headroom to clear four queued items in one commit: A8 (Socket.io Redis adapter), the A6 follow-up (`setAutoBid` ladder trigger), A7 (notifications queue), and A9 (auth user cache).
+
+### What landed
+
+#### Phase A8 — Socket.io Redis adapter
+- `back/package.json` — added `@socket.io/redis-adapter@^8.3.0` to deps. User runs `npm install`.
+- `back/src/index.ts` — imports `createAdapter` and calls `io.adapter(createAdapter(redisPub, redisSub))` inside the bootstrap try block right after `redis.ping()` succeeds. The two previously-dead Redis connections in `lib/redis.ts` now carry inter-instance room fan-out. If Redis is down the adapter call is skipped and Socket.io falls back to in-memory (single-instance only) -- matches the existing graceful-degrade pattern.
+
+#### A6 follow-up — `setAutoBid` triggers the ladder
+- `back/src/modules/auto-bid/auto-bid.service.ts::setAutoBid` — after the autoBid upsert, English auctions enqueue `autoBidQueue.add('process-ladder', { auctionId, triggerBidderId: bidderId })`. Worker filters by `bidderId != triggerBidderId`, so passing the just-armed bidder as the "trigger" makes the worker treat the others as challengers and let the new auto-bid hold its position. SEALED_BID is already rejected by setAutoBid (Phase A2 follow-up); Dutch is short-circuited inside the worker itself, so the conditional just gates ENGLISH.
+
+#### Phase A7 — notifications queue
+- `back/src/modules/notifications/notification.service.ts::notifyUser` — was `prisma.notification.create({...})` + `io.to(...).emit('notification:new', ...)` inline. Now does `notificationQueue.add('deliver', { userId, type, title, message, data })` only. Returns `Promise<void>` (was `Promise<Notification | undefined>`); every existing call site either `await`-ed it (still works -- awaiting void resolves immediately) or fired-and-forgot (still works).
+- `back/src/workers/index.ts` — new `notificationWorker` consumes `deliver` jobs at concurrency 10. Creates the Notification row and emits `notification:new` to `user:{userId}`. BullMQ's 3-attempt exponential backoff (already in the queue defaults) handles transient DB hiccups.
+- Net effect: bid / payment / endAuction transactions stop paying for a notification DB write in their critical path. The Notification table also stops being a contention point during the auto-bid ladder (the per-rung notification can now race the worker's other jobs without holding any tx lock).
+
+#### Phase A9 — auth middleware user cache
+- `back/src/middleware/auth.middleware.ts` — new `Map<userId, {user, expiresAt}>` with a 30s TTL. `cacheGet` / `cacheSet` helpers wrap it. `authenticate` checks the cache first; on miss, the existing `prisma.user.findUnique({ select: { id, email, role, isSuspended } })` runs and the result is cached. The `isSuspended` field lives in the cached record so the per-request suspension check still works without a DB hit.
+- `invalidateUser(userId)` is exported -- one-line cache eviction. `admin.service.suspendUser` now imports it and calls it after the suspension write, so the admin's own request immediately evicts the cache on the handling instance. Other instances will see the suspension within the 30s TTL.
+- The cross-instance pubsub-driven invalidation (`user:invalidate` Redis channel) is deferred. Single-process deploys are fully consistent; multi-instance is bounded by the TTL. Noted in plan.md.
+
+#### Test infrastructure
+- `back/src/__tests__/setup.ts` — the global BullMQ Queue mock's `add()` now returns `Promise.resolve(undefined)` instead of `undefined`. The previous behavior broke services that chain `.catch(...)` on the enqueue (Phase A6 producer, A6.x `setAutoBid`, A7 `notifyUser`). One-line fix covers them all.
+
+### What's deliberately NOT in this commit
+
+- **Cross-instance suspend invalidation via Redis pub/sub.** Single-process suspends are immediate (`invalidateUser`); cross-instance is TTL-bounded at 30s. The wiring is `redis.publish('user:invalidate', userId)` + a sub in each instance that calls `invalidateUser` on receive. ~15 lines but it touches multiple files; queued for a future session.
+- **FTS query rewrite in `auction.service.getAuctions`.** Still using ILIKE; the GIN index from A3 is in place but unused until the query switches to `to_tsvector(...) @@ plainto_tsquery(...)`. Also queued.
+- **EscrowService consolidation (A5).** Settlement is still split between buyNow, endAuction, confirmWinnerPayment. Each one IS now Decimal-safe and lock-ordered (A1 + A2), so the duplication is shape-only -- not bug-prone. A5 is mostly a refactor for clarity, not correctness. Lower priority.
+
+### Plan-doc edits
+
+- `plan.md` Phase A7 / A8 / A9 all struck through with what landed and what's deferred.
+- This continuation block.
+- `xdocs/sessions/INDEX.md` -- the existing entry already reads "A1 + A3 + A6"; extending to "A1 + A3 + A6 + A7 + A8 + A9 + A6.x" on the same line.
+
+### Acceptance signals
+
+- `grep -n "@socket.io/redis-adapter" back/package.json` → one hit.
+- After `npm install`, `node_modules/@socket.io/redis-adapter` exists and `io.adapter(createAdapter(...))` runs without error at boot.
+- `grep -n "notificationQueue.add" back/src` → exactly one hit (in `notification.service.ts`); the rest of the codebase still calls `notifyUser(...)`.
+- `grep -n "invalidateUser" back/src` → exports in `auth.middleware.ts`, import in `admin.service.ts`.
+- `grep -rn "userCache" back/src` → only the `Map` in `auth.middleware.ts`.
+- After deploy: hit a hot endpoint 100 times with the same JWT in a row; the `prisma.user.findUnique` lookup should fire ~3-4 times (initial + TTL boundary) instead of 100. Verifiable via Postgres slow-query log or Prisma's `log: ['query']` mode in dev.
+- `npm run test:back` -- all suites still green; the global Queue mock fix in setup.ts covers the new `.catch` chains.
+
+### Commit
+
+- _(hash recorded after `git commit` runs.)_
+
 ## Notes for Future Self
 
 - Decimal arithmetic: `a + b` is meaningless on `Prisma.Decimal` (returns NaN/junk). Always use `.add(b)`, `.sub(b)`, `.mul(b)`, `.div(b)`. Always use `.cmp(b) < 0` / `.lt(b)` / `.lte(b)` / `.gt(b)` / `.gte(b)` instead of `<`/`>`.

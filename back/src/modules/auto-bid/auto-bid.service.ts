@@ -1,6 +1,7 @@
 import { AuctionStatus } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
+import { autoBidQueue } from '../../queues/auction.queue';
 import { D, serializeMoney } from '../../lib/decimal';
 
 /**
@@ -66,6 +67,21 @@ export const setAutoBid = async (data: {
     update: { maxAmount: maxD, isActive: true },
     create: { auctionId, bidderId, maxAmount: maxD },
   });
+
+  // Phase A6 follow-up: a freshly-armed (or raised) auto-bid that sits above
+  // the current price should immediately start laddering, not wait for the
+  // next manual bid. Enqueue the ladder; the worker filters by
+  // `bidderId != triggerBidderId`, so passing this bidder as the "trigger"
+  // means the worker excludes them and lets the other auto-bidders compete.
+  // English only -- setAutoBid already rejects SEALED_BID and the worker
+  // short-circuits on Dutch.
+  if (auction.type === 'ENGLISH') {
+    autoBidQueue
+      .add('process-ladder', { auctionId, triggerBidderId: bidderId })
+      .catch((e) => {
+        console.error('Failed to enqueue auto-bid ladder from setAutoBid:', e);
+      });
+  }
 
   return serializeMoney(autoBid);
 };
