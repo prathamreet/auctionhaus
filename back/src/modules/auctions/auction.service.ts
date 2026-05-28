@@ -110,6 +110,21 @@ export const getAuctionById = async (auctionId: string, userId?: string) => {
 
   if (!auction) throw createError('Auction not found', 404);
 
+  // Sealed-bid privacy: while live, strip the embedded bids array so the
+  // detail-page fetch can't be used as a back-door to learn ranking or
+  // bidder identities. The viewer's own bid is preserved so the UI can
+  // render "your sealed bid: ₹X". The full list is exposed only after the
+  // auction has ENDED. See bid.service.getAuctionBids for the matching
+  // contract used by the bid-history endpoint.
+  if (
+    auction.type === AuctionType.SEALED_BID &&
+    auction.status === AuctionStatus.ACTIVE
+  ) {
+    auction.bids = auction.bids
+      .filter((b) => b.bidderId === userId)
+      .map((b) => ({ ...b }));
+  }
+
   // Check if user has it in watchlist
   let isWatched = false;
   if (userId) {

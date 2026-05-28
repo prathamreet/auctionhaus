@@ -9,10 +9,13 @@ import { useAuthStore } from "@/store/authStore";
 
 interface Bid {
   id: string;
-  amount: number;
+  // Sealed+ACTIVE auctions return `null` for amount and bidder of bids that
+  // are NOT the viewer's own; the viewer's own bid is returned in full.
+  // For English/Dutch and ENDED sealed auctions, both are non-null.
+  amount: number | null;
   status: string;
   isAutoBid: boolean;
-  bidder: { id: string; name: string };
+  bidder: { id: string; name?: string; avatar?: string } | null;
   createdAt: string;
 }
 

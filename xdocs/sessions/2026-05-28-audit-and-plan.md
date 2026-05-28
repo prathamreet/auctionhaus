@@ -113,6 +113,46 @@ User asked for one small concrete fix before closing. Picked Phase A4 (sealed-bi
 ### Commit
 
 - `53215b1` on branch `bliss` — `chore(plan): plan.md as SSOT + fix sealed-bid privacy leak (Phase A4 partial)`. Includes the audit/plan setup, archive moves, sessions/ infrastructure, the bid module fix, the rewritten tests, and the graphify refresh. Not pushed (per rule: no git push without user ask).
+- `e9a091c` — `docs(session): record commit hash in session log`.
+
+---
+
+## Continuation 2 — Close Phase A4 + small housekeeping
+
+User had ~40% capacity left after the first commit and asked for more. Used it to fully close Phase A4 (no more partial state) plus a tiny doc fix.
+
+### What landed
+
+- **`back/src/modules/bidding/bid.service.ts`** — In `placeBid`, the unconditional `currentPrice: amount` write is now gated: SEALED_BID auctions get an empty update object (and the subsequent `tx.auction.update` is skipped entirely when nothing to write). This closes the leak that was bleeding via every API surface that returns `auction.currentPrice` (list page, detail page, the `auction:state` socket sync) — sealed-active auctions now stay at `startingPrice` until they end.
+- **`back/src/modules/auctions/auction.service.ts`** — `getAuctionById` now filters the embedded `bids[]` include down to the viewer's own bid only when sealed+ACTIVE. The detail-page back-door is closed.
+- **`back/src/modules/auctions/auction.service.test.ts`** — added two tests locking the new behaviour: (a) sealed+ACTIVE strips other bidders' rows, (b) sealed+ENDED returns the full list. Removed the now-incorrect `eslint-disable-next-line @typescript-eslint/no-unused-vars` since AuctionStatus + AuctionType are now actually used.
+- **`front/src/app/auctions/[id]/page.tsx`** — `Bid` interface widened to `amount: number | null`, `bidder: { id; name?; avatar? } | null`. Render code at lines 561, 614, 635 was already optional-chained with `"[SEALED]"` / "Hidden" fallbacks, so no UI logic change was needed — only the type. Checked dashboard/page.tsx (uses `bid.amount?.toLocaleString()`) and other consumers; all are null-safe.
+- **`back/README.md`** — removed the stale `src/prisma/seed.ts` reference and the `npm run prisma:seed` command (neither exists). Replaced with the real `npm run db:seed-users` and the ad-hoc `src/scripts/create-*-auction.ts` files.
+- **`plan.md`** Phase A4 — fully struck through with summary of what landed and a check-mark.
+
+### Acceptance signals for the user to run
+
+- `grep -rn "name: false" back/src` → 0 hits. (Was the original bug marker.)
+- `grep -n "currentPrice: amount" back/src/modules/bidding/bid.service.ts` → must show the gated form (`auction.type === AuctionType.SEALED_BID ? {} : { currentPrice: amount }`).
+- `npm run test:back -- bid.service.test` → 2 sealed-bid tests pass.
+- `npm run test:back -- auction.service.test` → 2 new sealed-mask tests pass.
+- Eyeball: open a sealed auction in two browser tabs as different users. Bidder A places a bid. Bidder B opens `/auctions/{id}`: should see "[PRIVATE] N Sealed Bids" with no amount or identity, and the bid-history row should show "[SEALED]" / "Hidden". Bidder A should see their own ₹X back.
+
+### What is still NOT fixed (intentional, deferred)
+
+- Auto-bid logic on sealed bids is still broken at a higher level — `processAutoBids` is gated by `auction.status === ACTIVE` but its math uses `currentPrice + minIncrement`, which is meaningless for sealed bids where `currentPrice` no longer increments. In practice this means setting an auto-bid on a sealed auction either no-ops (since `topAutoBid.maxAmount < startingPrice + minIncrement` will fail) or triggers wrong placements. The right call is to reject `setAutoBid` for SEALED_BID auctions at the validation layer. Not done in this session — flagged here for Phase A6.
+- The `setAutoBid` validation in `auto-bid.service.ts` checks Dutch and "else" (English) branches but does not have a SEALED_BID branch. Same fix-site as the auto-bid sealed-handling above.
+
+### Plan-doc edits
+
+- `plan.md` Phase A4 fully struck through with implementation note and commit refs.
+- This continuation block.
+
+### Next Up (revised, supersedes earlier Next Up)
+
+1. **Phase A1 — Decimal money migration.** `back/prisma/schema.prisma` Float → `Decimal @db.Decimal(18,2)` on every money field, add `back/src/lib/decimal.ts` for JSON serialization, update every service that does arithmetic, generate the migration. Multi-file but mechanical. User should ack before starting because it requires `prisma migrate dev` which they will run themselves.
+2. **Quick win en route**: while editing `auto-bid.service.ts` for Phase A1's currency types, add the `if (auction.type === AuctionType.SEALED_BID) throw createError('Auto-bid not supported on sealed auctions', 400);` guard noted above.
+3. **Then Phase A2** — `FOR UPDATE` row locks in placeBid, withdraw, endAuction, buyNow.
 
 ### Next Up (overrides earlier Next Up section)
 

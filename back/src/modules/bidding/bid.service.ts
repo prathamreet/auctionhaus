@@ -144,7 +144,12 @@ export const placeBid = async (data: {
     });
 
     // ── 7. Update auction current price ──
-    const auctionUpdateData: Prisma.AuctionUncheckedUpdateInput = { currentPrice: amount };
+    // SEALED_BID: currentPrice must NOT change. Updating it would (a) leak the
+    // most-recent bid amount via every API response that returns the auction
+    // and the auction:state socket emit, and (b) is semantically wrong —
+    // sealed bids have no public current price. Leave at startingPrice.
+    const auctionUpdateData: Prisma.AuctionUncheckedUpdateInput =
+      auction.type === AuctionType.SEALED_BID ? {} : { currentPrice: amount };
 
     // Anti-sniping: extend end time if bid in last N minutes
     if (auction.type === AuctionType.ENGLISH && auction.antiSnipingMins > 0) {
@@ -171,7 +176,11 @@ export const placeBid = async (data: {
       auctionUpdateData.actualEndTime = now;
     }
 
-    await tx.auction.update({ where: { id: auctionId }, data: auctionUpdateData });
+    // Only fire the update if we actually have a field change. For sealed
+    // bids with no anti-sniping path, auctionUpdateData stays empty.
+    if (Object.keys(auctionUpdateData).length > 0) {
+      await tx.auction.update({ where: { id: auctionId }, data: auctionUpdateData });
+    }
 
     // ── 8. Process Auto-bids ──
     // We do this after the transaction is committed to avoid holding locks

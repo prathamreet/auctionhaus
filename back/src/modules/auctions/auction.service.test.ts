@@ -2,7 +2,6 @@
 import { createAuction, getAuctionById, updateAuction, cancelAuction, buyNow } from './auction.service';
 import { prismaMock } from '../../__mocks__/prisma';
 import { auctionQueue } from '../../queues/auction.queue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AuctionStatus, AuctionType } from '@prisma/client';
 
 jest.mock('../../queues/auction.queue', () => ({
@@ -61,6 +60,47 @@ describe('Auction Service', () => {
     it('should throw if not found', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(null);
       await expect(getAuctionById('a1')).rejects.toThrow('Auction not found');
+    });
+
+    it('strips the embedded bids[] to viewer-only entries when sealed+ACTIVE', async () => {
+      prismaMock.auction.findUnique.mockResolvedValue({
+        id: 'a1',
+        sellerId: 'seller',
+        type: AuctionType.SEALED_BID,
+        status: AuctionStatus.ACTIVE,
+        bids: [
+          { id: 'b1', bidderId: 'viewer', amount: 200, bidder: { id: 'viewer', name: 'Me' } },
+          { id: 'b2', bidderId: 'other',  amount: 999, bidder: { id: 'other',  name: 'Other' } },
+        ],
+      } as any);
+      prismaMock.watchlistItem.findUnique.mockResolvedValue(null);
+      prismaMock.autoBid.findUnique.mockResolvedValue(null);
+
+      const res = await getAuctionById('a1', 'viewer');
+
+      // Only the viewer's own bid survives. The other bidder must not appear
+      // at all -- not just have their name redacted.
+      expect(res.bids).toHaveLength(1);
+      expect(res.bids[0].id).toBe('b1');
+      expect(res.bids.find((b: any) => b.bidderId === 'other')).toBeUndefined();
+    });
+
+    it('returns full bids[] once a sealed auction has ENDED', async () => {
+      prismaMock.auction.findUnique.mockResolvedValue({
+        id: 'a1',
+        sellerId: 'seller',
+        type: AuctionType.SEALED_BID,
+        status: AuctionStatus.ENDED,
+        bids: [
+          { id: 'b1', bidderId: 'viewer', amount: 200, bidder: { id: 'viewer', name: 'Me' } },
+          { id: 'b2', bidderId: 'other',  amount: 999, bidder: { id: 'other',  name: 'Other' } },
+        ],
+      } as any);
+      prismaMock.watchlistItem.findUnique.mockResolvedValue(null);
+      prismaMock.autoBid.findUnique.mockResolvedValue(null);
+
+      const res = await getAuctionById('a1', 'viewer');
+      expect(res.bids).toHaveLength(2);
     });
   });
 

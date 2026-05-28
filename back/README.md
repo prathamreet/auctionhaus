@@ -19,8 +19,7 @@ back/
 │   │   └── auction.queue.ts   # BullMQ queues (scheduler, dutch, notifications)
 │   ├── workers/
 │   │   └── index.ts           # BullMQ workers (start/end auctions, Dutch price drops)
-│   ├── prisma/
-│   │   └── seed.ts            # DB seed with test accounts + sample auctions
+│   ├── scripts/               # Ad-hoc DB scripts (seed-users, clear-*, create-*-auction)
 │   └── modules/
 │       ├── auth/              # Register, login, JWT, /me
 │       ├── users/             # Profile, bid history, ratings
@@ -39,8 +38,9 @@ back/
 ```bash
 Setup DB — update DATABASE_URL in .env
 Run migration: npx prisma migrate dev --name init
-Seed data: npm run prisma:seed
-Start dev: npm run dev → http://localhost:5000
+Seed users:    npm run db:seed-users
+(Optional)     npx ts-node src/scripts/create-english-auction.ts
+Start dev:     npm run dev → http://localhost:5000
 ```
 
 
