@@ -110,6 +110,10 @@ User asked for one small concrete fix before closing. Picked Phase A4 (sealed-bi
 - `plan.md` Phase A4 strikethrough.
 - This block.
 
+### Commit
+
+- `53215b1` on branch `bliss` — `chore(plan): plan.md as SSOT + fix sealed-bid privacy leak (Phase A4 partial)`. Includes the audit/plan setup, archive moves, sessions/ infrastructure, the bid module fix, the rewritten tests, and the graphify refresh. Not pushed (per rule: no git push without user ask).
+
 ### Next Up (overrides earlier Next Up section)
 
 1. **Frontend type widen**: in `front/src/app/auctions/[id]/page.tsx` change `Bid.amount` to `number | null`, `Bid.bidder` to `{ id: string; name: string } | null`, then guard renders that call `.toLocaleString()` / `.name` with a sealed-bid placeholder ("Bid placed — amount hidden until close"). 10 minutes of work.
