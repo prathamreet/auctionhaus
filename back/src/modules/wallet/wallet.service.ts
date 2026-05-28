@@ -43,33 +43,47 @@ export const deposit = async (userId: string, amount: number) => {
 
 /**
  * Mock withdrawal.
+ *
+ * Phase A2: pessimistic-locked. Two concurrent withdrawals on the same wallet
+ * used to both read `available = balance - heldAmount`, both pass the check,
+ * and both proceed to decrement -- effectively letting a user withdraw twice.
+ * Now the wallet row is FOR UPDATE locked inside a transaction so the second
+ * request waits for the first to commit and re-reads the post-decrement state.
  */
 export const withdraw = async (userId: string, amount: number) => {
   if (amount <= 0) throw createError('Amount must be positive', 400);
 
-  const wallet = await prisma.wallet.findUnique({ where: { userId } });
-  if (!wallet) throw createError('Wallet not found', 404);
+  return prisma.$transaction(async (tx) => {
+    // Lock the wallet row. Empty result = wallet doesn't exist.
+    const locked = await tx.$queryRaw<{ id: string }[]>`
+      SELECT id FROM wallets WHERE "userId" = ${userId} FOR UPDATE
+    `;
+    if (locked.length === 0) throw createError('Wallet not found', 404);
 
-  const available = wallet.balance - wallet.heldAmount;
-  if (available < amount) throw createError('Insufficient available balance', 400);
+    const wallet = await tx.wallet.findUnique({ where: { userId } });
+    if (!wallet) throw createError('Wallet not found', 404);
 
-  const updatedWallet = await prisma.wallet.update({
-    where: { userId },
-    data: { balance: { decrement: amount } },
+    const available = wallet.balance - wallet.heldAmount;
+    if (available < amount) throw createError('Insufficient available balance', 400);
+
+    const updatedWallet = await tx.wallet.update({
+      where: { userId },
+      data: { balance: { decrement: amount } },
+    });
+
+    await tx.transaction.create({
+      data: {
+        walletId: wallet.id,
+        userId,
+        type: 'WITHDRAWAL',
+        amount: -amount,
+        description: 'Mock withdrawal',
+        status: 'COMPLETED',
+      },
+    });
+
+    return updatedWallet;
   });
-
-  await prisma.transaction.create({
-    data: {
-      walletId: wallet.id,
-      userId,
-      type: 'WITHDRAWAL',
-      amount: -amount,
-      description: 'Mock withdrawal',
-      status: 'COMPLETED',
-    },
-  });
-
-  return updatedWallet;
 };
 
 export const getTransactions = async (userId: string, page = 1, limit = 20) => {

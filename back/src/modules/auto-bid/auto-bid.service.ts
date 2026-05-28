@@ -19,6 +19,15 @@ export const setAutoBid = async (data: {
   if (!auction) throw createError('Auction not found', 404);
   if (auction.status !== AuctionStatus.ACTIVE) throw createError('Auction not active', 400);
   if (auction.sellerId === bidderId) throw createError("Can't auto-bid on your own auction", 403);
+  // Auto-bid is meaningless for sealed bids: the engine relies on a moving
+  // `currentPrice + minIncrement` ladder, but Phase A4 fixed `placeBid` to
+  // keep `currentPrice` constant for SEALED_BID auctions (it would otherwise
+  // leak the latest bid). With currentPrice constant, an auto-bid would
+  // either no-op or fire wrong. Block at the validation layer instead of
+  // silently misbehaving.
+  if (auction.type === 'SEALED_BID') {
+    throw createError('Auto-bid is not supported on sealed-bid auctions', 400);
+  }
   // Dutch auto-accept: target price must be BELOW current (price drops toward it)
   // English auto-bid: max amount must be ABOVE current (bids go up toward it)
   if (auction.type === 'DUTCH') {

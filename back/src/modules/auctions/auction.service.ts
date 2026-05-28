@@ -193,46 +193,58 @@ export const cancelAuction = async (auctionId: string, userId: string, isAdmin =
 };
 
 export const buyNow = async (auctionId: string, buyerId: string) => {
-  const auction = await prisma.auction.findUnique({
-    where: { id: auctionId },
-    include: { seller: true },
-  });
-
-  if (!auction) throw createError('Auction not found', 404);
-  if (auction.status !== AuctionStatus.ACTIVE) throw createError('Auction not active', 400);
-  if (!auction.buyNowPrice) throw createError('No buy-now price set', 400);
-  if (auction.sellerId === buyerId) throw createError("Can't buy your own auction", 403);
-
-  // Check wallet balance
-  const wallet = await prisma.wallet.findUnique({ where: { userId: buyerId } });
-  if (!wallet || wallet.balance < auction.buyNowPrice) {
-    throw createError('Insufficient wallet balance', 400);
-  }
-
+  // Phase A2: All checks happen inside the transaction with FOR UPDATE locks.
+  // Previously the status / wallet-balance checks happened outside the tx,
+  // so two simultaneous buyNow requests could both pass and both transfer
+  // funds before either committed -- a classic check-then-act race.
   return prisma.$transaction(async (tx) => {
+    // Lock auction row first.
+    const lockedAuction = await tx.$queryRaw<{ id: string }[]>`
+      SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE
+    `;
+    if (lockedAuction.length === 0) throw createError('Auction not found', 404);
+
+    const auction = await tx.auction.findUnique({
+      where: { id: auctionId },
+      include: { seller: true },
+    });
+    if (!auction) throw createError('Auction not found', 404);
+    if (auction.status !== AuctionStatus.ACTIVE) throw createError('Auction not active', 400);
+    if (!auction.buyNowPrice) throw createError('No buy-now price set', 400);
+    if (auction.sellerId === buyerId) throw createError("Can't buy your own auction", 403);
+
+    // Lock both wallet rows in ascending userId order to maintain the global
+    // lock-order invariant (auction first, then wallets sorted).
+    for (const uid of [buyerId, auction.sellerId].sort()) {
+      await tx.$queryRaw`SELECT id FROM wallets WHERE "userId" = ${uid} FOR UPDATE`;
+    }
+
+    const buyerWallet = await tx.wallet.findUnique({ where: { userId: buyerId } });
+    if (!buyerWallet || buyerWallet.balance < auction.buyNowPrice) {
+      throw createError('Insufficient wallet balance', 400);
+    }
+
     // Deduct from buyer
     await tx.wallet.update({
       where: { userId: buyerId },
-      data: { balance: { decrement: auction.buyNowPrice! } },
+      data: { balance: { decrement: auction.buyNowPrice } },
     });
 
     // Credit to seller
     await tx.wallet.update({
       where: { userId: auction.sellerId },
-      data: { balance: { increment: auction.buyNowPrice! } },
+      data: { balance: { increment: auction.buyNowPrice } },
     });
 
-    // Record transactions
-    const buyerWallet = await tx.wallet.findUnique({ where: { userId: buyerId } });
     const sellerWallet = await tx.wallet.findUnique({ where: { userId: auction.sellerId } });
 
     await tx.transaction.createMany({
       data: [
         {
-          walletId: buyerWallet!.id,
+          walletId: buyerWallet.id,
           userId: buyerId,
           type: 'PAYMENT',
-          amount: -auction.buyNowPrice!,
+          amount: -auction.buyNowPrice,
           description: `Buy Now: ${auction.title}`,
           referenceId: auctionId,
         },
@@ -240,7 +252,7 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
           walletId: sellerWallet!.id,
           userId: auction.sellerId,
           type: 'PAYMENT',
-          amount: auction.buyNowPrice!,
+          amount: auction.buyNowPrice,
           description: `Sale: ${auction.title}`,
           referenceId: auctionId,
         },
@@ -253,7 +265,7 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
       data: {
         status: AuctionStatus.ENDED,
         winnerId: buyerId,
-        currentPrice: auction.buyNowPrice!,
+        currentPrice: auction.buyNowPrice,
         actualEndTime: new Date(),
       },
     });

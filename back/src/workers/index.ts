@@ -96,36 +96,61 @@ const dutchWorker = new Worker(
 );
 
 async function endAuction(auctionId: string) {
-  const auction = await prisma.auction.findUnique({
-    where: { id: auctionId },
-    include: {
-      bids: {
-        where: { status: 'WINNING' },
-        orderBy: { amount: 'desc' },
-        take: 1,
-        include: { bidder: true },
-      },
-    },
-  });
+  // Phase A2: BullMQ can re-deliver a job (worker crash + retry, stalled-job
+  // recovery). Two simultaneous endAuction invocations both reading
+  // `status !== ENDED` then both updating to ENDED would double-settle:
+  // pay the seller twice, mark two winners. Lock the auction row and
+  // re-check inside the tx so only one path wins.
+  //
+  // The settlement work (bid status changes, wallet refunds for sealed
+  // losers, etc.) is intentionally split out of this lock-acquisition tx
+  // so we don't hold long locks across many wallet rows. The state flip
+  // to ENDED is the idempotency barrier -- once it commits, the second
+  // worker sees ENDED and bails.
+  const { committed, auctionSnap, winningBid, winner, metReserve } =
+    await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE
+      `;
+      if (locked.length === 0) {
+        return { committed: false, auctionSnap: null, winningBid: null, winner: null, metReserve: false };
+      }
 
-  if (!auction || auction.status === AuctionStatus.ENDED) return;
+      const a = await tx.auction.findUnique({
+        where: { id: auctionId },
+        include: {
+          bids: {
+            where: { status: 'WINNING' },
+            orderBy: { amount: 'desc' },
+            take: 1,
+            include: { bidder: true },
+          },
+        },
+      });
 
-  const winningBid = auction.bids[0];
+      if (!a || a.status === AuctionStatus.ENDED) {
+        return { committed: false, auctionSnap: null, winningBid: null, winner: null, metReserve: false };
+      }
 
-  // Check reserve price
-  const metReserve = !auction.reservePrice || (winningBid && winningBid.amount >= auction.reservePrice);
+      const wb = a.bids[0] ?? null;
+      const reserveOk = !a.reservePrice || (wb !== null && wb.amount >= a.reservePrice);
+      const w = reserveOk && wb ? wb.bidderId : null;
 
-  const winner = metReserve && winningBid ? winningBid.bidderId : null;
+      await tx.auction.update({
+        where: { id: auctionId },
+        data: {
+          status: AuctionStatus.ENDED,
+          winnerId: w,
+          winnerBidId: w ? wb!.id : null,
+          actualEndTime: new Date(),
+        },
+      });
 
-  await prisma.auction.update({
-    where: { id: auctionId },
-    data: {
-      status: AuctionStatus.ENDED,
-      winnerId: winner,
-      winnerBidId: winner ? winningBid!.id : null,
-      actualEndTime: new Date(),
-    },
-  });
+      return { committed: true, auctionSnap: a, winningBid: wb, winner: w, metReserve: reserveOk };
+    });
+
+  if (!committed || !auctionSnap) return; // duplicate / already-ended
+  const auction = auctionSnap;
 
   // Update bid statuses for sealed bid
   if (auction.type === 'SEALED_BID') {

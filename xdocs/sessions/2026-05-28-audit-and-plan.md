@@ -151,6 +151,69 @@ User had ~40% capacity left after the first commit and asked for more. Used it t
 ### Commit
 
 - `6a90b54` on branch `bliss` — `fix(sealed-bid): close Phase A4 -- stop currentPrice leak, mask detail-page bids, widen FE type`. 8 files changed, 118 insertions, 11 deletions. Not pushed.
+- `d4c4d11` — `docs(session): record 6a90b54 hash in session log`.
+
+---
+
+## Continuation 3 — Phase A2 (FOR UPDATE locks) + sealed auto-bid guard
+
+User had ~30% capacity left after Phase A4. Used it to close Phase A2 entirely (real concurrency fix, the actual race conditions the audit found, the whole point of "make it bullet-proof").
+
+### Global lock order (new invariant — every code path now obeys this)
+
+Within any `prisma.$transaction`:
+1. Lock the auction row first (`SELECT id FROM auctions WHERE id = $1 FOR UPDATE`).
+2. Then lock wallets in **ascending userId order** to prevent deadlock.
+
+Five entry points updated to obey this:
+- `bid.service.placeBid`
+- `auction.service.buyNow`
+- `payment.service.confirmWinnerPayment`
+- `workers/index.ts::endAuction`
+- `wallet.service.withdraw` (only locks a single wallet — no ordering concern)
+
+### What landed
+
+- **`back/src/modules/bidding/bid.service.ts::placeBid`** — Added a pre-validation lock acquisition: auction row + bidder wallet + (English only) previous winner's wallet if different from bidder, sorted by userId. Reads the previous winner via a small `select: { bidderId: true }` lookup before doing the lock sort so the lock-order is deterministic. Existing flow (validate, hold, create bid, update auction) runs unchanged under the locks.
+- **`back/src/modules/wallet/wallet.service.ts::withdraw`** — Wrapped the entire flow in `prisma.$transaction` (was previously NOT in a tx — concurrent withdrawals could both pass the available-balance check). Added `FOR UPDATE` on the wallet row. Now `available = balance - heldAmount` is read against a row no other writer can touch.
+- **`back/src/modules/auctions/auction.service.ts::buyNow`** — Status check, buyer validation, and wallet balance check **moved inside** the existing `$transaction`. Pre-tx race window eliminated. Added auction lock + both wallet locks (ascending order). Cleaned up the `auction.buyNowPrice!` non-null assertions inside the tx since the guard happens earlier in the same scope.
+- **`back/src/workers/index.ts::endAuction`** — Wrapped the auction-lookup + status-flip in a tx with `FOR UPDATE`. BullMQ can re-deliver jobs (worker crash, stalled-job recovery); two simultaneous `endAuction` runs would have both read `status !== ENDED` and both proceeded. Now the loser waits, sees `ENDED`, and bails. Used a destructured return object (`{ committed, auctionSnap, winningBid, winner, metReserve }`) so the post-settlement work (sealed-loser refunds, socket emit, notifyUser) stays outside the lock. The state flip to `ENDED` is the idempotency barrier.
+- **`back/src/modules/payments/payment.service.ts::confirmWinnerPayment`** — Moved the existing-payment idempotency check inside the locked tx (was outside, racy). Added auction lock + both wallet locks. The "already processed" early return still works because we ARE inside the tx by then.
+- **`back/src/modules/auto-bid/auto-bid.service.ts::setAutoBid`** — Free-rider Phase A4 follow-up: reject `setAutoBid` on `SEALED_BID` auctions with a 400. The math relies on `currentPrice + minIncrement` ladder, but A4 froze `currentPrice` for sealed auctions, so an auto-bid would either no-op or fire wrong. Better to fail loud.
+- **`back/src/__mocks__/prisma.ts`** — Global jest mock defaults so existing tests don't need per-file patches:
+  - `$queryRaw` default returns `[{ id: '_locked_' }]` (lock acquired, one row). Tests can override with `mockResolvedValueOnce([])` to simulate "row not found".
+  - `$transaction` default invokes its callback with `prismaMock` (for interactive form) and `Promise.all` for the batched-array form. Per-file `mockImplementation` overrides still work.
+- **`back/src/modules/auto-bid/auto-bid.service.test.ts`** — Added one test locking the sealed-rejection contract.
+- **`plan.md`** Phase A2 fully struck through with implementation note + acceptance signal.
+
+### Acceptance signals for the user to run
+
+- `grep -n "FOR UPDATE" back/src/modules` — should show 5 hits across `bid.service.ts`, `wallet.service.ts`, `auctions/auction.service.ts`, `payments/payment.service.ts`, plus 1 in `workers/index.ts`.
+- `npm run test:back` — full suite. The 8 tests touched (placeBid 4, getAuctionBids 2, withdraw 3, buyNow 2, getAuctionById 4, confirmWinnerPayment 5, setAutoBid 7 incl. new sealed) should all pass with no per-test edits required, thanks to the mock defaults.
+- Realistic concurrency check (when the user is ready): fire 50 concurrent bids via k6 against a freshly-seeded ENGLISH auction. After the run, `SELECT amount, COUNT(*) FROM bids WHERE "auctionId" = '<id>' GROUP BY amount HAVING COUNT(*) > 1;` must return zero rows. Without the locks, this query would have returned duplicates.
+
+### Plan-doc edits
+
+- `plan.md` Phase A2 struck through.
+- This continuation block.
+
+### Known follow-ups (not touched this session)
+
+- Phase A1 (Decimal money) — still queued. The locks won't help if the arithmetic itself drifts due to IEEE-754.
+- Phase A3 (indexes) — Auction.status / endTime / type, Bid(auctionId, status), Notification(userId, isRead) are still missing.
+- Phase A6 (auto-bid via queue) — `processAutoBids` still recurses through `placeBid` which opens its own tx; the nested-tx issue persists. Phase A2 made the bug more visible (each recursion now also tries to acquire FOR UPDATE on the same auction — Postgres will see the same backend already holds the lock and proceed, but the throughput cost grows).
+- Phase A4 had one tiny remaining edge: `notifyUser` is `await`ed inside `payment.service.confirmWinnerPayment`'s tx. Phase A7 (notifications queue) will fix this properly.
+- emoji in `workers/index.ts:204` notification title — not strictly in-scope; flag for cleanup.
+
+### Next Up (revised)
+
+1. **Phase A1 — Decimal money migration.** Now the *only* remaining "money is broken" failure mode. Mechanical but multi-file; needs `prisma migrate dev` which the user runs.
+2. **Phase A3 — Add B-tree + GIN indexes.** Pure migration SQL, no code. Same prisma-migrate gate as A1.
+3. **Phase A6 — Auto-bid queue refactor + atomic ladder log.** The most user-visible change of Phase A; also makes the auto-bid behaviour match the UX contract in `xdocs/not-for-ai/checklist.md`.
+
+### Commit
+
+- _(populated after the commit at the end of this session — see below)_
 
 ### Next Up (revised, supersedes earlier Next Up)
 

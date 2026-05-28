@@ -39,6 +39,19 @@ describe('AutoBid Service', () => {
       await expect(setAutoBid({ auctionId: 'a1', bidderId: 'u1', maxAmount: 200 })).rejects.toThrow("Can't auto-bid on your own auction");
     });
 
+    it('rejects auto-bid on sealed auctions outright (Phase A4 follow-up)', async () => {
+      // Auto-bid math depends on a moving currentPrice + minIncrement
+      // ladder. Phase A4 fixed placeBid to keep currentPrice constant for
+      // sealed auctions (to plug the privacy leak), so an auto-bid set on
+      // a sealed auction would either no-op or misfire. We block it at
+      // the validation layer instead.
+      const sealedAuction = { ...defaultAuction, type: AuctionType.SEALED_BID };
+      prismaMock.auction.findUnique.mockResolvedValue(sealedAuction);
+      await expect(
+        setAutoBid({ auctionId: 'a1', bidderId: 'u1', maxAmount: 500 })
+      ).rejects.toThrow('Auto-bid is not supported on sealed-bid auctions');
+    });
+
     it('should validate maxAmount for English auctions', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
       await expect(setAutoBid({ auctionId: 'a1', bidderId: 'u1', maxAmount: 90 })).rejects.toThrow('Max amount must be greater than current price');

@@ -19,6 +19,21 @@ export const placeBid = async (data: {
   const { auctionId, bidderId, amount, isAutoBid = false } = data;
 
   return prisma.$transaction(async (tx) => {
+    // ── 0. Pessimistic locks (Phase A2) ──
+    // Acquire the auction row lock FIRST, then wallet rows in ascending
+    // userId order. Deadlocks are impossible as long as every code path
+    // (bid, buyNow, endAuction, payment, withdraw) follows this order.
+    //
+    // Why: under default READ COMMITTED, two concurrent bids both `findUnique`
+    // the auction, both see the same `currentPrice`, and both pass the
+    // `amount >= currentPrice + minIncrement` check. With FOR UPDATE the
+    // second waits until the first commits, so the second re-reads the
+    // updated currentPrice and is forced to fail validation.
+    const lockedAuction = await tx.$queryRaw<{ id: string }[]>`
+      SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE
+    `;
+    if (lockedAuction.length === 0) throw createError('Auction not found', 404);
+
     // ── 1. Fetch and validate auction ──
     const auction = await tx.auction.findUnique({ where: { id: auctionId } });
     if (!auction) throw createError('Auction not found', 404);
@@ -46,13 +61,31 @@ export const placeBid = async (data: {
       }
     }
 
-    // ── 3. Wallet check ──
+    // ── 3. Lock the bidder's wallet, plus the previous winner's wallet if
+    // we are going to release their hold (English only). Lock in ascending
+    // userId order to maintain the global lock order.
+    let previousWinnerId: string | null = null;
+    if (auction.type === AuctionType.ENGLISH) {
+      const prev = await tx.bid.findFirst({
+        where: { auctionId, status: 'WINNING' },
+        select: { bidderId: true },
+      });
+      if (prev && prev.bidderId !== bidderId) previousWinnerId = prev.bidderId;
+    }
+    const walletUserIds = previousWinnerId
+      ? [bidderId, previousWinnerId].sort()
+      : [bidderId];
+    for (const uid of walletUserIds) {
+      await tx.$queryRaw`SELECT id FROM wallets WHERE "userId" = ${uid} FOR UPDATE`;
+    }
+
+    // ── 4. Wallet check (now reading the locked row) ──
     const wallet = await tx.wallet.findUnique({ where: { userId: bidderId } });
     if (!wallet || (wallet.balance - wallet.heldAmount) < amount) {
       throw createError('Insufficient available balance', 400);
     }
 
-    // ── 4. Release hold from previous winning bid (if English) ──
+    // ── 5. Release hold from previous winning bid (if English) ──
     if (auction.type === AuctionType.ENGLISH) {
       const previousWinning = await tx.bid.findFirst({
         where: { auctionId, status: 'WINNING' },
