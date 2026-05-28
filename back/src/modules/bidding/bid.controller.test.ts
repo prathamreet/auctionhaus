@@ -1,5 +1,6 @@
 jest.mock('../../index', () => ({ io: { to: jest.fn().mockReturnThis(), emit: jest.fn() } }));
-jest.mock('../auto-bid/auto-bid.service', () => ({ processAutoBids: jest.fn().mockResolvedValue(true) }));
+// Phase A6: bid.controller no longer imports from auto-bid.service. The
+// previous `processAutoBids` jest.mock here was dead; removed.
 jest.mock('./bid.service');
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

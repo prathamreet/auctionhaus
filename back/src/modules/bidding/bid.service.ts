@@ -2,7 +2,7 @@ import { AuctionStatus, AuctionType, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
 import { notifyUser } from '../notifications/notification.service';
-import { processAutoBids } from '../auto-bid/auto-bid.service';
+import { autoBidQueue } from '../../queues/auction.queue';
 import { io } from '../../index';
 import { D, neg, toNum } from '../../lib/decimal';
 
@@ -23,7 +23,7 @@ export const placeBid = async (data: {
   // socket emits / return values that should be plain numbers.
   const amountD = D(amount);
 
-  return prisma.$transaction(async (tx) => {
+  const bid = await prisma.$transaction(async (tx) => {
     // ── 0. Pessimistic locks (Phase A2) ──
     // Acquire the auction row lock FIRST, then wallet rows in ascending
     // userId order. Deadlocks are impossible as long as every code path
@@ -231,21 +231,30 @@ export const placeBid = async (data: {
       await tx.auction.update({ where: { id: auctionId }, data: auctionUpdateData });
     }
 
-    // ── 8. Process Auto-bids ──
-    // We do this after the transaction is committed to avoid holding locks
-    // but we can also do it inside if needed. Actually doing it outside is safer.
-    // However, placeBid returns the bid, so we might want to trigger it asynchronously.
-    setImmediate(() => {
-      processAutoBids(auctionId, bidderId, amount, io).catch((e) => {
-        console.error('Failed to process auto-bids:', e);
-      });
-    });
-
     // Return a number-typed amount so callers (controller, socket emit, the
     // frontend) see the same shape as before A1. The Decimal lives only
     // inside this function.
     return { ...bid, amount: toNum(bid.amount) ?? amount };
   });
+
+  // ── Phase A6: enqueue the auto-bid ladder AFTER the manual bid's tx commits.
+  // Enqueueing inside the tx would queue a phantom job if the tx then rolls
+  // back. The worker (back/src/workers/index.ts::processAutoBidLadder) re-locks
+  // the auction and walks every active auto-bid one increment at a time,
+  // writing each step as a Bid row so the bid history page renders the ladder.
+  // The trigger bidder is passed so the worker knows whose auto-bid (if any)
+  // NOT to challenge.
+  //
+  // Dutch and Sealed auctions never ladder; the worker filters them out, so
+  // enqueueing is a no-op for those. Cheaper than re-fetching auction.type
+  // here just to skip.
+  autoBidQueue
+    .add('process-ladder', { auctionId, triggerBidderId: bidderId })
+    .catch((e) => {
+      console.error('Failed to enqueue auto-bid ladder:', e);
+    });
+
+  return bid;
 };
 
 /**

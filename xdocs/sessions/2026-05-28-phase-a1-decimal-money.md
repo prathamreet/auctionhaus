@@ -149,6 +149,72 @@ User asked for "a little more work and then a final commit". Used the headroom t
 - `EXPLAIN ANALYZE SELECT * FROM auctions WHERE status = 'ACTIVE' ORDER BY "endTime" DESC LIMIT 20;` shows index-backed access (no `Seq Scan on auctions`).
 - After the FTS rewrite (next session), `EXPLAIN ANALYZE` of the search branch shows `Bitmap Index Scan on auctions_title_description_fts_idx`.
 
+---
+
+## Continuation 2 — Phase A6 atomic auto-bid ladder (user said "resume")
+
+User said `resume`. Per the protocol the previous "Next Up" is the brief — and that block ranked A6 highest because the per-step ladder is the headline UX contract from `xdocs/not-for-ai/checklist.md` (and is memorialized in the `project_autobid_ladder` user memory).
+
+### What landed
+
+- **New queue** [back/src/queues/auction.queue.ts](back/src/queues/auction.queue.ts) — `autoBidQueue = new Queue('auto-bid', ...)` with the same defaults as the existing three plus 3 attempts / 500 ms backoff. Producer is `bid.service.placeBid` after its tx commits.
+- **New worker + ladder fn** [back/src/workers/index.ts](back/src/workers/index.ts) — `processAutoBidLadder(auctionId, triggerBidderId)` is exported so tests can call it directly. The wrapping `autoBidWorker` consumes `process-ladder` jobs at concurrency 5. The ladder runs in ONE `prisma.$transaction`:
+  1. `SELECT id ... FOR UPDATE` on the auction.
+  2. Filter auction by `status === ACTIVE && type === ENGLISH`. Dutch and Sealed short-circuit (Dutch ends on first accept; Sealed deliberately freezes currentPrice — Phase A4).
+  3. Load active auto-bids excluding the trigger bidder, sorted by `maxAmount DESC`.
+  4. Lock every wallet for `triggerBidderId ∪ autoBids.bidderId` in ascending userId order.
+  5. Loop with a hard cap of `min(100000, (highestMaxAmount − currentPrice) / minIncrement + 2)` steps:
+     - `nextBid = cur + inc`. Filter the pool to entries that can still cover `nextBid` AND aren't the current winner.
+     - If pool empty → break.
+     - Pick the highest-maxAmount challenger. Re-read their wallet inside the tx (earlier ladder steps may have moved it).
+     - **Affordability check before any DB write**: `D(balance).sub(heldAmount).lt(nextBid)` → deactivate that auto-bid and `continue` (do NOT do an OUTBID/refund that we'd have to undo).
+     - DB writes for the rung:
+       a. OUTBID the previous winning bid.
+       b. Refund the previous winner's hold (`balance += amt, heldAmount -= amt`) + log `BID_RELEASE`.
+       c. Create new `WINNING` Bid row at exactly `nextBid` (the per-step contract: **never** jump to `min(beatingAmount, top.maxAmount)` in one go).
+       d. Decrement the challenger's `balance` by `nextBid`, increment their `heldAmount` by `nextBid`, log `BID_HOLD` (with `neg(nextBid)`).
+       e. Bump the challenger's `autoBid.currentBid`.
+     - Push the rung onto an in-memory `steps[]` for post-commit socket emit.
+  6. After the loop, write `auction.currentPrice = cur` (only if `steps.length > 0`).
+- **Producer refactor** [back/src/modules/bidding/bid.service.ts](back/src/modules/bidding/bid.service.ts) — the old `setImmediate(() => processAutoBids(...))` line is gone. Replaced by `autoBidQueue.add('process-ladder', { auctionId, triggerBidderId: bidderId })` AFTER the `prisma.$transaction` returns. The enqueue must NOT live inside the tx callback — otherwise a rolled-back manual bid would still queue a phantom ladder job.
+- **Controller cleanup** [back/src/modules/bidding/bid.controller.ts](back/src/modules/bidding/bid.controller.ts) — dropped its own `processAutoBids(...).catch(console.error)` call and the import. The ladder is now triggered exactly once (in the service, after its tx commit), not twice.
+- **Old code removed** [back/src/modules/auto-bid/auto-bid.service.ts](back/src/modules/auto-bid/auto-bid.service.ts) — the recursive `processAutoBids` is deleted. It opened nested `prisma.$transaction`s (Prisma doesn't support that — would either flatten silently or deadlock under load) and breached the per-step UX contract. A docstring block explains the removal so future readers don't try to revive it.
+- **Tests updated**:
+  - [back/src/modules/auto-bid/auto-bid.service.test.ts](back/src/modules/auto-bid/auto-bid.service.test.ts) — the entire `describe('processAutoBids', ...)` block (6 tests of dead code) is gone. The setAutoBid / cancelAutoBid CRUD tests stay.
+  - [back/src/modules/bidding/bid.service.test.ts](back/src/modules/bidding/bid.service.test.ts) — `setImmediate(processAutoBids)` assertion replaced by an assertion that `autoBidQueue.add('process-ladder', { auctionId, triggerBidderId })` was called. `jest.mock('../auto-bid/auto-bid.service', ...)` removed (no longer imported); `jest.mock('../../queues/auction.queue', ...)` added so the test doesn't touch Redis.
+  - [back/src/modules/bidding/bid.controller.test.ts](back/src/modules/bidding/bid.controller.test.ts) — removed the dead `jest.mock('../auto-bid/auto-bid.service', ...)` since the controller no longer imports from it.
+  - [back/src/workers/index.test.ts](back/src/workers/index.test.ts) — extended the existing `initWorkers` smoke test with four new `processAutoBidLadder` tests: empty pool, single-challenger one-step ladder (verifies `bid.create` at `m(110)` + final `auction.update { currentPrice: m(110) }`), insufficient-available-balance deactivation (`isActive: false`), non-English short-circuit (Sealed type — `autoBid.findMany` never even called).
+
+### Notes on the ladder design (worth re-reading next time)
+
+- The "highest-maxAmount challenger != current winner" pick keeps the loop oscillating between two auto-bidders. Worst case: A.max=1000, B.max=11000, currentPrice=100, inc=10 → ~90 steps where A bids 110, B bids 120, A 130, B 140, ... until A hits 1000 and is filtered out. After that B is the current winner, the pool is empty (because the only other auto-bidder is gone), loop breaks. The bid log shows every rung.
+- The affordability check is intentionally a re-read of the wallet inside the tx, not a JS-side counter that we mutate. Reason: `tx.wallet.update { decrement }` operates on the Postgres row, so the next `tx.wallet.findUnique` sees the updated balance. The JS-side counter would diverge if we made a mistake. The cost is N+1 wallet lookups during the ladder; acceptable for the read pattern.
+- The `auction.currentPrice` write is once at the end, not per step. The intermediate ladder bids are visible via `Bid` rows; readers that want the current price see `auction.currentPrice` AFTER the tx commits, which by then is the final rung. No external reader sees the auction in a half-laddered state because they'd block on the `FOR UPDATE` lock.
+- The socket emit + notifications happen AFTER the tx returns (the worker iterates `steps[]` and calls `io.emit` / `notifyUser`). If the tx rolls back, no events go out. If the worker itself crashes after the commit, BullMQ retries up to 3 times — but the ladder is idempotent in a weak sense: the second attempt would see the auction in its post-ladder state and the pool would be empty (every auto-bid's maxAmount < new currentPrice + inc) → no-op. The retry doesn't double-emit because emits live inside the worker callback, not the tx.
+- Phase A7 (notification queue) will move the per-step `notifyUser` calls off the worker's hot path. For now they stay inline; if the ladder is long they'll noisy-up the notifications inbox.
+
+### What's still NOT done (deferred)
+
+- **Real auto-bid trigger from setAutoBid.** When user X sets a new auto-bid mid-auction and X.maxAmount is higher than the current winning auto-bidder's, we should also enqueue a ladder run immediately. Currently `setAutoBid` just saves the row and waits for the next manual bid to trigger the ladder. Easy follow-up: add `autoBidQueue.add('process-ladder', { auctionId, triggerBidderId: bidderId })` to `setAutoBid` after the upsert. Held off this session to keep A6 scope tight.
+- **Anti-snipe extension during ladder steps.** Each rung is a bid placed within the last N minutes of the auction. By the current contract those bids would extend the auction — but my worker only writes `currentPrice` at the end, never `endTime`. For now ladder rungs do NOT trigger anti-snipe extensions. Probably the right call (otherwise auto-bidders could keep an auction open indefinitely), but flag this for the user to confirm.
+
+### Plan-doc edits
+
+- `plan.md` Phase A6 fully struck through with what landed and the acceptance signal.
+- This continuation block.
+- `xdocs/sessions/INDEX.md` — extend the existing Phase A1+A3 entry to also list A6.
+
+### Acceptance signals for the user to run
+
+- `grep -n "processAutoBids" back/src` → only comments + jest mocks referencing the deletion. No live import / call.
+- `grep -n "autoBidQueue" back/src` → 3 hits: `queues/auction.queue.ts` (export), `modules/bidding/bid.service.ts` (producer), `modules/bidding/bid.service.test.ts` (mock).
+- `npm run test:back` — full suite green; the 4 new ladder tests pass and the bid.service test's `autoBidQueue.add` assertion holds.
+- Live test (when you can run the stack): set X.maxAmount=1000 and Y.maxAmount=11000 on the same English auction, then place a manual bid that puts the price at, say, 100. The `Bid` table should grow with rungs `110, 120, 130, ... 1000` (X's max, then X drops out; Y wins at 1000). Frontend bid history should render the ladder in order.
+
+### Commit
+
+- _(this section gets the actual `<hash>` after the commit lands.)_
+
 ## Notes for Future Self
 
 - Decimal arithmetic: `a + b` is meaningless on `Prisma.Decimal` (returns NaN/junk). Always use `.add(b)`, `.sub(b)`, `.mul(b)`, `.div(b)`. Always use `.cmp(b) < 0` / `.lt(b)` / `.lte(b)` / `.gt(b)` / `.gte(b)` instead of `<`/`>`.

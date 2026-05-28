@@ -2,7 +2,6 @@ import { Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { AuctionStatus, AuctionType } from '@prisma/client';
 import * as bidService from './bid.service';
-import { processAutoBids } from '../auto-bid/auto-bid.service';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { prisma } from '../../lib/prisma';
 
@@ -51,8 +50,9 @@ export const placeBid = async (req: AuthRequest, res: Response, next: NextFuncti
       });
     }
 
-    // Trigger auto-bid engine for this auction
-    processAutoBids(auctionId, bid.bidderId, bid.amount, req.io).catch(console.error);
+    // Phase A6: bid.service.placeBid already enqueues the auto-bid ladder onto
+    // the auto-bid BullMQ queue after its tx commits. The controller used to
+    // also kick off `processAutoBids` synchronously here -- that path is gone.
 
     res.status(201).json(bid);
   } catch (err) {

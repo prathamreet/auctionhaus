@@ -3,16 +3,17 @@ import { placeBid, getAuctionBids } from './bid.service';
 import { prismaMock } from '../../__mocks__/prisma';
 import { m } from '../../__mocks__/money';
 import { notifyUser } from '../notifications/notification.service';
-import { processAutoBids } from '../auto-bid/auto-bid.service';
+import { autoBidQueue } from '../../queues/auction.queue';
 import { AuctionStatus, AuctionType } from '@prisma/client';
-import { io } from '../../index';
 
 jest.mock('../notifications/notification.service', () => ({
   notifyUser: jest.fn(),
 }));
 
-jest.mock('../auto-bid/auto-bid.service', () => ({
-  processAutoBids: jest.fn().mockResolvedValue(true),
+// Phase A6: placeBid enqueues the ladder onto autoBidQueue after its tx
+// commits. Mock the queue so the test doesn't reach Redis.
+jest.mock('../../queues/auction.queue', () => ({
+  autoBidQueue: { add: jest.fn().mockResolvedValue(true) },
 }));
 
 jest.mock('../../index', () => ({
@@ -112,18 +113,21 @@ describe('Bid Service', () => {
       }));
     });
 
-    it('should trigger processAutoBids via setImmediate', async () => {
+    it('enqueues the auto-bid ladder job after the manual bid commits (Phase A6)', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
       prismaMock.wallet.findUnique.mockResolvedValue({ id: 'w1', userId: 'u1', balance: 500, heldAmount: 0 } as any);
       prismaMock.wallet.update.mockResolvedValue({ id: 'w1' } as any);
       prismaMock.bid.findFirst.mockResolvedValue(null);
-      prismaMock.bid.create.mockResolvedValue({ id: 'b_new' } as any);
+      prismaMock.bid.create.mockResolvedValue({ id: 'b_new', amount: 120 } as any);
 
       await placeBid({ auctionId: 'a1', bidderId: 'u1', amount: 120 });
 
-      await new Promise(resolve => setImmediate(resolve)); // Execute setImmediate queue
-      
-      expect(processAutoBids).toHaveBeenCalledWith('a1', 'u1', 120, io);
+      // The producer side: enqueue onto the auto-bid queue with the trigger
+      // bidder so the worker knows whose auto-bid (if any) NOT to challenge.
+      expect(autoBidQueue.add).toHaveBeenCalledWith('process-ladder', {
+        auctionId: 'a1',
+        triggerBidderId: 'u1',
+      });
     });
   });
 

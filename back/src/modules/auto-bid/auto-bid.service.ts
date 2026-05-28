@@ -1,10 +1,7 @@
 import { AuctionStatus } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
-import { placeBid } from '../bidding/bid.service';
-import { notifyUser } from '../notifications/notification.service';
-import { Server } from 'socket.io';
-import { D, toNum, serializeMoney } from '../../lib/decimal';
+import { D, serializeMoney } from '../../lib/decimal';
 
 /**
  * Set or update an auto-bid for an auction.
@@ -87,122 +84,13 @@ export const cancelAutoBid = async (auctionId: string, bidderId: string) => {
   return { message: 'Auto-bid cancelled' };
 };
 
-/**
- * Core auto-bid processor.
- * Called after any manual bid is placed.
- * Finds the highest willing auto-bidder and places a counter-bid.
- */
-export const processAutoBids = async (
-  auctionId: string,
-  currentWinnerId: string,
-  currentPrice: number,
-  io?: Server
-) => {
-  const auction = await prisma.auction.findUnique({ where: { id: auctionId } });
-  if (!auction || auction.status !== AuctionStatus.ACTIVE) return;
-
-  // Get all active auto-bids for this auction, excluding current winner
-  // Sort by maxAmount DESC — highest willing bidder gets priority
-  const autoBids = await prisma.autoBid.findMany({
-    where: {
-      auctionId,
-      isActive: true,
-      bidderId: { not: currentWinnerId },
-    },
-    orderBy: { maxAmount: 'desc' },
-  });
-
-  if (autoBids.length === 0) return;
-
-  const topAutoBid = autoBids[0];
-  // Phase A1: Decimal-safe ladder math.
-  const nextBidAmountD = D(currentPrice).add(auction.minIncrement);
-
-  if (D(topAutoBid.maxAmount).lt(nextBidAmountD)) {
-    // All auto-bids are priced out — deactivate them all so they don't
-    // confuse users into thinking they're still protected.
-    await prisma.autoBid.updateMany({
-      where: {
-        auctionId,
-        isActive: true,
-        maxAmount: { lt: nextBidAmountD },
-      },
-      data: { isActive: false },
-    });
-    return;
-  }
-
-  // Determine the actual bid amount:
-  // If there's a 2nd auto-bidder, we bid just enough to beat them + 1 increment
-  // Otherwise we bid the minimum to win
-  let bidAmountD = nextBidAmountD;
-
-  if (autoBids.length > 1) {
-    const secondBid = autoBids[1];
-    const beatingAmount = D(secondBid.maxAmount).add(auction.minIncrement);
-    // min(beatingAmount, topAutoBid.maxAmount)
-    bidAmountD = beatingAmount.lt(topAutoBid.maxAmount) ? beatingAmount : D(topAutoBid.maxAmount);
-  }
-
-  // placeBid accepts a number. Convert Decimal -> number here. Money values
-  // stay within safe-integer * 100 territory so toNum is precision-preserving.
-  const bidAmountNum = toNum(bidAmountD) ?? 0;
-
-  try {
-    const bid = await placeBid({
-      auctionId,
-      bidderId: topAutoBid.bidderId,
-      amount: bidAmountNum,
-      isAutoBid: true,
-    });
-
-    // Update auto-bid current amount
-    await prisma.autoBid.update({
-      where: { id: topAutoBid.id },
-      data: { currentBid: bidAmountD },
-    });
-
-    // Emit to socket room. bid.amount comes back as number from placeBid().
-    if (io) {
-      io.to(`auction:${auctionId}`).emit('bid:new', {
-        bid: {
-          id: bid.id,
-          amount: bid.amount,
-          bidderId: bid.bidderId,
-          isAutoBid: true,
-          createdAt: bid.createdAt,
-        },
-      });
-    }
-
-    // Notify the auto-bidder
-    notifyUser(topAutoBid.bidderId, {
-      type: 'AUTO_BID_PLACED',
-      title: 'Auto-bid placed',
-      message: `Auto-bid of ${bidAmountNum} placed on "${auction.title}"`,
-      data: { auctionId, amount: bidAmountNum },
-    });
-
-    // Recursively process if the previous winner also has an auto-bid
-    await processAutoBids(auctionId, topAutoBid.bidderId, bidAmountNum, io);
-  } catch (err: unknown) {
-    if (
-      err &&
-      typeof err === 'object' &&
-      'statusCode' in err &&
-      'message' in err &&
-      err.statusCode === 400 &&
-      typeof err.message === 'string' &&
-      err.message.includes('balance')
-    ) {
-      // Deactivate auto-bid if can't afford
-      await prisma.autoBid.update({
-        where: { id: topAutoBid.id },
-        data: { isActive: false },
-      });
-    }
-  }
-};
+// Phase A6: the old recursive `processAutoBids` lived here. It called placeBid,
+// which opened a NESTED prisma.$transaction inside the parent placeBid tx --
+// Prisma does not support that. It also breached the UX contract by jumping
+// straight to `min(beatingAmount, top.maxAmount)` instead of writing every
+// ladder rung as its own Bid row. Both issues are gone: the producer is now
+// `bid.service.placeBid` enqueueing onto autoBidQueue after its tx commits,
+// and the consumer is `back/src/workers/index.ts::processAutoBidLadder`.
 
 export const getMyAutoBid = async (auctionId: string, bidderId: string) => {
   const autoBid = await prisma.autoBid.findUnique({
