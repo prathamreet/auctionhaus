@@ -60,6 +60,7 @@ export const initSocketGateway = (io: Server) => {
     socket.on('auction:sync', async (auctionId: string) => {
       try {
         const { prisma } = await import('../lib/prisma');
+        const { serializeMoney } = await import('../lib/decimal');
         const auction = await prisma.auction.findUnique({
           where: { id: auctionId },
           select: {
@@ -70,7 +71,8 @@ export const initSocketGateway = (io: Server) => {
             _count: { select: { bids: true } },
           },
         });
-        if (auction) socket.emit('auction:state', auction);
+        // Phase A1: convert currentPrice Decimal -> number at the socket edge.
+        if (auction) socket.emit('auction:state', serializeMoney(auction));
       } catch {
         // ignore
       }

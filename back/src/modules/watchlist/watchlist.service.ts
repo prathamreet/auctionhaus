@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
+import { serializeMoney } from '../../lib/decimal';
 
 export const getWatchlist = async (userId: string) => {
   const items = await prisma.watchlistItem.findMany({
@@ -20,7 +21,8 @@ export const getWatchlist = async (userId: string) => {
       },
     },
   });
-  return items;
+  // Phase A1: nested auction.currentPrice Decimal -> number.
+  return serializeMoney(items);
 };
 
 export const addToWatchlist = async (userId: string, auctionId: string) => {

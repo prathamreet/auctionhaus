@@ -2,6 +2,7 @@ import { AuctionStatus, AuctionType, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
 import { auctionQueue } from '../../queues/auction.queue';
+import { D, serializeMoney } from '../../lib/decimal';
 
 export const createAuction = async (
   sellerId: string,
@@ -51,7 +52,7 @@ export const createAuction = async (
     await auctionQueue.add('end-auction', { auctionId: auction.id }, { delay: endDelay });
   }
 
-  return auction;
+  return serializeMoney(auction);
 };
 
 export const getAuctions = async (params: {
@@ -88,7 +89,13 @@ export const getAuctions = async (params: {
     prisma.auction.count({ where }),
   ]);
 
-  return { auctions, total, page, limit, totalPages: Math.ceil(total / limit) };
+  return {
+    auctions: serializeMoney(auctions),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 export const getAuctionById = async (auctionId: string, userId?: string) => {
@@ -143,7 +150,11 @@ export const getAuctionById = async (auctionId: string, userId?: string) => {
     });
   }
 
-  return { ...auction, isWatched, autoBid };
+  // Phase A1: serializeMoney recursively converts every Decimal
+  // (startingPrice, currentPrice, reservePrice, buyNowPrice, dutchPriceStep,
+  // minIncrement, embedded bids[].amount, autoBid.maxAmount) -> number so
+  // the frontend type contract stays `number`.
+  return serializeMoney({ ...auction, isWatched, autoBid });
 };
 
 export const updateAuction = async (
@@ -158,7 +169,8 @@ export const updateAuction = async (
     throw createError('Cannot edit an active or ended auction', 400);
   }
 
-  return prisma.auction.update({ where: { id: auctionId }, data });
+  const updated = await prisma.auction.update({ where: { id: auctionId }, data });
+  return serializeMoney(updated);
 };
 
 export const cancelAuction = async (auctionId: string, userId: string, isAdmin = false) => {
@@ -168,7 +180,8 @@ export const cancelAuction = async (auctionId: string, userId: string, isAdmin =
   if (!isAdmin && auction.sellerId !== userId) throw createError('Not authorized', 403);
   if (auction.status === AuctionStatus.ENDED) throw createError('Auction already ended', 400);
 
-  // Refund all held bids
+  // Refund all held bids. bid.amount is Decimal -- Prisma increment/decrement
+  // accept it directly.
   const topBids = await prisma.bid.findMany({
     where: { auctionId, status: 'WINNING' },
     include: { bidder: { include: { wallet: true } } },
@@ -186,10 +199,11 @@ export const cancelAuction = async (auctionId: string, userId: string, isAdmin =
     }
   }
 
-  return prisma.auction.update({
+  const cancelled = await prisma.auction.update({
     where: { id: auctionId },
     data: { status: AuctionStatus.CANCELLED },
   });
+  return serializeMoney(cancelled);
 };
 
 export const buyNow = async (auctionId: string, buyerId: string) => {
@@ -213,6 +227,10 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
     if (!auction.buyNowPrice) throw createError('No buy-now price set', 400);
     if (auction.sellerId === buyerId) throw createError("Can't buy your own auction", 403);
 
+    // Phase A1: Decimal arithmetic. Capture buyNowPrice as Decimal once.
+    const priceD = D(auction.buyNowPrice);
+    const priceDebit = priceD.neg();
+
     // Lock both wallet rows in ascending userId order to maintain the global
     // lock-order invariant (auction first, then wallets sorted).
     for (const uid of [buyerId, auction.sellerId].sort()) {
@@ -220,20 +238,20 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
     }
 
     const buyerWallet = await tx.wallet.findUnique({ where: { userId: buyerId } });
-    if (!buyerWallet || buyerWallet.balance < auction.buyNowPrice) {
+    if (!buyerWallet || D(buyerWallet.balance).lt(priceD)) {
       throw createError('Insufficient wallet balance', 400);
     }
 
     // Deduct from buyer
     await tx.wallet.update({
       where: { userId: buyerId },
-      data: { balance: { decrement: auction.buyNowPrice } },
+      data: { balance: { decrement: priceD } },
     });
 
     // Credit to seller
     await tx.wallet.update({
       where: { userId: auction.sellerId },
-      data: { balance: { increment: auction.buyNowPrice } },
+      data: { balance: { increment: priceD } },
     });
 
     const sellerWallet = await tx.wallet.findUnique({ where: { userId: auction.sellerId } });
@@ -244,7 +262,7 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
           walletId: buyerWallet.id,
           userId: buyerId,
           type: 'PAYMENT',
-          amount: -auction.buyNowPrice,
+          amount: priceDebit,
           description: `Buy Now: ${auction.title}`,
           referenceId: auctionId,
         },
@@ -252,7 +270,7 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
           walletId: sellerWallet!.id,
           userId: auction.sellerId,
           type: 'PAYMENT',
-          amount: auction.buyNowPrice,
+          amount: priceD,
           description: `Sale: ${auction.title}`,
           referenceId: auctionId,
         },
@@ -260,14 +278,15 @@ export const buyNow = async (auctionId: string, buyerId: string) => {
     });
 
     // End auction with this buyer as winner
-    return tx.auction.update({
+    const updated = await tx.auction.update({
       where: { id: auctionId },
       data: {
         status: AuctionStatus.ENDED,
         winnerId: buyerId,
-        currentPrice: auction.buyNowPrice,
+        currentPrice: priceD,
         actualEndTime: new Date(),
       },
     });
+    return serializeMoney(updated);
   });
 };

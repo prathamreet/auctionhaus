@@ -1,10 +1,11 @@
 import { Worker, Job } from 'bullmq';
-import { AuctionStatus } from '@prisma/client';
+import { AuctionStatus, Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { bullMQConnection } from '../lib/redis';
 import { io } from '../index';
 import { notifyUser } from '../modules/notifications/notification.service';
 import { dutchAuctionQueue } from '../queues/auction.queue';
+import { D, toNum } from '../lib/decimal';
 
 const workerOptions = {
   connection: bullMQConnection as any, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -76,20 +77,26 @@ const dutchWorker = new Worker(
       const auction = await prisma.auction.findUnique({ where: { id: auctionId } });
       if (!auction || auction.status !== AuctionStatus.ACTIVE) return;
 
-      const newPrice = Math.max(0, auction.currentPrice - step);
+      // Phase A1: Decimal-safe price drop. Floor at zero.
+      const zero = D(0);
+      const dropped = D(auction.currentPrice).sub(step);
+      const newPriceD = dropped.lt(zero) ? zero : dropped;
 
       // If price hits 0 or below reserve, end the auction
-      if (newPrice <= 0 || (auction.reservePrice && newPrice < auction.reservePrice)) {
+      if (newPriceD.lte(zero) || (auction.reservePrice && newPriceD.lt(auction.reservePrice))) {
         await endAuction(auctionId);
         return;
       }
 
       await prisma.auction.update({
         where: { id: auctionId },
-        data: { currentPrice: newPrice },
+        data: { currentPrice: newPriceD },
       });
 
-      io.to(`auction:${auctionId}`).emit('auction:price-drop', { auctionId, newPrice });
+      io.to(`auction:${auctionId}`).emit('auction:price-drop', {
+        auctionId,
+        newPrice: toNum(newPriceD),
+      });
     }
   },
   workerOptions
@@ -133,7 +140,9 @@ async function endAuction(auctionId: string) {
       }
 
       const wb = a.bids[0] ?? null;
-      const reserveOk = !a.reservePrice || (wb !== null && wb.amount >= a.reservePrice);
+      // Phase A1: Decimal-safe reserve check (Decimal.js valueOf would coerce
+      // to JS number for `>=`, which is fragile for high-precision values).
+      const reserveOk = !a.reservePrice || (wb !== null && D(wb.amount).gte(a.reservePrice));
       const w = reserveOk && wb ? wb.bidderId : null;
 
       await tx.auction.update({
@@ -165,11 +174,12 @@ async function endAuction(auctionId: string) {
       if (loserIds.length > 0) {
         await prisma.bid.updateMany({ where: { id: { in: loserIds } }, data: { status: 'LOST' } });
 
-        // Refund losers (release held amounts)
-        // Aggregate refunds by user to prevent N+1 query and multiple updates per user
-        const refunds: Record<string, number> = {};
+        // Phase A1: Decimal-safe per-user refund aggregation. Without Decimal,
+        // repeated `+= loser.amount` on Float would drift on edge values.
+        const refunds: Record<string, Prisma.Decimal> = {};
         for (const loser of allBids.slice(1)) {
-          refunds[loser.bidderId] = (refunds[loser.bidderId] || 0) + loser.amount;
+          const prior = refunds[loser.bidderId] ?? D(0);
+          refunds[loser.bidderId] = prior.add(loser.amount);
         }
 
         const refundUpdates = Object.entries(refunds).map(([userId, amount]) =>
@@ -188,11 +198,15 @@ async function endAuction(auctionId: string) {
     }
   }
 
+  // Phase A1: emit number-typed prices so socket subscribers don't choke on
+  // Decimal serialization.
+  const finalPriceNum = winningBid ? toNum(winningBid.amount) : null;
+
   // Emit to all watchers
   io.to(`auction:${auctionId}`).emit('auction:ended', {
     auctionId,
     winnerId: winner,
-    finalPrice: winningBid?.amount,
+    finalPrice: finalPriceNum,
     metReserve,
   });
 
@@ -200,9 +214,9 @@ async function endAuction(auctionId: string) {
   if (winner && winningBid) {
     notifyUser(winner, {
       type: 'AUCTION_WON',
-      title: '🎉 You won the auction!',
-      message: `You won "${auction.title}" for ${winningBid.amount}`,
-      data: { auctionId, amount: winningBid.amount },
+      title: 'You won the auction!',
+      message: `You won "${auction.title}" for ${finalPriceNum}`,
+      data: { auctionId, amount: finalPriceNum },
     });
   }
 
@@ -217,7 +231,7 @@ async function endAuction(auctionId: string) {
       type: 'AUCTION_ENDED',
       title: 'Auction ended',
       message: winner
-        ? `"${auction.title}" ended. Final price: ${winningBid?.amount}`
+        ? `"${auction.title}" ended. Final price: ${finalPriceNum}`
         : `"${auction.title}" ended with no winner (reserve not met)`,
       data: { auctionId },
     });

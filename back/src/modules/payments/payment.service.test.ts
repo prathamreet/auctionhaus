@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { confirmWinnerPayment, refundLosers } from './payment.service';
 import { prismaMock } from '../../__mocks__/prisma';
+import { m } from '../../__mocks__/money';
 import { notifyUser } from '../notifications/notification.service';
 
 jest.mock('../notifications/notification.service', () => ({
@@ -67,20 +68,20 @@ describe('Payment Service', () => {
       // Check Winner Wallet Deduction (only heldAmount is decremented since balance was decremented at bid time)
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { heldAmount: { decrement: 500 } }
+        data: { heldAmount: { decrement: m(500) } }
       });
 
       // Check Seller Wallet Credit
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u2' },
-        data: { balance: { increment: 500 } }
+        data: { balance: { increment: m(500) } }
       });
 
-      // Check Transactions Created
+      // Check Transactions Created -- amounts pass through as Decimal post A1.
       expect(prismaMock.transaction.createMany).toHaveBeenCalledWith({
         data: expect.arrayContaining([
-          expect.objectContaining({ type: 'PAYMENT', amount: -500, userId: 'u1' }),
-          expect.objectContaining({ type: 'PAYMENT', amount: 500, userId: 'u2' }),
+          expect.objectContaining({ type: 'PAYMENT', amount: m(-500), userId: 'u1' }),
+          expect.objectContaining({ type: 'PAYMENT', amount: m(500), userId: 'u2' }),
         ])
       });
 

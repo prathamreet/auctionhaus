@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { setAutoBid, cancelAutoBid, processAutoBids, getMyAutoBid as _getMyAutoBid } from './auto-bid.service';
 import { prismaMock } from '../../__mocks__/prisma';
+import { m } from '../../__mocks__/money';
 import { placeBid } from '../bidding/bid.service';
 import { notifyUser } from '../notifications/notification.service';
 import { AuctionStatus, AuctionType } from '@prisma/client';
@@ -82,8 +83,8 @@ describe('AutoBid Service', () => {
 
       expect(prismaMock.autoBid.upsert).toHaveBeenCalledWith({
         where: { auctionId_bidderId: { auctionId: 'a1', bidderId: 'u1' } },
-        update: { maxAmount: 500, isActive: true },
-        create: { auctionId: 'a1', bidderId: 'u1', maxAmount: 500 },
+        update: { maxAmount: m(500), isActive: true },
+        create: { auctionId: 'a1', bidderId: 'u1', maxAmount: m(500) },
       });
       expect(res.id).toBe('ab1');
     });
@@ -139,7 +140,7 @@ describe('AutoBid Service', () => {
       });
       expect(prismaMock.autoBid.update).toHaveBeenCalledWith({
         where: { id: 'ab1' },
-        data: { currentBid: 110 }
+        data: { currentBid: m(110) }
       });
       expect(notifyUser).toHaveBeenCalledWith('u_auto', expect.objectContaining({ type: 'AUTO_BID_PLACED' }));
     });

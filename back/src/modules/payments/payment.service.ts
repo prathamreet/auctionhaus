@@ -7,6 +7,7 @@
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
 import { notifyUser } from '../notifications/notification.service';
+import { D, toNum } from '../../lib/decimal';
 
 export const confirmWinnerPayment = async (auctionId: string, winnerId: string) => {
   // Phase A2: All validation (including the idempotency check for an existing
@@ -37,10 +38,11 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
       where: { userId: winnerId, referenceId: auctionId, type: 'PAYMENT' },
     });
     if (existingPayment) {
+      // existingPayment.amount is Decimal (negative for the debit side).
       return {
         message: 'Payment already confirmed',
         auctionId,
-        amount: existingPayment.amount ? Math.abs(Number(existingPayment.amount)) : 0,
+        amount: toNum(D(existingPayment.amount).abs()) ?? 0,
         alreadyProcessed: true,
       };
     }
@@ -51,7 +53,10 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
     });
     if (!winningBid) throw createError('Winning bid not found', 404);
 
-    const amount = winningBid.amount;
+    // Phase A1: pin the bid amount as Decimal once. winningBid.amount is
+    // already Decimal but D() is idempotent and lets us call .neg() cleanly.
+    const amountD = D(winningBid.amount);
+    const amountDebit = amountD.neg();
 
     // Lock both wallet rows in ascending userId order.
     for (const uid of [winnerId, auction.sellerId].sort()) {
@@ -64,14 +69,14 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
     await tx.wallet.update({
       where: { userId: winnerId },
       data: {
-        heldAmount: { decrement: amount },
+        heldAmount: { decrement: amountD },
         // balance was already decremented when bid was placed
       },
     });
 
     await tx.wallet.update({
       where: { userId: auction.sellerId },
-      data: { balance: { increment: amount } },
+      data: { balance: { increment: amountD } },
     });
 
     const sellerWallet = await tx.wallet.findUnique({ where: { userId: auction.sellerId } });
@@ -82,7 +87,7 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
           walletId: winnerWallet.id,
           userId: winnerId,
           type: 'PAYMENT',
-          amount: -amount,
+          amount: amountDebit,
           description: `Won auction: ${auction.title}`,
           referenceId: auctionId,
           status: 'COMPLETED',
@@ -91,7 +96,7 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
           walletId: sellerWallet!.id,
           userId: auction.sellerId,
           type: 'PAYMENT',
-          amount,
+          amount: amountD,
           description: `Sold: ${auction.title}`,
           referenceId: auctionId,
           status: 'COMPLETED',
@@ -104,6 +109,9 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
       data: { status: 'WON' },
     });
 
+    // Convert to number once for the notification body + API response.
+    const amountNum = toNum(amountD) ?? 0;
+
     // Notify outside the critical path -- but we're already inside tx; this is
     // OK because notifyUser swallows its own errors. A proper fix is to push
     // to the BullMQ notifications queue (Phase A7) so notifications don't sit
@@ -111,14 +119,14 @@ export const confirmWinnerPayment = async (auctionId: string, winnerId: string) 
     notifyUser(auction.sellerId, {
       type: 'PAYMENT_RECEIVED',
       title: 'Payment received!',
-      message: `You received ${amount} for "${auction.title}"`,
-      data: { auctionId, amount },
+      message: `You received ${amountNum} for "${auction.title}"`,
+      data: { auctionId, amount: amountNum },
     });
 
     return {
       message: 'Payment confirmed',
       auctionId,
-      amount,
+      amount: amountNum,
       seller: auction.seller.name,
     };
   });

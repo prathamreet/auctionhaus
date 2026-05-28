@@ -215,6 +215,143 @@ Five entry points updated to obey this:
 
 - `1dffd89` on branch `bliss` — `fix(concurrency): Phase A2 -- FOR UPDATE locks across the 5 hot paths`. 11 files changed, 315 insertions, 106 deletions. Not pushed.
 
+---
+
+## SESSION CLOSED — Where We Are Leaving (read this first next session)
+
+This is the canonical summary. If you (future Claude) only read one block in this file, read this one. Then jump to `## Next Up (revised)` above for the queued action list.
+
+### Branch state
+
+- Working branch: `bliss` (current `HEAD` was `c641846` at close; one more graphify-refresh commit comes after this edit).
+- Working tree clean except `.claude/` (local agent state, ignored).
+- Nothing pushed. User pushes when they want.
+- Recent commit ladder (oldest to newest in this session):
+  - `53215b1` plan.md as SSOT + sealed-bid partial fix
+  - `e9a091c` record hash
+  - `6a90b54` close Phase A4 (sealed-bid privacy end-to-end)
+  - `d4c4d11` record hash
+  - `1dffd89` Phase A2 (FOR UPDATE locks across 5 hot paths)
+  - `c641846` record hash
+  - (this commit) docs(session): close session + graphify refresh
+
+### What is now true about the codebase (vs the 2026-05-28 audit start)
+
+The "doc-vs-reality" gap from `xdocs/archive/done.md` is partially real now (genuinely landed in TypeScript, not just markdown):
+
+| Audit-day claim that was fiction | Status now |
+| --- | --- |
+| `FOR UPDATE` row locks in placeBid, withdraw, endAuction, buyNow | **REAL** in `bid.service`, `wallet.service`, `auction.service::buyNow`, `workers/index.ts::endAuction`, `payment.service::confirmWinnerPayment` |
+| Sealed-bid privacy mask via DTO | **REAL** in `bid.service.getAuctionBids`, `bid.controller.placeBid` socket emit, `bid.service.placeBid` (currentPrice no longer updates), `auction.service.getAuctionById` (bids[] masked) |
+| Decimal money | **STILL FAKE** — Float everywhere. Phase A1. |
+| Indexes on Auction.status / endTime / type, Bid(auctionId,status), Notification(userId,isRead) | **STILL FAKE** — only unique constraints exist. Phase A3. |
+| EscrowService centralization | **STILL FAKE** — settlement logic still split. Phase A5. |
+| In-memory userCache | **STILL FAKE** — every authed request hits DB. Phase A9. |
+| Socket.io Redis adapter wired | **STILL FAKE** — `redisPub`/`redisSub` still imported nowhere. Phase A8. |
+| Auto-bid via BullMQ queue (atomic ladder log) | **STILL FAKE** — still recursive setImmediate. Phase A6. |
+| Winston logger / financial.log | **STILL FAKE** — `console.error` everywhere. |
+
+So: of the docs-vs-reality table in `plan.md §2`, rows for **FOR UPDATE locks** and **sealed-bid privacy** are now genuinely satisfied. Everything else in that table is still fake and must be done in actual code, not docs.
+
+### Lock-order invariant (memorize this, it's permanent)
+
+Within any `prisma.$transaction` that touches auctions + wallets, the order is:
+
+1. `SELECT id FROM auctions WHERE id = $1 FOR UPDATE`  — auction first, always.
+2. `SELECT id FROM wallets WHERE "userId" = $1 FOR UPDATE`  — wallets second, **in ascending userId order** when locking more than one.
+
+Any new code path that touches money MUST obey this order or it deadlocks. Add the same `for (const uid of [...].sort()) { await tx.$queryRaw\`...\`; }` pattern.
+
+### Test-mock conventions (Phase A2)
+
+`back/src/__mocks__/prisma.ts` now sets two defaults in its `beforeEach`:
+
+- `$queryRaw` → resolves to `[{ id: '_locked_' }]` so the lock-acquire path is transparent in tests. To simulate "row not found" in a single test, override with `prismaMock.$queryRaw.mockResolvedValueOnce([])`.
+- `$transaction` → invokes its callback with `prismaMock` (interactive form) or `Promise.all`s its array argument (batched form). Per-file `mockImplementation` overrides still work; they win.
+
+When adding new tests for locked code paths, do NOT need to set up `$queryRaw` or `$transaction` unless your test specifically wants different semantics.
+
+### How to resume in a fresh session
+
+Step-by-step, no thinking required:
+
+1. Open this file (`xdocs/sessions/2026-05-28-audit-and-plan.md`), read this block + `## Next Up (revised)`.
+2. Open `plan.md` §5 (Phased Roadmap). Phase A1, A3, A6 are the next actions; A4 and A2 are struck through.
+3. Open `xdocs/sessions/INDEX.md` to confirm no newer session started in between.
+4. **If user says "continue" without naming a phase:** start Phase A1 (Decimal money migration). It's mechanical and unblocks A6.
+5. **If user names a phase:** do that one. The plan.md entry tells you the files and acceptance signal.
+6. Before editing code, scan `graphify-out/GRAPH_REPORT.md` for the relevant community. (Refreshed at session close — 1056 nodes / 1297 edges / 127 communities. God nodes now also include the new lock-acquisition patterns.)
+
+### Phase A1 (Decimal money) — pre-flight notes for next session
+
+- Files to change (every Float money field):
+  - `back/prisma/schema.prisma` — Wallet.balance, Wallet.heldAmount, Transaction.amount, Auction.startingPrice/reservePrice/currentPrice/buyNowPrice/dutchPriceStep/minIncrement, Bid.amount, AutoBid.maxAmount/currentBid. Use `Decimal @db.Decimal(18, 2)`.
+  - Add `back/src/lib/decimal.ts` — helper that (a) parses incoming `number` from Zod into `Decimal` and (b) serializes `Decimal` → string in API responses. Prisma returns Decimal as a `Decimal.js` instance; JSON.stringify of that gives `{"s":1,"e":..., "d":[...]}` which the frontend can't parse. Use a Prisma transformer or a manual mapping in each service return.
+  - Update every service that does arithmetic. The dangerous ones:
+    - `bid.service.placeBid` — `auction.currentPrice + auction.minIncrement`, `wallet.balance - wallet.heldAmount`, the `< amount` check, etc.
+    - `wallet.service.withdraw` — same available-balance subtraction.
+    - `auction.service.buyNow` — `wallet.balance < auction.buyNowPrice`.
+    - `payment.service.confirmWinnerPayment` — `Math.abs(Number(existingPayment.amount))`.
+    - `auto-bid.service` — `currentPrice + minIncrement`, `topAutoBid.maxAmount + minIncrement`.
+    - `workers/index.ts::endAuction` — sealed-loser refund aggregation `refunds[uid] += loser.amount`.
+  - JS `+` / `-` / `<` on Decimal objects is a footgun. Use `.add()`, `.sub()`, `.lt()`, `.gt()`. Add an ESLint rule if possible, or at minimum a comment marker.
+  - Acceptance: `grep -n "Float" back/prisma/schema.prisma` returns zero on money fields.
+- The migration `prisma migrate dev --name decimal_money` is **user-run**. Do not run it. After the user confirms migration applied, the code change works.
+- Tests will need spot updates wherever they mock numeric balances. Use `new Prisma.Decimal(100)` instead of `100`. The `prismaMock` doesn't care about the type so most tests just keep working.
+
+### Phase A3 (Indexes) — pre-flight notes
+
+- Pure migration. Make a new file under `back/prisma/migrations/<timestamp>_perf_indexes/migration.sql` with:
+  ```sql
+  CREATE INDEX "auctions_status_idx" ON "auctions"("status");
+  CREATE INDEX "auctions_endTime_idx" ON "auctions"("endTime");
+  CREATE INDEX "auctions_type_status_idx" ON "auctions"("type", "status");
+  CREATE INDEX "bids_auctionId_status_idx" ON "bids"("auctionId", "status");
+  CREATE INDEX "bids_bidderId_idx" ON "bids"("bidderId");
+  CREATE INDEX "notifications_userId_isRead_idx" ON "notifications"("userId", "isRead");
+  CREATE INDEX "transactions_userId_createdAt_idx" ON "transactions"("userId", "createdAt" DESC);
+  CREATE INDEX "auctions_title_description_fts_idx" ON "auctions"
+    USING GIN (to_tsvector('english', "title" || ' ' || "description"));
+  ```
+- Then update `auction.service.getAuctions` to use `to_tsvector` FTS instead of ILIKE `contains` for the `search` param. Same for `admin.service.getAllUsers` (if matching the same pattern).
+- Schema additions in Prisma: add `@@index([...])` directives for parity, but the GIN one will need to live only in the manual SQL.
+
+### Phase A6 (Auto-bid queue + atomic ladder log) — pre-flight notes
+
+- The UX contract in `xdocs/not-for-ai/checklist.md` and `~/.claude/projects/E--projects-auctionhaus/memory/project_autobid_ladder.md` is: when bidder A maxAmount=1000 fights bidder B maxAmount=11000, the bid log must show every step (1100, 1200, ..., until A drops out) as instant entries, no wall-clock simulation.
+- Refactor: introduce a new BullMQ queue `auto-bid` with concurrency 1 per auction (use BullMQ's `groupKey`). Producer is `bid.controller.placeBid` (replaces the current `setImmediate`). Worker consumes `{ auctionId, triggerBidderId, triggerAmount }` and runs the full ladder in a **single** `prisma.$transaction`, locking the auction once, walking the auto-bidders in priority order, inserting every intermediate `Bid` row synchronously within the tx.
+- The current recursive `processAutoBids → placeBid → another tx` pattern is the main thing to delete. It's what makes nested transactions and breaks the ladder contract.
+- This is the most user-visible change of the whole hardening phase.
+
+### Phase A7 (Notifications queue) — quick win
+
+- The declared-but-dead `notificationQueue` in `back/src/queues/auction.queue.ts` should be wired up: `notifyUser` (in `back/src/modules/notifications/notification.service.ts`) currently does DB write + socket emit synchronously inside other modules' transactions. Switch to `notificationQueue.add('deliver', { userId, type, title, message, data })`. Worker writes to DB then emits. Removes notifications from every bid/payment critical path.
+
+### Phase A8 (Socket.io Redis adapter) — quick win
+
+- `redisPub` and `redisSub` are already exported and unused. In `back/src/index.ts` after `const io = new Server(...)`, add:
+  ```ts
+  import { createAdapter } from '@socket.io/redis-adapter';
+  io.adapter(createAdapter(redisPub, redisSub));
+  ```
+- Needs the `@socket.io/redis-adapter` dep added to `back/package.json`. After this, the dead connections do real work and the "your Redis is heavy" feeling has a real payoff (horizontal scaling).
+
+### Phase B (UI) is intentionally deferred
+
+Phase A1, A3, A6, A7, A8 are the next backend deliverables. Phase B starts only after Phase A is done. Do not interleave UI work into Phase A turns unless the user explicitly asks.
+
+### Things to never forget about this project
+
+- User runs all servers, builds, jest, migrations themselves. Never run `npm run dev`, `next build`, `jest`, `prisma migrate dev`. Static analysis (lint, grep, graphify) is fine.
+- No emojis in code (one stray emoji in `workers/index.ts:204` is a follow-up cleanup, not a current ask).
+- Do not write to `xdocs/archive/` — those files are kept only to prove the doc-vs-code drift to anyone (including the user) who comes back later wondering "what happened to bible.md".
+- Do not write a parallel `done.md`. Plan progress = strikethrough in `plan.md` + a continuation block in the session log.
+- The lock-order invariant is permanent. Any new money-touching code path goes auction-first, then wallets in ascending userId order.
+
+### Final commit (after this edit)
+
+- `c641846` was the previous tip. The next commit closes the session: refreshes `graphify-out/` (1056 nodes / 1297 edges / 127 communities) and records this closing block.
+
 ### Next Up (revised, supersedes earlier Next Up)
 
 1. **Phase A1 — Decimal money migration.** `back/prisma/schema.prisma` Float → `Decimal @db.Decimal(18,2)` on every money field, add `back/src/lib/decimal.ts` for JSON serialization, update every service that does arithmetic, generate the migration. Multi-file but mechanical. User should ack before starting because it requires `prisma migrate dev` which they will run themselves.

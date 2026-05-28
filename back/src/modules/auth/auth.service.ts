@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
+import { serializeMoney } from '../../lib/decimal';
 
 const generateToken = (user: { id: string; email: string; role: string }) => {
   const secret = process.env.JWT_SECRET as string;
@@ -71,5 +72,6 @@ export const getMe = async (userId: string) => {
   });
 
   if (!user) throw createError('User not found', 404);
-  return user;
+  // Phase A1: wallet.balance / heldAmount are Decimal -> number for the API.
+  return serializeMoney(user);
 };

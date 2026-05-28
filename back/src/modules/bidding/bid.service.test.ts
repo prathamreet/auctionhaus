@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { placeBid, getAuctionBids } from './bid.service';
 import { prismaMock } from '../../__mocks__/prisma';
+import { m } from '../../__mocks__/money';
 import { notifyUser } from '../notifications/notification.service';
 import { processAutoBids } from '../auto-bid/auto-bid.service';
 import { AuctionStatus, AuctionType } from '@prisma/client';
@@ -77,21 +78,22 @@ describe('Bid Service', () => {
 
       await placeBid({ auctionId: 'a1', bidderId: 'u1', amount: 120 });
 
-      // Check previous bid was outbid
+      // Check previous bid was outbid. Prev wallet refund uses the prev bid
+      // amount, which Prisma can store as number or Decimal -- match either.
       expect(prismaMock.bid.update).toHaveBeenCalledWith({ where: { id: 'b_prev' }, data: { status: 'OUTBID' } });
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { id: 'w3' },
-        data: { balance: { increment: 100 }, heldAmount: { decrement: 100 } }
+        data: { balance: { increment: m(100) }, heldAmount: { decrement: m(100) } }
       });
       expect(notifyUser).toHaveBeenCalledWith('u3', expect.objectContaining({ type: 'OUTBID' }));
 
-      // Check new bid held
+      // Check new bid held (Decimal-tolerant via m()).
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { balance: { decrement: 120 }, heldAmount: { increment: 120 } }
+        data: { balance: { decrement: m(120) }, heldAmount: { increment: m(120) } }
       });
       expect(prismaMock.bid.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ amount: 120, status: 'WINNING' })
+        data: expect.objectContaining({ amount: m(120), status: 'WINNING' })
       }));
     });
 

@@ -1,6 +1,7 @@
 import { AuctionStatus, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
+import { serializeMoney, toNum } from '../../lib/decimal';
 
 export const getDashboardStats = async () => {
   const [
@@ -32,14 +33,15 @@ export const getDashboardStats = async () => {
     }),
   ]);
 
+  // Phase A1: aggregate _sum returns Decimal; convert at the boundary.
   return {
     totalUsers,
     totalAuctions,
     activeAuctions,
     totalBids,
-    totalRevenue: totalRevenue._sum.amount || 0,
+    totalRevenue: toNum(totalRevenue._sum.amount) ?? 0,
     recentUsers,
-    recentAuctions,
+    recentAuctions: serializeMoney(recentAuctions),
   };
 };
 
@@ -114,7 +116,7 @@ export const getAllAuctions = async (params: {
     prisma.auction.count({ where }),
   ]);
 
-  return { auctions, total, page, limit };
+  return { auctions: serializeMoney(auctions), total, page, limit };
 };
 
 export const moderateAuction = async (auctionId: string, action: 'cancel' | 'activate') => {
@@ -122,10 +124,11 @@ export const moderateAuction = async (auctionId: string, action: 'cancel' | 'act
   if (!auction) throw createError('Auction not found', 404);
 
   const status = action === 'cancel' ? AuctionStatus.CANCELLED : AuctionStatus.ACTIVE;
-  return prisma.auction.update({
+  const updated = await prisma.auction.update({
     where: { id: auctionId },
     data: { status },
   });
+  return serializeMoney(updated);
 };
 
 export const getFraudFlags = async () => {

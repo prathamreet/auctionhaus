@@ -97,8 +97,10 @@ model User {
 model Wallet {
   id        String   @id @default(uuid())
   userId    String   @unique
-  balance   Float    @default(0)
-  heldAmount Float   @default(0) // locked for active bids
+  // Phase A1: money is exact -- NUMERIC(18,2) in Postgres, Prisma.Decimal in JS.
+  // Float would lose precision under repeated holds / releases.
+  balance   Decimal  @default(0) @db.Decimal(18, 2)
+  heldAmount Decimal @default(0) @db.Decimal(18, 2) // locked for active bids
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -113,7 +115,8 @@ model Transaction {
   walletId    String
   userId      String
   type        TransactionType
-  amount      Float
+  // Phase A1: signed amount (negative for debits like WITHDRAWAL, PAYMENT_OUT).
+  amount      Decimal           @db.Decimal(18, 2)
   status      TransactionStatus @default(COMPLETED)
   description String?
   referenceId String?           // auctionId or bidId
@@ -122,6 +125,12 @@ model Transaction {
   wallet Wallet @relation(fields: [walletId], references: [id])
   user   User   @relation(fields: [userId], references: [id])
 
+  // Phase A3: wallet history page. The DESC ordering on createdAt is enforced
+  // by the raw-SQL index in 20260528000001_perf_indexes; Prisma schema can't
+  // declare a per-column direction, so @@index without it is still correct
+  // (Postgres scans the B-tree backwards for DESC) -- the raw form just
+  // helps when the planner is uncertain.
+  @@index([userId, createdAt])
   @@map("transactions")
 }
 
@@ -134,18 +143,18 @@ model Auction {
   type            AuctionType   @default(ENGLISH)
   status          AuctionStatus @default(PENDING)
 
-  // Pricing
-  startingPrice   Float
-  reservePrice    Float?        // minimum to sell
-  currentPrice    Float
-  buyNowPrice     Float?        // instant buy option
+  // Pricing (Phase A1: Decimal for exact arithmetic)
+  startingPrice   Decimal       @db.Decimal(18, 2)
+  reservePrice    Decimal?      @db.Decimal(18, 2) // minimum to sell
+  currentPrice    Decimal       @db.Decimal(18, 2)
+  buyNowPrice     Decimal?      @db.Decimal(18, 2) // instant buy option
 
   // Dutch auction specific
-  dutchPriceStep  Float?        // price drops by this per interval
+  dutchPriceStep  Decimal?      @db.Decimal(18, 2) // price drops by this per interval
   dutchInterval   Int?          // seconds between price drops
 
   // Bidding rules
-  minIncrement    Float         @default(1)
+  minIncrement    Decimal       @default(1) @db.Decimal(18, 2)
   antiSnipingMins Int           @default(5) // extend by X mins if bid in last X mins
 
   // Timing
@@ -167,6 +176,12 @@ model Auction {
   autoBids   AutoBid[]
   watchlist  WatchlistItem[]
 
+  // Phase A3: catalog read paths. The GIN tsvector(title + description) FTS
+  // index is in raw SQL only -- Prisma cannot express it -- see the migration
+  // 20260528000001_perf_indexes/migration.sql.
+  @@index([status])
+  @@index([endTime])
+  @@index([type, status])
   @@map("auctions")
 }
 
@@ -174,7 +189,7 @@ model Bid {
   id        String    @id @default(uuid())
   auctionId String
   bidderId  String
-  amount    Float
+  amount    Decimal   @db.Decimal(18, 2)
   status    BidStatus @default(ACTIVE)
   isAutoBid Boolean   @default(false)
   createdAt DateTime  @default(now())
@@ -182,6 +197,9 @@ model Bid {
   auction Auction @relation(fields: [auctionId], references: [id])
   bidder  User    @relation(fields: [bidderId], references: [id])
 
+  // Phase A3: getAuctionBids + placeBid previous-winner lookup + bid history.
+  @@index([auctionId, status])
+  @@index([bidderId])
   @@map("bids")
 }
 
@@ -189,8 +207,8 @@ model AutoBid {
   id         String   @id @default(uuid())
   auctionId  String
   bidderId   String
-  maxAmount  Float    // max they're willing to bid
-  currentBid Float    @default(0)
+  maxAmount  Decimal  @db.Decimal(18, 2) // max they're willing to bid
+  currentBid Decimal  @default(0) @db.Decimal(18, 2)
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -227,6 +245,8 @@ model Notification {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Phase A3: notifications inbox query.
+  @@index([userId, isRead])
   @@map("notifications")
 }
 

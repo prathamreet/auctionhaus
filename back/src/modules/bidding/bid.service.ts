@@ -4,6 +4,7 @@ import { createError } from '../../middleware/error.middleware';
 import { notifyUser } from '../notifications/notification.service';
 import { processAutoBids } from '../auto-bid/auto-bid.service';
 import { io } from '../../index';
+import { D, neg, toNum } from '../../lib/decimal';
 
 /**
  * Place a bid on an auction.
@@ -17,6 +18,10 @@ export const placeBid = async (data: {
   isAutoBid?: boolean;
 }) => {
   const { auctionId, bidderId, amount, isAutoBid = false } = data;
+  // Phase A1: lock the JS-number input behind a Decimal so every comparison /
+  // write below is exact. `amount` (the function param) stays in scope for
+  // socket emits / return values that should be plain numbers.
+  const amountD = D(amount);
 
   return prisma.$transaction(async (tx) => {
     // ── 0. Pessimistic locks (Phase A2) ──
@@ -43,21 +48,27 @@ export const placeBid = async (data: {
     const now = new Date();
     if (now > auction.endTime) throw createError('Auction has ended', 400);
 
-    // ── 2. Type-specific bid validation ──
+    // ── 2. Type-specific bid validation (Phase A1: Decimal compare) ──
     if (auction.type === AuctionType.ENGLISH) {
-      const minBid = auction.currentPrice + auction.minIncrement;
-      if (amount < minBid) {
-        throw createError(`Minimum bid is ${minBid}`, 400);
+      const minBid = D(auction.currentPrice).add(auction.minIncrement);
+      if (amountD.lt(minBid)) {
+        throw createError(`Minimum bid is ${minBid.toString()}`, 400);
       }
     } else if (auction.type === AuctionType.DUTCH) {
       // Dutch: accept current price, no going higher
-      if (amount !== auction.currentPrice) {
-        throw createError(`Dutch auction bid must be exactly ${auction.currentPrice}`, 400);
+      if (!amountD.eq(auction.currentPrice)) {
+        throw createError(
+          `Dutch auction bid must be exactly ${D(auction.currentPrice).toString()}`,
+          400,
+        );
       }
     } else if (auction.type === AuctionType.SEALED_BID) {
       // Sealed: any amount above starting price, bids hidden
-      if (amount <= auction.startingPrice) {
-        throw createError(`Bid must be above starting price ${auction.startingPrice}`, 400);
+      if (amountD.lte(auction.startingPrice)) {
+        throw createError(
+          `Bid must be above starting price ${D(auction.startingPrice).toString()}`,
+          400,
+        );
       }
     }
 
@@ -81,7 +92,9 @@ export const placeBid = async (data: {
 
     // ── 4. Wallet check (now reading the locked row) ──
     const wallet = await tx.wallet.findUnique({ where: { userId: bidderId } });
-    if (!wallet || (wallet.balance - wallet.heldAmount) < amount) {
+    if (!wallet) throw createError('Insufficient available balance', 400);
+    const available = D(wallet.balance).sub(wallet.heldAmount);
+    if (available.lt(amountD)) {
       throw createError('Insufficient available balance', 400);
     }
 
@@ -93,7 +106,9 @@ export const placeBid = async (data: {
       });
 
       if (previousWinning && previousWinning.bidderId !== bidderId) {
-        // Outbid: release their hold, mark as OUTBID
+        // Outbid: release their hold, mark as OUTBID. previousWinning.amount
+        // is Decimal -- Prisma increment/decrement and the transaction log
+        // accept it directly.
         await tx.bid.update({ where: { id: previousWinning.id }, data: { status: 'OUTBID' } });
         await tx.wallet.update({
           where: { id: previousWinning.bidder.wallet!.id },
@@ -145,21 +160,22 @@ export const placeBid = async (data: {
       }
     }
 
-    // ── 5. Hold bid amount in wallet ──
+    // ── 5. Hold bid amount in wallet (Decimal-safe) ──
     const updatedWallet = await tx.wallet.update({
       where: { userId: bidderId },
       data: {
-        balance: { decrement: amount },
-        heldAmount: { increment: amount },
+        balance: { decrement: amountD },
+        heldAmount: { increment: amountD },
       },
     });
-    // Record BID_HOLD transaction
+    // Record BID_HOLD transaction. Negative amount = debit -- use neg() so we
+    // don't fall back to JS `-` which would coerce Decimal to number.
     await tx.transaction.create({
       data: {
         walletId: updatedWallet.id,
         userId: bidderId,
         type: 'BID_HOLD',
-        amount: -amount,
+        amount: neg(amountD),
         description: `Bid on "${auction.title}"`,
         referenceId: auctionId,
       },
@@ -170,7 +186,7 @@ export const placeBid = async (data: {
       data: {
         auctionId,
         bidderId,
-        amount,
+        amount: amountD,
         status: 'WINNING',
         isAutoBid,
       },
@@ -182,7 +198,7 @@ export const placeBid = async (data: {
     // and the auction:state socket emit, and (b) is semantically wrong —
     // sealed bids have no public current price. Leave at startingPrice.
     const auctionUpdateData: Prisma.AuctionUncheckedUpdateInput =
-      auction.type === AuctionType.SEALED_BID ? {} : { currentPrice: amount };
+      auction.type === AuctionType.SEALED_BID ? {} : { currentPrice: amountD };
 
     // Anti-sniping: extend end time if bid in last N minutes
     if (auction.type === AuctionType.ENGLISH && auction.antiSnipingMins > 0) {
@@ -225,7 +241,10 @@ export const placeBid = async (data: {
       });
     });
 
-    return bid;
+    // Return a number-typed amount so callers (controller, socket emit, the
+    // frontend) see the same shape as before A1. The Decimal lives only
+    // inside this function.
+    return { ...bid, amount: toNum(bid.amount) ?? amount };
   });
 };
 
@@ -281,7 +300,8 @@ export const getAuctionBids = async (auctionId: string, viewerId: string) => {
         createdAt: b.createdAt,
         // Mask everything that could leak ranking or identity.
         // The viewer's own bid is returned in full so the UI can render it.
-        amount: isOwn ? b.amount : null,
+        // Decimal -> number at the boundary (Phase A1).
+        amount: isOwn ? toNum(b.amount) : null,
         bidderId: isOwn ? b.bidderId : null,
         bidder: isOwn ? { id: b.bidderId } : null,
       };
@@ -289,11 +309,14 @@ export const getAuctionBids = async (auctionId: string, viewerId: string) => {
   }
 
   // English/Dutch, or sealed auctions that have ENDED: return full data.
-  return prisma.bid.findMany({
+  const bids = await prisma.bid.findMany({
     where: { auctionId },
     orderBy: { amount: 'desc' },
     include: {
       bidder: { select: { id: true, name: true, avatar: true } },
     },
   });
+  // Phase A1: serialize Decimal amounts to number so the API surface stays
+  // number-typed for the frontend.
+  return bids.map((b) => ({ ...b, amount: toNum(b.amount) }));
 };
