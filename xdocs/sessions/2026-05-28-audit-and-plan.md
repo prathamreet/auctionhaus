@@ -213,7 +213,7 @@ Five entry points updated to obey this:
 
 ### Commit
 
-- _(populated after the commit at the end of this session — see below)_
+- `1dffd89` on branch `bliss` — `fix(concurrency): Phase A2 -- FOR UPDATE locks across the 5 hot paths`. 11 files changed, 315 insertions, 106 deletions. Not pushed.
 
 ### Next Up (revised, supersedes earlier Next Up)
 
