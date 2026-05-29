@@ -13,6 +13,7 @@
     "db:clear-auctions": "ts-node src/scripts/clear-auctions.ts",
     "db:clear-users": "ts-node src/scripts/clear-users.ts",
     "db:seed-users": "ts-node src/scripts/seed-users.ts",
+    "docs:generate": "ts-node src/scripts/generate-docs.ts",
     "lint": "eslint src",
     "test": "jest",
     "test:watch": "jest --watch"
