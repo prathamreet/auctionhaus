@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { confirmWinnerPayment, refundLosers } from './payment.service';
+import { confirmWinnerPayment } from './payment.service';
 import { prismaMock } from '../../__mocks__/prisma';
 import { m } from '../../__mocks__/money';
 import { notifyUser } from '../notifications/notification.service';
@@ -41,7 +41,9 @@ describe('Payment Service', () => {
 
     it('should return immediately if payment already confirmed', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
-      prismaMock.transaction.findFirst.mockResolvedValue({ amount: -100 } as any);
+      // Phase A5: idempotency is the Settlement row, not an existing PAYMENT
+      // transaction. Settlement.amount is the positive sale amount.
+      (prismaMock.settlement.findUnique as any).mockResolvedValue({ amount: 100 });
 
       const res = await confirmWinnerPayment('a1', 'u1');
 
@@ -52,7 +54,7 @@ describe('Payment Service', () => {
 
     it('should process payment transaction successfully', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
-      prismaMock.transaction.findFirst.mockResolvedValue(null); // not paid yet
+      (prismaMock.settlement.findUnique as any).mockResolvedValue(null); // not settled yet
       prismaMock.bid.findFirst.mockResolvedValue({ id: 'b1', amount: 500 } as any);
       
       const winnerWallet = { id: 'w1', userId: 'u1' };
@@ -102,18 +104,10 @@ describe('Payment Service', () => {
 
     it('should throw if winning bid not found', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
-      prismaMock.transaction.findFirst.mockResolvedValue(null);
+      (prismaMock.settlement.findUnique as any).mockResolvedValue(null);
       prismaMock.bid.findFirst.mockResolvedValue(null);
 
       await expect(confirmWinnerPayment('a1', 'u1')).rejects.toThrow('Winning bid not found');
-    });
-  });
-
-  describe('refundLosers', () => {
-    it('should return count of refunded bids', async () => {
-      prismaMock.bid.findMany.mockResolvedValue([{}, {}] as any);
-      const res = await refundLosers('a1');
-      expect(res.refunded).toBe(2);
     });
   });
 });
