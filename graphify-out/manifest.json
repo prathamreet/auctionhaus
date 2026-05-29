@@ -27,9 +27,13 @@
     "mtime": 1779987751.3546925,
     "hash": "0d9fdde7f9161d182144afe0b65df4ac"
   },
+  "E:\\projects\\auctionhaus\\back\\prisma\\migrations\\20260529000000_settlement\\migration.sql": {
+    "mtime": 1780027265.5819664,
+    "hash": "df9f6363fde0302267f6589fce19ffc1"
+  },
   "E:\\projects\\auctionhaus\\back\\src\\index.ts": {
-    "mtime": 1779988934.425462,
-    "hash": "9d3f832f2f8a7548b121a74c7fc8a785"
+    "mtime": 1780027735.3021195,
+    "hash": "2eeb7018f7192bce0eca1fe6dc024dc3"
   },
   "E:\\projects\\auctionhaus\\back\\src\\gateway\\socket.gateway.test.ts": {
     "mtime": 1778729820.5479867,
@@ -48,8 +52,8 @@
     "hash": "112bb642e647bc1588366fc2ee1bee60"
   },
   "E:\\projects\\auctionhaus\\back\\src\\lib\\redis.ts": {
-    "mtime": 1777817592.9972017,
-    "hash": "d0f04cac1405af53d4805454f2511200"
+    "mtime": 1780027723.9789596,
+    "hash": "0bd6c47dc8338cd0cbc952d881618d90"
   },
   "E:\\projects\\auctionhaus\\back\\src\\middleware\\auth.middleware.test.ts": {
     "mtime": 1778729820.549067,
@@ -92,8 +96,8 @@
     "hash": "caf2e00e2e316ac04a77719ee08faa18"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\admin\\admin.service.ts": {
-    "mtime": 1779989056.0446515,
-    "hash": "86e7f16adea960e1cdefd806b60cd5e7"
+    "mtime": 1780027747.14005,
+    "hash": "9b6ea05ce9441f17eec5fb6663c98eb3"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\auctions\\auction.controller.test.ts": {
     "mtime": 1778729820.5500917,
@@ -108,12 +112,12 @@
     "hash": "3dbcaf4afbf46d431f16187dc118e418"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\auctions\\auction.service.test.ts": {
-    "mtime": 1779977568.6518445,
-    "hash": "9dad590b11fcf288b643bd9d4db46daa"
+    "mtime": 1780027600.1147,
+    "hash": "839a8d25d2d142876451265babe21549"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\auctions\\auction.service.ts": {
-    "mtime": 1779987100.1279876,
-    "hash": "2e0e2904554c28eaceb83158c7ffe84a"
+    "mtime": 1780027561.7970939,
+    "hash": "c9e1bccabf92373e2e2ade2a0a9cea97"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\auth\\auth.controller.test.ts": {
     "mtime": 1778729820.5516138,
@@ -175,6 +179,14 @@
     "mtime": 1779988403.2262084,
     "hash": "b677056ef055557081d9de8dc6d5648e"
   },
+  "E:\\projects\\auctionhaus\\back\\src\\modules\\escrow\\escrow.service.test.ts": {
+    "mtime": 1780027654.9648077,
+    "hash": "1dea4c6e86961193006703f8718deb7a"
+  },
+  "E:\\projects\\auctionhaus\\back\\src\\modules\\escrow\\escrow.service.ts": {
+    "mtime": 1780027536.2820847,
+    "hash": "7f1ed6bc4387f8edf5c34141ccfe4706"
+  },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\notifications\\notification.controller.test.ts": {
     "mtime": 1778729820.5526361,
     "hash": "b4670eb9de302469ab5b8c8b1abec4c5"
@@ -208,12 +220,12 @@
     "hash": "b577c851cd6141dd56fd70684fce8619"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\payments\\payment.service.test.ts": {
-    "mtime": 1779987334.475079,
-    "hash": "6acbe7ce91f86f96d10fcaf28151fea3"
+    "mtime": 1780027619.0554786,
+    "hash": "1e41c4fac421655409180f0256eae051"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\payments\\payment.service.ts": {
-    "mtime": 1779987131.423023,
-    "hash": "20b6a9ab594df48cbe0f917fe8b54e3e"
+    "mtime": 1780027591.3382652,
+    "hash": "84b01c88e3a862a9e1a332bd14a8c5b3"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\users\\user.controller.test.ts": {
     "mtime": 1778729820.5526361,
@@ -436,8 +448,8 @@
     "hash": "1f2e521a8c7698a02e0cd36038e1b63e"
   },
   "E:\\projects\\auctionhaus\\plan.md": {
-    "mtime": 1779989081.4824302,
-    "hash": "7ee7214ac6ba8f509c951e63113e3a75"
+    "mtime": 1780027795.873058,
+    "hash": "bd651254ddb84e33898ad1e9a3d061f8"
   },
   "E:\\projects\\auctionhaus\\README.md": {
     "mtime": 1778584014.1074667,
@@ -527,9 +539,17 @@
     "mtime": 1779989116.4804897,
     "hash": "33742674c2a6fcbf3c82445dd5d5e335"
   },
+  "E:\\projects\\auctionhaus\\xdocs\\sessions\\2026-05-29-a5-escrow-settlement.md": {
+    "mtime": 1780027843.580438,
+    "hash": "6f527ae5c08d328f906be8fcada2fd45"
+  },
+  "E:\\projects\\auctionhaus\\xdocs\\sessions\\2026-05-29-fts-search-rewrite.md": {
+    "mtime": 1780026694.7027836,
+    "hash": "c9d6e2dad1844f1c3238d46d549da265"
+  },
   "E:\\projects\\auctionhaus\\xdocs\\sessions\\INDEX.md": {
-    "mtime": 1779989119.1044586,
-    "hash": "6e4411badfef9932cb6be58844fdf3f2"
+    "mtime": 1780027855.9392502,
+    "hash": "b8571917e1773fe01ed2a107cc54c5db"
   },
   "E:\\projects\\auctionhaus\\xdocs\\sessions\\README.md": {
     "mtime": 1779972923.1065698,

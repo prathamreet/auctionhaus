@@ -60,7 +60,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 <div class="container">
 
 <h1>auctionhaus — Complete Call Flow &amp; Architecture Documentation</h1>
-<p class="subtitle">Generated from graphify knowledge graph: 1137 nodes, 1466 edges, 136 communities. Commit: dc64efa</p>
+<p class="subtitle">Generated from graphify knowledge graph: 1163 nodes, 1512 edges, 144 communities. Commit: 3d4a98d</p>
 
 <div class="nav">
     <a href="#overview">Architecture Overview</a>
@@ -75,9 +75,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
     <a href="#api-routes-catalogue">API Routes &amp; Catalogue</a>
     <a href="#frontend-eslint-config">Frontend ESLint Config</a>
     <a href="#backend-architecture">Backend Architecture</a>
-    <a href="#design-system-philosophy">Design System Philosophy</a>
-    <a href="#auth-system-jwt">Auth System &amp; JWT</a>
-    <a href="#phase-tracker">Phase Tracker</a>
+    <a href="#english-auction-sniping">English Auction &amp; Sniping</a>
+    <a href="#product-requirements">Product Requirements</a>
+    <a href="#git-convention">Git Convention</a>
     <a href="#other">Other</a>
 </div>
 
@@ -88,48 +88,48 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    EXTRACT_PIPELINE_5F350230("Extraction Pipeline<br/><small>206 nodes</small>")
+    EXTRACT_PIPELINE_5F350230("Extraction Pipeline<br/><small>181 nodes</small>")
     class EXTRACT_PIPELINE_5F350230 module;
     BUILD_GRAPH_321CBB04("Graph Build<br/><small>31 nodes</small>")
     class BUILD_GRAPH_321CBB04 module;
-    OUTPUTS_DOCS_ED82387C("Outputs &amp; Docs<br/><small>46 nodes</small>")
+    OUTPUTS_DOCS_ED82387C("Outputs &amp; Docs<br/><small>58 nodes</small>")
     class OUTPUTS_DOCS_ED82387C module;
     CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>21 nodes</small>")
     class CLI_SKILLS_9964CBB8 module;
     INGEST_CACHE_UPDATE_FF457338("Ingestion &amp; Updates<br/><small>6 nodes</small>")
     class INGEST_CACHE_UPDATE_FF457338 module;
-    SERVE_API_35EC8E86("Serving API<br/><small>146 nodes</small>")
+    SERVE_API_35EC8E86("Serving API<br/><small>140 nodes</small>")
     class SERVE_API_35EC8E86 module;
-    SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>65 nodes</small>")
+    SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>80 nodes</small>")
     class SECURITY_GLOBAL_5B9C6A04 module;
-    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>305 nodes</small>")
+    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>326 nodes</small>")
     class TESTS_FIXTURES_B84B1DCC module;
     API_ROUTES_CATALOGUE_6E0CC230("API Routes &amp; Catalogue<br/><small>15 nodes</small>")
     class API_ROUTES_CATALOGUE_6E0CC230 module;
     FRONTEND_ESLINT_CONFIG_144F2D28("Frontend ESLint Config<br/><small>15 nodes</small>")
     class FRONTEND_ESLINT_CONFIG_144F2D28 module;
-    BACKEND_ARCHITECTURE_06A15D87("Backend Architecture<br/><small>12 nodes</small>")
+    BACKEND_ARCHITECTURE_06A15D87("Backend Architecture<br/><small>11 nodes</small>")
     class BACKEND_ARCHITECTURE_06A15D87 module;
-    DESIGN_SYSTEM_PHILOSOPHY_745A1FC4("Design System Philosophy<br/><small>12 nodes</small>")
-    class DESIGN_SYSTEM_PHILOSOPHY_745A1FC4 module;
-    AUTH_SYSTEM_JWT_3386B49E("Auth System &amp; JWT<br/><small>11 nodes</small>")
-    class AUTH_SYSTEM_JWT_3386B49E module;
-    PHASE_TRACKER_F7337BFE("Phase Tracker<br/><small>10 nodes</small>")
-    class PHASE_TRACKER_F7337BFE module;
-    OTHER_D0941E68("Other<br/><small>236 nodes</small>")
+    ENGLISH_AUCTION_SNIPING_591F393A("English Auction &amp; Sniping<br/><small>11 nodes</small>")
+    class ENGLISH_AUCTION_SNIPING_591F393A module;
+    PRODUCT_REQUIREMENTS_D53EF0ED("Product Requirements<br/><small>10 nodes</small>")
+    class PRODUCT_REQUIREMENTS_D53EF0ED module;
+    GIT_CONVENTION_D34AE968("Git Convention<br/><small>10 nodes</small>")
+    class GIT_CONVENTION_D34AE968 module;
+    OTHER_D0941E68("Other<br/><small>248 nodes</small>")
     class OTHER_D0941E68 module;
-    SERVE_API_35EC8E86 -->|imports x23| TESTS_FIXTURES_B84B1DCC
-    TESTS_FIXTURES_B84B1DCC -->|imports x12| SERVE_API_35EC8E86
-    CLI_SKILLS_9964CBB8 -->|imports x12| TESTS_FIXTURES_B84B1DCC
-    BACKEND_ARCHITECTURE_06A15D87 -->|contains x7| OTHER_D0941E68
-    DESIGN_SYSTEM_PHILOSOPHY_745A1FC4 -->|contains x7| OTHER_D0941E68
-    EXTRACT_PIPELINE_5F350230 -->|contains x5| OTHER_D0941E68
+    CLI_SKILLS_9964CBB8 -->|imports x13| TESTS_FIXTURES_B84B1DCC
+    OUTPUTS_DOCS_ED82387C -->|contains x7| OTHER_D0941E68
+    EXTRACT_PIPELINE_5F350230 -->|contains x6| OTHER_D0941E68
+    SECURITY_GLOBAL_5B9C6A04 -->|contains x6| OTHER_D0941E68
     EXTRACT_PIPELINE_5F350230 -->|contains x4| SERVE_API_35EC8E86
     EXTRACT_PIPELINE_5F350230 -->|contains x2| TESTS_FIXTURES_B84B1DCC
+    OTHER_D0941E68 -->|contains x2| EXTRACT_PIPELINE_5F350230
     TESTS_FIXTURES_B84B1DCC -->|imports| CLI_SKILLS_9964CBB8
-    CLI_SKILLS_9964CBB8 -->|imports| SERVE_API_35EC8E86
-    AUTH_SYSTEM_JWT_3386B49E -->|imports| SERVE_API_35EC8E86
-    EXTRACT_PIPELINE_5F350230 -->|contains| PHASE_TRACKER_F7337BFE
+    BACKEND_ARCHITECTURE_06A15D87 -->|imports| SERVE_API_35EC8E86
+    EXTRACT_PIPELINE_5F350230 -->|contains| PRODUCT_REQUIREMENTS_D53EF0ED
+    SECURITY_GLOBAL_5B9C6A04 -->|contains| SERVE_API_35EC8E86
+    OUTPUTS_DOCS_ED82387C -->|contains| SERVE_API_35EC8E86
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -146,22 +146,22 @@ flowchart LR
     <h4>Architecture Layers</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
-      <tr><td>Extraction Pipeline</td><td>206</td><td><code>3, 7, 19, 20, 21, 22, 27, 28, 33, 40, 47, 53, 63, 65, 74, 75, 80, 81</code></td></tr><tr><td>Graph Build</td><td>31</td><td><code>4</code></td></tr><tr><td>Outputs &amp; Docs</td><td>46</td><td><code>11, 12, 66, 133, 134, 135</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>21</td><td><code>14, 73</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>6</td><td><code>69</code></td></tr><tr><td>Serving API</td><td>146</td><td><code>0, 13, 35, 36, 38, 41, 55, 58, 126</code></td></tr><tr><td>Security &amp; Global Graph</td><td>65</td><td><code>1, 10</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>305</td><td><code>2, 5, 6, 8, 9, 15, 18, 25, 29, 30, 31, 32, 43, 44, 45, 46, 48, 52, 59, 60, 61, 67, 68, 113</code></td></tr><tr><td>API Routes &amp; Catalogue</td><td>15</td><td><code>16</code></td></tr><tr><td>Frontend ESLint Config</td><td>15</td><td><code>17</code></td></tr><tr><td>Backend Architecture</td><td>12</td><td><code>23</code></td></tr><tr><td>Design System Philosophy</td><td>12</td><td><code>24</code></td></tr><tr><td>Auth System &amp; JWT</td><td>11</td><td><code>26</code></td></tr><tr><td>Phase Tracker</td><td>10</td><td><code>34</code></td></tr><tr><td>Other</td><td>236</td><td><code>37, 39, 42, 49, 50, 51, 54, 56, 57, 62, 64, 70, 71, 72, 76, 77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 99, 111, 112, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128, 129, 130, 131, 132</code></td></tr>
+      <tr><td>Extraction Pipeline</td><td>181</td><td><code>18, 19, 20, 24, 27, 33, 37, 40, 48, 54, 55, 65, 66, 68, 74, 75, 76, 80, 81, 87, 88, 94</code></td></tr><tr><td>Graph Build</td><td>31</td><td><code>3</code></td></tr><tr><td>Outputs &amp; Docs</td><td>58</td><td><code>11, 12, 21, 70, 141, 142, 143</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>21</td><td><code>14, 79</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>6</td><td><code>72</code></td></tr><tr><td>Serving API</td><td>140</td><td><code>0, 26, 34, 35, 39, 41, 60, 61, 134</code></td></tr><tr><td>Security &amp; Global Graph</td><td>80</td><td><code>1, 10, 15</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>326</td><td><code>2, 4, 5, 6, 7, 8, 9, 13, 22, 28, 29, 30, 31, 43, 44, 45, 46, 47, 53, 57, 58, 63, 71, 121</code></td></tr><tr><td>API Routes &amp; Catalogue</td><td>15</td><td><code>16</code></td></tr><tr><td>Frontend ESLint Config</td><td>15</td><td><code>17</code></td></tr><tr><td>Backend Architecture</td><td>11</td><td><code>23</code></td></tr><tr><td>English Auction &amp; Sniping</td><td>11</td><td><code>25</code></td></tr><tr><td>Product Requirements</td><td>10</td><td><code>32</code></td></tr><tr><td>Git Convention</td><td>10</td><td><code>36</code></td></tr><tr><td>Other</td><td>248</td><td><code>38, 42, 49, 50, 51, 52, 56, 59, 62, 64, 67, 69, 73, 77, 78, 82, 83, 84, 85, 86, 89, 90, 91, 92, 93, 95, 96, 97, 100, 101, 102, 103, 104, 105, 106, 98, 99, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 135, 136, 137, 138, 139, 140</code></td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Core Flow</h4>
-    <div class="arrow-chain">Extraction Pipeline -&gt; Other -&gt; Graph Build -&gt; Outputs &amp; Docs -&gt; CLI &amp; Skill Installers -&gt; Tests &amp; Fixtures -&gt; Serving API</div>
+    <div class="arrow-chain">Graph Build -&gt; Extraction Pipeline -&gt; Other -&gt; Outputs &amp; Docs -&gt; Serving API -&gt; CLI &amp; Skill Installers -&gt; Tests &amp; Fixtures</div>
   </div>
 </div>
 <div class="grid">
   <div class="card">
     <h4>Graph Report Highlights</h4>
     <ul>
-      <li>1137 nodes · 1466 edges · 136 communities (105 shown, 31 thin omitted)</li>
-      <li>Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 22 edges (avg confidence: 0.83)</li>
+      <li>1163 nodes · 1512 edges · 144 communities (114 shown, 30 thin omitted)</li>
+      <li>Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 22 edges (avg confidence: 0.83)</li>
       <li>Token cost: 0 input · 0 output</li>
-      <li>1. `createError()` - 37 edges</li>
+      <li>1. `createError()` - 39 edges</li>
       <li>2. `serializeMoney()` - 28 edges</li>
       <li>3. `useAuthStore` - 25 edges</li>
     </ul>
@@ -170,12 +170,12 @@ flowchart LR
 <hr>
 <!-- ====== 2. Extraction Pipeline ====== -->
 <h2 id="extract-pipeline">2. Extraction Pipeline</h2>
-<p>Extraction Pipeline groups implementation around back, learnmd, xdocs, archive, mostly in xdocs/archive/back-learn.md, back/learn.md, suggesstion.md. This section covers 206 nodes and 203 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Extraction Pipeline groups implementation around back, learnmd, xdocs, archive, mostly in xdocs/archive/back-learn.md, back/learn.md, suggesstion.md. This section covers 181 nodes and 177 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Extraction Pipeline (206 nodes, 203 edges)
+    %% Section: Extraction Pipeline (181 nodes, 177 edges)
     subgraph extract_pipeline_back_learn_md_97267579["back/learn.md"]
         back_learn_auctionhaus_backend_full_technical_de_414b3688("AuctionHaus Backend — Full Technical De...<br/><small>back/learn.md</small>")
         back_learn_10_background_jobs_bullmq_80f15a71("10. Background Jobs (BullMQ)<br/><small>back/learn.md</small>")
@@ -193,20 +193,18 @@ flowchart LR
         archive_back_learn_4_authentication_system_15148175("4. Authentication System<br/><small>xdocs/archive/back-learn.md</small>")
         archive_back_learn_6_bidding_engine_core_logic_513d8de2("6. Bidding Engine (Core Logic)<br/><small>xdocs/archive/back-learn.md</small>")
         archive_back_learn_9_real_time_layer_socket_io_fd0c1d34("9. Real-Time Layer (Socket.io)<br/><small>xdocs/archive/back-learn.md</small>")
+        archive_back_learn_13_admin_panel_55b48400("13. Admin Panel<br/><small>xdocs/archive/back-learn.md</small>")
     end
     subgraph extract_pipeline_suggesstion_md_fadc30d4["suggesstion.md"]
-        auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca("AuctionHaus — High-Concurrency &amp; Real-T...<br/><small>suggesstion.md</small>")
-        auctionhaus_suggesstion_4_advanced_architectural_73abada6("4. Advanced Architectural Evolutions<br/><small>suggesstion.md</small>")
-        auctionhaus_suggesstion_5_major_project_feature_883bfea5("5. Major Project Feature Expansion (Bey...<br/><small>suggesstion.md</small>")
-        auctionhaus_suggesstion_2_critical_concurrency_r_22badc25("2. Critical Concurrency &amp; Race Conditio...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_vulnerability_1_the_doub_2911b895("Vulnerability 1: The 'Double-Claim' Rac...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_vulnerability_2_standard_bbe6af94("Vulnerability 2: Standard findUnique...<br/><small>suggesstion.md</small>")
+        auctionhaus_suggesstion_vulnerability_3_read_the_96c0f392("Vulnerability 3: Read-Then-Write Race C...<br/><small>suggesstion.md</small>")
     end
     archive_back_learn_auctionhaus_backend_full_tech_d8c20d87 -->|contains| archive_back_learn_4_authentication_system_15148175
     archive_back_learn_auctionhaus_backend_full_tech_d8c20d87 -->|contains| archive_back_learn_6_bidding_engine_core_logic_513d8de2
     archive_back_learn_auctionhaus_backend_full_tech_d8c20d87 -->|contains| archive_back_learn_9_real_time_layer_socket_io_fd0c1d34
     archive_back_learn_auctionhaus_backend_full_tech_d8c20d87 -->|contains| archive_back_learn_10_background_jobs_bullmq_600e1877
-    auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca -->|contains| auctionhaus_suggesstion_2_critical_concurrency_r_22badc25
-    auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca -->|contains| auctionhaus_suggesstion_4_advanced_architectural_73abada6
-    auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca -->|contains| auctionhaus_suggesstion_5_major_project_feature_883bfea5
+    archive_back_learn_auctionhaus_backend_full_tech_d8c20d87 -->|contains| archive_back_learn_13_admin_panel_55b48400
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_2_project_entry_point_39bab9ab
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_4_authentication_system_0bdb1c73
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_6_bidding_engine_core_logic_3776180d
@@ -214,7 +212,7 @@ flowchart LR
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_10_background_jobs_bullmq_80f15a71
     back_learn_auctionhaus_backend_full_technical_de_414b3688 -->|contains| back_learn_13_admin_panel_e2794518
     back_learn_9_real_time_layer_socket_io_cb5953a5 -->|contains| back_learn_room_architecture_fc048ddb
-    %% Omitted for readability: 188 nodes, 0 edges
+    %% Omitted for readability: 163 nodes, 0 edges
     class back_learn_auctionhaus_backend_full_technical_de_414b3688 concept;
     class back_learn_10_background_jobs_bullmq_80f15a71 concept;
     class back_learn_4_authentication_system_0bdb1c73 concept;
@@ -229,10 +227,10 @@ flowchart LR
     class archive_back_learn_4_authentication_system_15148175 concept;
     class archive_back_learn_6_bidding_engine_core_logic_513d8de2 concept;
     class archive_back_learn_9_real_time_layer_socket_io_fd0c1d34 concept;
-    class auctionhaus_suggesstion_auctionhaus_high_concurr_615c1bca concept;
-    class auctionhaus_suggesstion_4_advanced_architectural_73abada6 concept;
-    class auctionhaus_suggesstion_5_major_project_feature_883bfea5 concept;
-    class auctionhaus_suggesstion_2_critical_concurrency_r_22badc25 concept;
+    class archive_back_learn_13_admin_panel_55b48400 concept;
+    class auctionhaus_suggesstion_vulnerability_1_the_doub_2911b895 concept;
+    class auctionhaus_suggesstion_vulnerability_2_standard_bbe6af94 concept;
+    class auctionhaus_suggesstion_vulnerability_3_read_the_96c0f392 concept;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -256,243 +254,243 @@ flowchart LR
 </tr>
 <tr>
   <td>1</td>
-  <td><code>suggesstion.md</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>back-learn.md</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing suggesstion.md.</td>
+  <td>Documentation node describing back-learn.md.</td>
 </tr>
 <tr>
   <td>2</td>
-  <td><code>AuctionHaus — High-Concurrency &amp; Real-Time Backend Architectural Suggestions</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>AuctionHaus Backend — Full Technical Deep Dive</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing AuctionHaus — High-Concurrency &amp; Real-Time Backend Architectural Suggestions.</td>
+  <td>Documentation node describing AuctionHaus Backend — Full Technical Deep Dive.</td>
 </tr>
 <tr>
   <td>3</td>
-  <td><code>1. Deep Core Architecture Analysis</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>Table of Contents</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 1. Deep Core Architecture Analysis.</td>
+  <td>Documentation node describing Table of Contents.</td>
 </tr>
 <tr>
   <td>4</td>
-  <td><code>Current Architecture Topology</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>1. Tech Stack &amp; Why</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Current Architecture Topology.</td>
+  <td>Documentation node describing 1. Tech Stack &amp; Why.</td>
 </tr>
 <tr>
   <td>5</td>
-  <td><code>code:mermaid (graph TD)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>2. Project Entry Point</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:mermaid (graph TD).</td>
+  <td>Documentation node describing 2. Project Entry Point.</td>
 </tr>
 <tr>
   <td>6</td>
-  <td><code>Architectural Verdict</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block1 (1. Load environment variables (.env))</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Architectural Verdict.</td>
+  <td>Documentation node describing code:block1 (1. Load environment variables (.env)).</td>
 </tr>
 <tr>
   <td>7</td>
-  <td><code>2. Critical Concurrency &amp; Race Condition Audits (The &quot;Wow&quot; Factor for Teachers)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:typescript (const app = express();)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 2. Critical Concurrency &amp; Race Condition Audits (The &quot;Wow&quot; Factor for Teachers).</td>
+  <td>Documentation node describing code:typescript (const app = express();).</td>
 </tr>
 <tr>
   <td>8</td>
-  <td><code>Vulnerability 1: The &quot;Double-Claim&quot; Race Condition in `buyNow`</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:typescript (app.use((req, _res, next) =&gt; {)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Vulnerability 1: The &quot;Double-Claim&quot; Race Condition in `buyNow`.</td>
+  <td>Documentation node describing code:typescript (app.use((req, _res, next) =&gt; {).</td>
 </tr>
 <tr>
   <td>9</td>
-  <td><code>The Bug (Current Implementation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>12. Watchlist</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Bug (Current Implementation).</td>
+  <td>Documentation node describing 12. Watchlist.</td>
 </tr>
 <tr>
   <td>10</td>
-  <td><code>code:typescript (// back/src/modules/auctions/auction.service.ts)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:typescript (@@unique([userId, auctionId])  // can&#x27;t add same auction twi)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (// back/src/modules/auctions/auction.service.ts).</td>
+  <td>Documentation node describing code:typescript (@@unique([userId, auctionId])  // can&#x27;t add same auction twi).</td>
 </tr>
 <tr>
   <td>11</td>
-  <td><code>The Exploit</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:typescript (prisma.watchlistItem.upsert({)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Exploit.</td>
+  <td>Documentation node describing code:typescript (prisma.watchlistItem.upsert({).</td>
 </tr>
 <tr>
   <td>12</td>
-  <td><code>The Architectural Solution (Transactional State Validation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>15. Request Lifecycle (End to End)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Architectural Solution (Transactional State Validation).</td>
+  <td>Documentation node describing 15. Request Lifecycle (End to End).</td>
 </tr>
 <tr>
   <td>13</td>
-  <td><code>code:typescript (return prisma.$transaction(async (tx) =&gt; {)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block48 (Browser (Alice)                 Server                      )</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (return prisma.$transaction(async (tx) =&gt; {).</td>
+  <td>Documentation node describing code:block48 (Browser (Alice)                 Server                      ).</td>
 </tr>
 <tr>
   <td>14</td>
-  <td><code>Vulnerability 2: Standard `findUnique` Does NOT Pessimistically Lock in `placeBid`</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>10. Background Jobs (BullMQ)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Vulnerability 2: Standard `findUnique` Does NOT Pessimistically Lock in `placeBid`.</td>
+  <td>Documentation node describing 10. Background Jobs (BullMQ).</td>
 </tr>
 <tr>
   <td>15</td>
-  <td><code>The Bug (Current Implementation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>What is BullMQ?</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Bug (Current Implementation).</td>
+  <td>Documentation node describing What is BullMQ?.</td>
 </tr>
 <tr>
   <td>16</td>
-  <td><code>code:typescript (const auction = await tx.auction.findUnique({ where: { id: a)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>Queues in This Project</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (const auction = await tx.auction.findUnique({ where: { id: a).</td>
+  <td>Documentation node describing Queues in This Project.</td>
 </tr>
 <tr>
   <td>17</td>
-  <td><code>The Concurrency Issue</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block32 (auction-scheduler  → start-auction, end-auction jobs)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Concurrency Issue.</td>
+  <td>Documentation node describing code:block32 (auction-scheduler  → start-auction, end-auction jobs).</td>
 </tr>
 <tr>
   <td>18</td>
-  <td><code>The Architectural Solution (True Pessimistic Locking)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>Scheduling Auction Start/End</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Architectural Solution (True Pessimistic Locking).</td>
+  <td>Documentation node describing Scheduling Auction Start/End.</td>
 </tr>
 <tr>
   <td>19</td>
-  <td><code>code:typescript (return prisma.$transaction(async (tx) =&gt; {)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:typescript (const startDelay = new Date(data.startTime).getTime() - Date)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (return prisma.$transaction(async (tx) =&gt; {).</td>
+  <td>Documentation node describing code:typescript (const startDelay = new Date(data.startTime).getTime() - Date).</td>
 </tr>
 <tr>
   <td>20</td>
-  <td><code>Vulnerability 3: Read-Then-Write Race Condition in Wallet `withdraw`</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>start-auction Job</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing Vulnerability 3: Read-Then-Write Race Condition in Wallet `withdraw`.</td>
+  <td>Documentation node describing start-auction Job.</td>
 </tr>
 <tr>
   <td>21</td>
-  <td><code>The Bug (Current Implementation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block34 (1. Fetch auction from DB)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Bug (Current Implementation).</td>
+  <td>Documentation node describing code:block34 (1. Fetch auction from DB).</td>
 </tr>
 <tr>
   <td>22</td>
-  <td><code>code:typescript (const wallet = await prisma.wallet.findUnique({ where: { use)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>end-auction Job / endAuction Function</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (const wallet = await prisma.wallet.findUnique({ where: { use).</td>
+  <td>Documentation node describing end-auction Job / endAuction Function.</td>
 </tr>
 <tr>
   <td>23</td>
-  <td><code>The Exploit</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block35 (1. Fetch auction with winning bid)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Exploit.</td>
+  <td>Documentation node describing code:block35 (1. Fetch auction with winning bid).</td>
 </tr>
 <tr>
   <td>24</td>
-  <td><code>The Architectural Solution (Transactional Balance Validation)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>Dutch Price Drop Job (Recurring)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Architectural Solution (Transactional Balance Validation).</td>
+  <td>Documentation node describing Dutch Price Drop Job (Recurring).</td>
 </tr>
 <tr>
   <td>25</td>
-  <td><code>code:typescript (// Enforce positive balance directly in the database update )</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:typescript (dutchAuctionQueue.add()</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:typescript (// Enforce positive balance directly in the database update ).</td>
+  <td>Documentation node describing code:typescript (dutchAuctionQueue.add().</td>
 </tr>
 <tr>
   <td>26</td>
-  <td><code>3. High-Integrity Financial Data Hardening</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block37 (Every 10 minutes:)</code><br><small style="color:var(--muted)">xdocs/archive/back-learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing 3. High-Integrity Financial Data Hardening.</td>
+  <td>Documentation node describing code:block37 (Every 10 minutes:).</td>
 </tr>
 <tr>
   <td>27</td>
-  <td><code>The Float Precision Bug (IEEE 754 Drift)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>10. Background Jobs (BullMQ)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Float Precision Bug (IEEE 754 Drift).</td>
+  <td>Documentation node describing 10. Background Jobs (BullMQ).</td>
 </tr>
 <tr>
   <td>28</td>
-  <td><code>The Problem</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>What is BullMQ?</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Problem.</td>
+  <td>Documentation node describing What is BullMQ?.</td>
 </tr>
 <tr>
   <td>29</td>
-  <td><code>The Solution</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>Queues in This Project</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing The Solution.</td>
+  <td>Documentation node describing Queues in This Project.</td>
 </tr>
 <tr>
   <td>30</td>
-  <td><code>code:prisma (model Wallet {)</code><br><small style="color:var(--muted)">suggesstion.md</small></td>
+  <td><code>code:block32 (auction-scheduler  → start-auction, end-auction jobs)</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
-  <td>Documentation node describing code:prisma (model Wallet {).</td>
+  <td>Documentation node describing code:block32 (auction-scheduler  → start-auction, end-auction jobs).</td>
 </tr>
 </table>
 
@@ -503,12 +501,12 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>back/learn.md</code></td><td>73 nodes</td></tr>
 <tr><td><code>xdocs/archive/back-learn.md</code></td><td>73 nodes</td></tr>
-<tr><td><code>suggesstion.md</code></td><td>60 nodes</td></tr>
+<tr><td><code>suggesstion.md</code></td><td>35 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x203. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x177. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -855,26 +853,26 @@ flowchart LR
 
 <!-- ====== 4. Outputs & Docs ====== -->
 <h2 id="outputs-docs">4. Outputs &amp; Docs</h2>
-<p>Outputs &amp; Docs groups implementation around xdocs, donemd, phase, not, mostly in xdocs/archive/done.md, xdocs/not-for-ai/done.md, xdocs/bible.md. This section covers 46 nodes and 40 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Outputs &amp; Docs groups implementation around xdocs, donemd, phase, not, mostly in xdocs/archive/done.md, xdocs/not-for-ai/done.md, xdocs/bible.md. This section covers 58 nodes and 51 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Outputs &amp; Docs (46 nodes, 40 edges)
+    %% Section: Outputs &amp; Docs (58 nodes, 51 edges)
+    subgraph outputs_docs_xdocs_bible_md_69b5e512["xdocs/bible.md"]
+        xdocs_bible_auctionhaus_complete_system_document_13dc16a0("AuctionHaus — Complete System Documenta...<br/><small>xdocs/bible.md</small>")
+        bible_frontend_architecture_347a3d83("Frontend Architecture (Next.js 15)<br/><small>xdocs/bible.md</small>")
+        xdocs_bible_14_data_flow_bid_placement_aee723a4("14. Data Flow: Bid Placement<br/><small>xdocs/bible.md</small>")
+        xdocs_bible_15_data_flow_auction_end_a1212068("15. Data Flow: Auction End<br/><small>xdocs/bible.md</small>")
+        xdocs_bible_2_folder_structure_6058b4ac("2. Folder Structure<br/><small>xdocs/bible.md</small>")
+        react_query_server_state_6c0a3eff("React Query Server State<br/><small>xdocs/bible.md</small>")
+        zustand_state_management_f547f5b7("Zustand Client State Management<br/><small>xdocs/bible.md</small>")
+    end
     subgraph outputs_docs_xdocs_archive_done_md_222502c2["xdocs/archive/done.md"]
         archive_done_done_02bdd014("done<br/><small>xdocs/archive/done.md</small>")
         xdocs_archive_done_md_7cf9f809("done.md")
         archive_done_phase_1_critical_backend_bug_fixes_32826087("Phase 1: Critical Backend Bug Fixes (Fr...<br/><small>xdocs/archive/done.md</small>")
         archive_done_phase_2_5_deep_code_audit_findings_4bc7f2a1("Phase 2.5: Deep Code Audit Findings (Ba...<br/><small>xdocs/archive/done.md</small>")
-        archive_done_phase_2_6_backend_architectural_ref_627ff477("Phase 2.6: Backend Architectural Refine...<br/><small>xdocs/archive/done.md</small>")
-        archive_done_phase_2_7_advanced_pro_audit_findin_39ad47e0("Phase 2.7: Advanced 'Pro' Audit Finding...<br/><small>xdocs/archive/done.md</small>")
-        archive_done_phase_2_8_pro_audit_round_2_concurr_b199694d("Phase 2.8: Pro Audit Round 2 (Concurren...<br/><small>xdocs/archive/done.md</small>")
-    end
-    subgraph outputs_docs_xdocs_bible_md_69b5e512["xdocs/bible.md"]
-        bible_frontend_architecture_347a3d83("Frontend Architecture (Next.js 15)<br/><small>xdocs/bible.md</small>")
-        bible_known_issues_359bfbdb("Known Issues<br/><small>xdocs/bible.md</small>")
-        react_query_server_state_6c0a3eff("React Query Server State<br/><small>xdocs/bible.md</small>")
-        zustand_state_management_f547f5b7("Zustand Client State Management<br/><small>xdocs/bible.md</small>")
     end
     subgraph outputs_docs_xdocs_not_for_ai_done_md_13d02b52["xdocs/not-for-ai/done.md"]
         not_for_ai_done_done_f0fca6a5("done<br/><small>xdocs/not-for-ai/done.md</small>")
@@ -890,22 +888,22 @@ flowchart LR
     xdocs_archive_done_md_7cf9f809 -->|contains| archive_done_done_02bdd014
     archive_done_done_02bdd014 -->|contains| archive_done_phase_1_critical_backend_bug_fixes_32826087
     archive_done_done_02bdd014 -->|contains| archive_done_phase_2_5_deep_code_audit_findings_4bc7f2a1
-    archive_done_done_02bdd014 -->|contains| archive_done_phase_2_6_backend_architectural_ref_627ff477
-    archive_done_done_02bdd014 -->|contains| archive_done_phase_2_7_advanced_pro_audit_findin_39ad47e0
-    archive_done_done_02bdd014 -->|contains| archive_done_phase_2_8_pro_audit_round_2_concurr_b199694d
+    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_2_folder_structure_6058b4ac
+    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_14_data_flow_bid_placement_aee723a4
+    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_15_data_flow_auction_end_a1212068
     xdocs_not_for_ai_done_md_769fd0e4 -->|contains| not_for_ai_done_done_f0fca6a5
-    %% Omitted for readability: 28 nodes, 0 edges
+    %% Omitted for readability: 40 nodes, 0 edges
+    class xdocs_bible_auctionhaus_complete_system_document_13dc16a0 concept;
+    class bible_frontend_architecture_347a3d83 concept;
+    class xdocs_bible_14_data_flow_bid_placement_aee723a4 concept;
+    class xdocs_bible_15_data_flow_auction_end_a1212068 concept;
+    class xdocs_bible_2_folder_structure_6058b4ac concept;
+    class react_query_server_state_6c0a3eff concept;
+    class zustand_state_management_f547f5b7 concept;
     class archive_done_done_02bdd014 concept;
     class xdocs_archive_done_md_7cf9f809 concept;
     class archive_done_phase_1_critical_backend_bug_fixes_32826087 concept;
     class archive_done_phase_2_5_deep_code_audit_findings_4bc7f2a1 concept;
-    class archive_done_phase_2_6_backend_architectural_ref_627ff477 concept;
-    class archive_done_phase_2_7_advanced_pro_audit_findin_39ad47e0 concept;
-    class archive_done_phase_2_8_pro_audit_round_2_concurr_b199694d concept;
-    class bible_frontend_architecture_347a3d83 concept;
-    class bible_known_issues_359bfbdb concept;
-    class react_query_server_state_6c0a3eff concept;
-    class zustand_state_management_f547f5b7 concept;
     class not_for_ai_done_done_f0fca6a5 concept;
     class xdocs_not_for_ai_done_md_769fd0e4 concept;
     class svg_file_icon_dea025b2 klass;
@@ -1183,7 +1181,7 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>xdocs/archive/done.md</code></td><td>18 nodes</td></tr>
 <tr><td><code>xdocs/not-for-ai/done.md</code></td><td>18 nodes</td></tr>
-<tr><td><code>xdocs/bible.md</code></td><td>4 nodes</td></tr>
+<tr><td><code>xdocs/bible.md</code></td><td>16 nodes</td></tr>
 <tr><td><code>front/public/file.svg</code></td><td>1 nodes</td></tr>
 <tr><td><code>front/public/globe.svg</code></td><td>1 nodes</td></tr>
 <tr><td><code>front/public/next.svg</code></td><td>1 nodes</td></tr>
@@ -1193,7 +1191,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x34, references x3, semantically similar to x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x45, references x3, semantically similar to x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -1594,19 +1592,14 @@ flowchart LR
 
 <!-- ====== 7. Serving API ====== -->
 <h2 id="serve-api">7. Serving API</h2>
-<p>Serving API groups implementation around front, pagetsx, back, app, mostly in back/learn.md, xdocs/archive/back-learn.md, xdocs/archive/bible.md. This section covers 146 nodes and 205 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Serving API groups implementation around front, pagetsx, app, xdocs, mostly in back/learn.md, xdocs/archive/back-learn.md, xdocs/sessions/2026-05-29-fts-search-rewrite.md. This section covers 140 nodes and 191 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Serving API (146 nodes, 205 edges)
-    subgraph serve_api_src_middleware_auth_middleware_ts_ff5ec4b8["src/middleware/auth.middleware.ts"]
-        back_src_middleware_auth_middleware_ts_059380e7("auth.middleware.ts")
-        middleware_auth_middleware_cacheget_479d5b9f("cacheGet()<br/><small>src/middleware/auth.middleware.ts</small>")
-        middleware_auth_middleware_authenticate_2030e82e("authenticate()<br/><small>src/middleware/auth.middleware.ts</small>")
-        middleware_auth_middleware_cacheset_1c69f980("cacheSet()<br/><small>src/middleware/auth.middleware.ts</small>")
-    end
+    %% Section: Serving API (140 nodes, 191 edges)
     subgraph serve_api_app_auctions_page_tsx_9fb55fa8["app/auctions/page.tsx"]
+        front_src_app_auctions_page_tsx_1da9f999("page.tsx")
         auctions_page_auctionspage_71ba11f5("AuctionsPage()<br/><small>app/auctions/page.tsx</small>")
         auctions_page_lotnumber_ad7c862c("lotNumber()<br/><small>app/auctions/page.tsx</small>")
         auctions_page_auctioncard_659c1180("AuctionCard()<br/><small>app/auctions/page.tsx</small>")
@@ -1619,17 +1612,20 @@ flowchart LR
         front_src_app_login_page_tsx_60aba4ef("page.tsx")
         login_page_loginpage_8743849c("LoginPage()<br/><small>app/login/page.tsx</small>")
     end
+    subgraph serve_api_app_register_page_tsx_e713abd3["app/register/page.tsx"]
+        front_src_app_register_page_tsx_085c7f55("page.tsx")
+        register_page_registerpage_3cf33b24("RegisterPage()<br/><small>app/register/page.tsx</small>")
+    end
     subgraph serve_api_auctions_id_page_tsx_6526fdc3["auctions/[id]/page.tsx"]
         front_src_app_auctions_id_page_tsx_e75ec2a7("page.tsx")
         id_page_auctiondetailpage_029c5ff1("AuctionDetailPage()<br/><small>auctions/[id]/page.tsx</small>")
     end
     dashboard_page_dashboardpage_6cc25d76("DashboardPage()<br/><small>app/dashboard/page.tsx</small>")
     notifications_page_notificationspage_d73a94fa("NotificationsPage()<br/><small>app/notifications/page.tsx</small>")
-    front_src_app_register_page_tsx_085c7f55("page.tsx")
+    profile_page_profilepage_337c7d47("ProfilePage()<br/><small>app/profile/page.tsx</small>")
+    wallet_page_walletpage_44b942fd("WalletPage()<br/><small>app/wallet/page.tsx</small>")
     front_src_components_navbar_tsx_4d28025d("Navbar.tsx")
     store_authstore_useauthstore_4a03c2d9("useAuthStore<br/><small>src/store/authStore.ts</small>")
-    middleware_auth_middleware_cacheget_479d5b9f -->|calls| middleware_auth_middleware_authenticate_2030e82e
-    middleware_auth_middleware_cacheset_1c69f980 -->|calls| middleware_auth_middleware_authenticate_2030e82e
     admin_page_adminpage_d04df2b1 -->|calls| store_authstore_useauthstore_4a03c2d9
     auctions_page_auctionspage_71ba11f5 -->|calls| store_authstore_useauthstore_4a03c2d9
     auctions_page_lotnumber_ad7c862c -->|calls| auctions_page_auctioncard_659c1180
@@ -1637,16 +1633,17 @@ flowchart LR
     dashboard_page_dashboardpage_6cc25d76 -->|calls| store_authstore_useauthstore_4a03c2d9
     login_page_loginpage_8743849c -->|calls| store_authstore_useauthstore_4a03c2d9
     notifications_page_notificationspage_d73a94fa -->|calls| store_authstore_useauthstore_4a03c2d9
+    profile_page_profilepage_337c7d47 -->|calls| store_authstore_useauthstore_4a03c2d9
+    register_page_registerpage_3cf33b24 -->|calls| store_authstore_useauthstore_4a03c2d9
+    wallet_page_walletpage_44b942fd -->|calls| store_authstore_useauthstore_4a03c2d9
     front_src_app_admin_page_tsx_7083ca1e -->|imports| store_authstore_useauthstore_4a03c2d9
+    front_src_app_auctions_page_tsx_1da9f999 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_auctions_id_page_tsx_e75ec2a7 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_login_page_tsx_60aba4ef -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_app_register_page_tsx_085c7f55 -->|imports| store_authstore_useauthstore_4a03c2d9
     front_src_components_navbar_tsx_4d28025d -->|imports| store_authstore_useauthstore_4a03c2d9
-    %% Omitted for readability: 128 nodes, 0 edges
-    class back_src_middleware_auth_middleware_ts_059380e7 module;
-    class middleware_auth_middleware_cacheget_479d5b9f function;
-    class middleware_auth_middleware_authenticate_2030e82e function;
-    class middleware_auth_middleware_cacheset_1c69f980 function;
+    %% Omitted for readability: 122 nodes, 0 edges
+    class front_src_app_auctions_page_tsx_1da9f999 ui;
     class auctions_page_auctionspage_71ba11f5 ui;
     class auctions_page_lotnumber_ad7c862c ui;
     class auctions_page_auctioncard_659c1180 ui;
@@ -1654,11 +1651,14 @@ flowchart LR
     class admin_page_adminpage_d04df2b1 ui;
     class front_src_app_login_page_tsx_60aba4ef ui;
     class login_page_loginpage_8743849c ui;
+    class front_src_app_register_page_tsx_085c7f55 ui;
+    class register_page_registerpage_3cf33b24 ui;
     class front_src_app_auctions_id_page_tsx_e75ec2a7 ui;
     class id_page_auctiondetailpage_029c5ff1 ui;
     class dashboard_page_dashboardpage_6cc25d76 ui;
     class notifications_page_notificationspage_d73a94fa ui;
-    class front_src_app_register_page_tsx_085c7f55 ui;
+    class profile_page_profilepage_337c7d47 ui;
+    class wallet_page_walletpage_44b942fd ui;
     class front_src_components_navbar_tsx_4d28025d ui;
     class store_authstore_useauthstore_4a03c2d9 ui;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
@@ -1931,9 +1931,9 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>back/learn.md</code></td><td>19 nodes</td></tr>
 <tr><td><code>xdocs/archive/back-learn.md</code></td><td>18 nodes</td></tr>
+<tr><td><code>xdocs/sessions/2026-05-29-fts-search-rewrite.md</code></td><td>11 nodes</td></tr>
 <tr><td><code>xdocs/archive/bible.md</code></td><td>10 nodes</td></tr>
 <tr><td><code>xdocs/bible.md</code></td><td>10 nodes</td></tr>
-<tr><td><code>src/middleware/auth.middleware.ts</code></td><td>7 nodes</td></tr>
 <tr><td><code>app/wallet/page.tsx</code></td><td>7 nodes</td></tr>
 <tr><td><code>app/dashboard/page.tsx</code></td><td>6 nodes</td></tr>
 <tr><td><code>src/lib/api.ts</code></td><td>6 nodes</td></tr>
@@ -1941,30 +1941,19 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x115, imports x41, imports x32, calls x17. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x114, imports x36, imports x26, calls x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
 
 <!-- ====== 8. Security & Global Graph ====== -->
 <h2 id="security-global">8. Security &amp; Global Graph</h2>
-<p>Security &amp; Global Graph groups implementation around xdocs, 2026, audit, planmd, mostly in xdocs/sessions/2026-05-28-audit-and-plan.md, xdocs/prd.md. This section covers 65 nodes and 65 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Security &amp; Global Graph groups implementation around xdocs, 2026, audit, planmd, mostly in xdocs/sessions/2026-05-28-audit-and-plan.md, xdocs/prd.md, xdocs/archive/bible.md. This section covers 80 nodes and 79 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Security &amp; Global Graph (65 nodes, 65 edges)
-    subgraph security_global_xdocs_prd_md_c8ce3cb5["xdocs/prd.md"]
-        xdocs_prd_core_features_high_level_2715c1d5("🔥 Core Features (High-Level)<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_auctionhaus_f853d7d5("🏛️ AuctionHaus<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_md_39e7f067("prd.md")
-        xdocs_prd_tech_stack_dual_repo_d9e7fb73("⚙️ Tech Stack (Dual Repo)<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_frontend_in_terms_of_styleing_and_ui_m_7bfccf5c("frontend in terms of styleing and ui ma...<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_make_the_backend_very_strong_6a4d699d("make the backend very strong<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_payment_will_be_mock_like_u_got_me_rig_a244007a("payment will be mock like u got me righ...<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_the_app_is_for_collage_project_so_keep_45f4b537("the app is for collage project so keep...<br/><small>xdocs/prd.md</small>")
-        xdocs_prd_frontend_repo_844a3fba("🎨 Frontend Repo<br/><small>xdocs/prd.md</small>")
-    end
+    %% Section: Security &amp; Global Graph (80 nodes, 79 edges)
     subgraph security_global_xdocs_sessions_2026_05_28_audit_2d798bae["xdocs/sessions/2026-05-28-audit-and-plan.md"]
         sessions_2026_05_28_audit_and_plan_session_close_30e3e748("SESSION CLOSED — Where We Are Leaving (...<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
         sessions_2026_05_28_audit_and_plan_session_2026_3edbff13("Session: 2026-05-28 — Audit &amp; Plan<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
@@ -1976,14 +1965,26 @@ flowchart LR
         sessions_2026_05_28_audit_and_plan_phase_a3_inde_efd84df9("Phase A3 (Indexes) — pre-flight notes<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
         sessions_2026_05_28_audit_and_plan_phase_a8_sock_e3ce7fb0("Phase A8 (Socket.io Redis adapter) — qu...<br/><small>xdocs/sessions/2026-05-28-audit-and-plan.md</small>")
     end
+    subgraph security_global_xdocs_archive_bible_md_10e61a1a["xdocs/archive/bible.md"]
+        archive_bible_auctionhaus_complete_system_docume_5df54410("AuctionHaus — Complete System Documenta...<br/><small>xdocs/archive/bible.md</small>")
+        archive_bible_10_dependencies_101b7581("10. Dependencies<br/><small>xdocs/archive/bible.md</small>")
+        archive_bible_14_data_flow_bid_placement_208da8b6("14. Data Flow: Bid Placement<br/><small>xdocs/archive/bible.md</small>")
+        archive_bible_15_data_flow_auction_end_a60d068c("15. Data Flow: Auction End<br/><small>xdocs/archive/bible.md</small>")
+        archive_bible_2_folder_structure_f9a715f0("2. Folder Structure<br/><small>xdocs/archive/bible.md</small>")
+    end
+    subgraph security_global_xdocs_prd_md_c8ce3cb5["xdocs/prd.md"]
+        xdocs_prd_core_features_high_level_2715c1d5("🔥 Core Features (High-Level)<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_auctionhaus_f853d7d5("🏛️ AuctionHaus<br/><small>xdocs/prd.md</small>")
+        xdocs_prd_md_39e7f067("prd.md")
+        xdocs_prd_tech_stack_dual_repo_d9e7fb73("⚙️ Tech Stack (Dual Repo)<br/><small>xdocs/prd.md</small>")
+    end
     xdocs_prd_md_39e7f067 -->|contains| xdocs_prd_auctionhaus_f853d7d5
     xdocs_prd_md_39e7f067 -->|contains| xdocs_prd_tech_stack_dual_repo_d9e7fb73
-    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_make_the_backend_very_strong_6a4d699d
-    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_frontend_in_terms_of_styleing_and_ui_m_7bfccf5c
-    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_the_app_is_for_collage_project_so_keep_45f4b537
-    xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_payment_will_be_mock_like_u_got_me_rig_a244007a
     xdocs_prd_auctionhaus_f853d7d5 -->|contains| xdocs_prd_core_features_high_level_2715c1d5
-    xdocs_prd_tech_stack_dual_repo_d9e7fb73 -->|contains| xdocs_prd_frontend_repo_844a3fba
+    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_2_folder_structure_f9a715f0
+    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_10_dependencies_101b7581
+    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_14_data_flow_bid_placement_208da8b6
+    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_15_data_flow_auction_end_a60d068c
     sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 -->|contains| sessions_2026_05_28_audit_and_plan_continuation_0ec48115
     sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 -->|contains| sessions_2026_05_28_audit_and_plan_continuation_31f137ba
     sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 -->|contains| sessions_2026_05_28_audit_and_plan_continuation_23e09560
@@ -1994,16 +1995,7 @@ flowchart LR
     sessions_2026_05_28_audit_and_plan_session_close_30e3e748 -->|contains| sessions_2026_05_28_audit_and_plan_phase_a8_sock_e3ce7fb0
     sessions_2026_05_28_audit_and_plan_session_close_30e3e748 -->|contains| sessions_2026_05_28_audit_and_plan_next_up_revis_99d753fb
     sessions_2026_05_28_audit_and_plan_session_close_30e3e748 -->|contains| sessions_2026_05_28_audit_and_plan_next_up_overr_fa18a45d
-    %% Omitted for readability: 47 nodes, 0 edges
-    class xdocs_prd_core_features_high_level_2715c1d5 concept;
-    class xdocs_prd_auctionhaus_f853d7d5 concept;
-    class xdocs_prd_md_39e7f067 concept;
-    class xdocs_prd_tech_stack_dual_repo_d9e7fb73 concept;
-    class xdocs_prd_frontend_in_terms_of_styleing_and_ui_m_7bfccf5c concept;
-    class xdocs_prd_make_the_backend_very_strong_6a4d699d concept;
-    class xdocs_prd_payment_will_be_mock_like_u_got_me_rig_a244007a concept;
-    class xdocs_prd_the_app_is_for_collage_project_so_keep_45f4b537 concept;
-    class xdocs_prd_frontend_repo_844a3fba concept;
+    %% Omitted for readability: 62 nodes, 0 edges
     class sessions_2026_05_28_audit_and_plan_session_close_30e3e748 concept;
     class sessions_2026_05_28_audit_and_plan_session_2026_3edbff13 concept;
     class sessions_2026_05_28_audit_and_plan_continuation_23e09560 concept;
@@ -2013,6 +2005,15 @@ flowchart LR
     class sessions_2026_05_28_audit_and_plan_next_up_revis_99d753fb concept;
     class sessions_2026_05_28_audit_and_plan_phase_a3_inde_efd84df9 concept;
     class sessions_2026_05_28_audit_and_plan_phase_a8_sock_e3ce7fb0 concept;
+    class archive_bible_auctionhaus_complete_system_docume_5df54410 concept;
+    class archive_bible_10_dependencies_101b7581 concept;
+    class archive_bible_14_data_flow_bid_placement_208da8b6 concept;
+    class archive_bible_15_data_flow_auction_end_a60d068c concept;
+    class archive_bible_2_folder_structure_f9a715f0 concept;
+    class xdocs_prd_core_features_high_level_2715c1d5 concept;
+    class xdocs_prd_auctionhaus_f853d7d5 concept;
+    class xdocs_prd_md_39e7f067 concept;
+    class xdocs_prd_tech_stack_dual_repo_d9e7fb73 concept;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -2283,27 +2284,27 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>xdocs/sessions/2026-05-28-audit-and-plan.md</code></td><td>47 nodes</td></tr>
 <tr><td><code>xdocs/prd.md</code></td><td>18 nodes</td></tr>
+<tr><td><code>xdocs/archive/bible.md</code></td><td>15 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x65. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x79. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
 
 <!-- ====== 9. Tests & Fixtures ====== -->
 <h2 id="tests-fixtures">9. Tests &amp; Fixtures</h2>
-<p>Tests &amp; Fixtures groups implementation around back, modules, xdocs, phase, mostly in xdocs/sessions/2026-05-28-phase-a1-decimal-money.md, src/workers/index.ts, back/generate-tests.js. This section covers 305 nodes and 575 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Tests &amp; Fixtures groups implementation around back, modules, xdocs, phase, mostly in xdocs/sessions/2026-05-28-phase-a1-decimal-money.md, src/workers/index.ts, src/middleware/auth.middleware.ts. This section covers 326 nodes and 660 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Tests &amp; Fixtures (305 nodes, 575 edges)
+    %% Section: Tests &amp; Fixtures (326 nodes, 660 edges)
     subgraph tests_fixtures_src_lib_decimal_ts_68993209["src/lib/decimal.ts"]
         lib_decimal_serializemoney_474709c4("serializeMoney()<br/><small>src/lib/decimal.ts</small>")
         lib_decimal_d_8aab39f1("D()<br/><small>src/lib/decimal.ts</small>")
-        back_src_lib_decimal_ts_28131515("decimal.ts")
         lib_decimal_neg_936f8f99("neg()<br/><small>src/lib/decimal.ts</small>")
         lib_decimal_tonum_7639e157("toNum()<br/><small>src/lib/decimal.ts</small>")
     end
@@ -2323,39 +2324,39 @@ flowchart LR
         workers_index_initworkers_ad3aaaaf("initWorkers()<br/><small>src/workers/index.ts</small>")
         workers_index_endauction_1980c8ef("endAuction()<br/><small>src/workers/index.ts</small>")
     end
-    admin_admin_service_getdashboardstats_f3f6ecc4("getDashboardStats()<br/><small>modules/admin/admin.service.ts</small>")
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda("auto-bid.service.test.ts")
     bidding_bid_service_placebid_891c0e30("placeBid()<br/><small>modules/bidding/bid.service.ts</small>")
+    escrow_escrow_service_settlewithintx_af6af408("settleWithinTx()<br/><small>modules/escrow/escrow.service.ts</small>")
     gateway_socket_gateway_initsocketgateway_799231ed("initSocketGateway()<br/><small>src/gateway/socket.gateway.ts</small>")
+    back_src_middleware_auth_middleware_ts_059380e7("auth.middleware.ts")
     middleware_error_middleware_createerror_ef44a228("createError()<br/><small>src/middleware/error.middleware.ts</small>")
     src_index_bootstrap_bcc4a2a7 -->|calls| workers_index_initworkers_ad3aaaaf
     src_index_bootstrap_bcc4a2a7 -->|calls| gateway_socket_gateway_initsocketgateway_799231ed
     lib_decimal_d_8aab39f1 -->|calls| lib_decimal_neg_936f8f99
     lib_decimal_d_8aab39f1 -->|calls| auto_bid_auto_bid_service_setautobid_dcbcf3b2
     lib_decimal_d_8aab39f1 -->|calls| bidding_bid_service_placebid_891c0e30
+    lib_decimal_d_8aab39f1 -->|calls| escrow_escrow_service_settlewithintx_af6af408
     lib_decimal_d_8aab39f1 -->|calls| wallet_wallet_service_deposit_8c38187e
     lib_decimal_d_8aab39f1 -->|calls| wallet_wallet_service_withdraw_35276ac5
     lib_decimal_d_8aab39f1 -->|calls| workers_index_endauction_1980c8ef
     lib_decimal_d_8aab39f1 -->|calls| auto_bid_auto_bid_service_processautobids_e96a4860
-    lib_decimal_tonum_7639e157 -->|calls| admin_admin_service_getdashboardstats_f3f6ecc4
+    lib_decimal_tonum_7639e157 -->|calls| escrow_escrow_service_settlewithintx_af6af408
     lib_decimal_tonum_7639e157 -->|calls| workers_index_endauction_1980c8ef
     lib_decimal_tonum_7639e157 -->|calls| auto_bid_auto_bid_service_processautobids_e96a4860
-    lib_decimal_serializemoney_474709c4 -->|calls| admin_admin_service_getdashboardstats_f3f6ecc4
     lib_decimal_serializemoney_474709c4 -->|calls| auto_bid_auto_bid_service_setautobid_dcbcf3b2
     lib_decimal_serializemoney_474709c4 -->|calls| wallet_wallet_service_deposit_8c38187e
     lib_decimal_serializemoney_474709c4 -->|calls| wallet_wallet_service_withdraw_35276ac5
     middleware_error_middleware_createerror_ef44a228 -->|calls| auto_bid_auto_bid_service_setautobid_dcbcf3b2
+    middleware_error_middleware_createerror_ef44a228 -->|calls| escrow_escrow_service_settlewithintx_af6af408
     middleware_error_middleware_createerror_ef44a228 -->|calls| wallet_wallet_service_deposit_8c38187e
     middleware_error_middleware_createerror_ef44a228 -->|calls| wallet_wallet_service_withdraw_35276ac5
     back_src_index_ts_a93b2e32 -->|imports| gateway_socket_gateway_initsocketgateway_799231ed
+    back_src_index_ts_a93b2e32 -->|imports| back_src_middleware_auth_middleware_ts_059380e7
     back_src_index_ts_a93b2e32 -->|imports| workers_index_initworkers_ad3aaaaf
     back_src_modules_auto_bid_auto_bid_service_test_4934cdda -->|imports| auto_bid_auto_bid_service_setautobid_dcbcf3b2
-    back_src_modules_auto_bid_auto_bid_service_test_4934cdda -->|imports| auto_bid_auto_bid_service_processautobids_e96a4860
-    back_src_modules_auto_bid_auto_bid_service_test_4934cdda -->|imports| bidding_bid_service_placebid_891c0e30
-    %% Omitted for readability: 287 nodes, 0 edges
+    %% Omitted for readability: 308 nodes, 2 edges
     class lib_decimal_serializemoney_474709c4 function;
     class lib_decimal_d_8aab39f1 function;
-    class back_src_lib_decimal_ts_28131515 module;
     class lib_decimal_neg_936f8f99 function;
     class lib_decimal_tonum_7639e157 function;
     class back_src_index_ts_a93b2e32 module;
@@ -2366,10 +2367,11 @@ flowchart LR
     class wallet_wallet_service_withdraw_35276ac5 function;
     class workers_index_initworkers_ad3aaaaf function;
     class workers_index_endauction_1980c8ef function;
-    class admin_admin_service_getdashboardstats_f3f6ecc4 function;
     class back_src_modules_auto_bid_auto_bid_service_test_4934cdda test;
     class bidding_bid_service_placebid_891c0e30 function;
+    class escrow_escrow_service_settlewithintx_af6af408 function;
     class gateway_socket_gateway_initsocketgateway_799231ed function;
+    class back_src_middleware_auth_middleware_ts_059380e7 module;
     class middleware_error_middleware_createerror_ef44a228 function;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
@@ -2643,15 +2645,15 @@ flowchart LR
 <tr><td><code>src/workers/index.ts</code></td><td>10 nodes</td></tr>
 <tr><td><code>back/generate-tests.js</code></td><td>9 nodes</td></tr>
 <tr><td><code>back/learn.md</code></td><td>9 nodes</td></tr>
+<tr><td><code>src/middleware/auth.middleware.ts</code></td><td>9 nodes</td></tr>
 <tr><td><code>xdocs/archive/back-learn.md</code></td><td>9 nodes</td></tr>
+<tr><td><code>src/lib/redis.ts</code></td><td>8 nodes</td></tr>
 <tr><td><code>modules/auctions/auction.controller.ts</code></td><td>8 nodes</td></tr>
-<tr><td><code>src/lib/decimal.ts</code></td><td>7 nodes</td></tr>
-<tr><td><code>src/lib/redis.ts</code></td><td>7 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x237, imports x151, imports x124, calls x63. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x252, imports x176, imports x164, calls x68. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -3078,366 +3080,12 @@ flowchart LR
 
 <!-- ====== 12. Backend Architecture ====== -->
 <h2 id="backend-architecture">12. Backend Architecture</h2>
-<p>Backend Architecture groups implementation around biblemd, xdocs, archive, data, mostly in xdocs/archive/bible.md. This section covers 12 nodes and 11 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Backend Architecture groups implementation around pagetsx, front, app, auctions, mostly in auctions/create/page.tsx. This section covers 11 nodes and 12 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Backend Architecture (12 nodes, 11 edges)
-    archive_bible_auctionhaus_complete_system_docume_5df54410("AuctionHaus — Complete System Documenta...<br/><small>xdocs/archive/bible.md</small>")
-    xdocs_archive_bible_md_fd72021b("bible.md")
-    archive_bible_14_data_flow_bid_placement_208da8b6("14. Data Flow: Bid Placement<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_15_data_flow_auction_end_a60d068c("15. Data Flow: Auction End<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_2_folder_structure_f9a715f0("2. Folder Structure<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_1_what_this_codebase_does_52d2541b("1. What This Codebase Does<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_11_security_measures_221b720c("11. Security Measures<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_12_test_accounts_from_seed_ffe18644("12. Test Accounts (from seed)<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_13_known_issues_from_checklist_md_186b5707("13. Known Issues (from checklist.md)<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_codeblock_1_3d397b44("code:block1 (ah/)<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_codeblock_6_b1430c57("code:block6 (User → POST /bids/auctions...<br/><small>xdocs/archive/bible.md</small>")
-    archive_bible_codeblock_7_1abdeddf("code:block7 (Cron tick (every 10s))<br/><small>xdocs/archive/bible.md</small>")
-    xdocs_archive_bible_md_fd72021b -->|contains| archive_bible_auctionhaus_complete_system_docume_5df54410
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_1_what_this_codebase_does_52d2541b
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_2_folder_structure_f9a715f0
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_11_security_measures_221b720c
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_12_test_accounts_from_seed_ffe18644
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_13_known_issues_from_checklist_md_186b5707
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_14_data_flow_bid_placement_208da8b6
-    archive_bible_auctionhaus_complete_system_docume_5df54410 -->|contains| archive_bible_15_data_flow_auction_end_a60d068c
-    archive_bible_2_folder_structure_f9a715f0 -->|contains| archive_bible_codeblock_1_3d397b44
-    archive_bible_14_data_flow_bid_placement_208da8b6 -->|contains| archive_bible_codeblock_6_b1430c57
-    archive_bible_15_data_flow_auction_end_a60d068c -->|contains| archive_bible_codeblock_7_1abdeddf
-    class archive_bible_auctionhaus_complete_system_docume_5df54410 concept;
-    class xdocs_archive_bible_md_fd72021b concept;
-    class archive_bible_14_data_flow_bid_placement_208da8b6 concept;
-    class archive_bible_15_data_flow_auction_end_a60d068c concept;
-    class archive_bible_2_folder_structure_f9a715f0 concept;
-    class archive_bible_1_what_this_codebase_does_52d2541b concept;
-    class archive_bible_11_security_measures_221b720c concept;
-    class archive_bible_12_test_accounts_from_seed_ffe18644 concept;
-    class archive_bible_13_known_issues_from_checklist_md_186b5707 concept;
-    class archive_bible_codeblock_1_3d397b44 concept;
-    class archive_bible_codeblock_6_b1430c57 concept;
-    class archive_bible_codeblock_7_1abdeddf concept;
-    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
-    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
-    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
-    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
-    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
-    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
-    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
-    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
-    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
-</div>
-
-<h3>Call Details</h3>
-<table class="call-table">
-<tr>
-  <th style="width:5%">#</th>
-  <th style="width:28%">Node</th>
-  <th style="width:10%">Type</th>
-  <th style="width:17%">Caller</th>
-  <th style="width:20%">Callees</th>
-  <th style="width:20%">Description</th>
-</tr>
-<tr>
-  <td>1</td>
-  <td><code>bible.md</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing bible.md.</td>
-</tr>
-<tr>
-  <td>2</td>
-  <td><code>AuctionHaus — Complete System Documentation</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing AuctionHaus — Complete System Documentation.</td>
-</tr>
-<tr>
-  <td>3</td>
-  <td><code>1. What This Codebase Does</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 1. What This Codebase Does.</td>
-</tr>
-<tr>
-  <td>4</td>
-  <td><code>2. Folder Structure</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 2. Folder Structure.</td>
-</tr>
-<tr>
-  <td>5</td>
-  <td><code>code:block1 (ah/)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block1 (ah/).</td>
-</tr>
-<tr>
-  <td>6</td>
-  <td><code>11. Security Measures</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 11. Security Measures.</td>
-</tr>
-<tr>
-  <td>7</td>
-  <td><code>12. Test Accounts (from seed)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 12. Test Accounts (from seed).</td>
-</tr>
-<tr>
-  <td>8</td>
-  <td><code>13. Known Issues (from checklist.md)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 13. Known Issues (from checklist.md).</td>
-</tr>
-<tr>
-  <td>9</td>
-  <td><code>14. Data Flow: Bid Placement</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 14. Data Flow: Bid Placement.</td>
-</tr>
-<tr>
-  <td>10</td>
-  <td><code>code:block6 (User → POST /bids/auctions/:id)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block6 (User → POST /bids/auctions/:id).</td>
-</tr>
-<tr>
-  <td>11</td>
-  <td><code>15. Data Flow: Auction End</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 15. Data Flow: Auction End.</td>
-</tr>
-<tr>
-  <td>12</td>
-  <td><code>code:block7 (Cron tick (every 10s))</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block7 (Cron tick (every 10s)).</td>
-</tr>
-</table>
-
-<div class="grid">
-  <div class="card">
-    <h4>Key Files</h4>
-    <table style="width:100%;font-size:0.85rem;">
-      <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>xdocs/archive/bible.md</code></td><td>12 nodes</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x11. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
-  </div>
-</div>
-<hr>
-
-<!-- ====== 13. Design System Philosophy ====== -->
-<h2 id="design-system-philosophy">13. Design System Philosophy</h2>
-<p>Design System Philosophy groups implementation around biblemd, xdocs, data, flow, mostly in xdocs/bible.md. This section covers 12 nodes and 11 internal edges; the diagram shows only representative relationships to stay readable.</p>
-
-<div class="mermaid">
-%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
-flowchart LR
-    %% Section: Design System Philosophy (12 nodes, 11 edges)
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0("AuctionHaus — Complete System Documenta...<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_md_5c70159b("bible.md")
-    xdocs_bible_14_data_flow_bid_placement_aee723a4("14. Data Flow: Bid Placement<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_15_data_flow_auction_end_a1212068("15. Data Flow: Auction End<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_2_folder_structure_6058b4ac("2. Folder Structure<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_1_what_this_codebase_does_b6889153("1. What This Codebase Does<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_11_security_measures_d743a714("11. Security Measures<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_12_test_accounts_from_seed_f3a2acee("12. Test Accounts (from seed)<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_13_known_issues_from_checklist_md_677de987("13. Known Issues (from checklist.md)<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_codeblock_1_ff9aeee2("code:block1 (ah/)<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_codeblock_6_7bee26cd("code:block6 (User → POST /bids/auctions...<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_codeblock_7_3b2298fd("code:block7 (Cron tick (every 10s))<br/><small>xdocs/bible.md</small>")
-    xdocs_bible_md_5c70159b -->|contains| xdocs_bible_auctionhaus_complete_system_document_13dc16a0
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_1_what_this_codebase_does_b6889153
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_2_folder_structure_6058b4ac
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_11_security_measures_d743a714
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_12_test_accounts_from_seed_f3a2acee
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_13_known_issues_from_checklist_md_677de987
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_14_data_flow_bid_placement_aee723a4
-    xdocs_bible_auctionhaus_complete_system_document_13dc16a0 -->|contains| xdocs_bible_15_data_flow_auction_end_a1212068
-    xdocs_bible_2_folder_structure_6058b4ac -->|contains| xdocs_bible_codeblock_1_ff9aeee2
-    xdocs_bible_14_data_flow_bid_placement_aee723a4 -->|contains| xdocs_bible_codeblock_6_7bee26cd
-    xdocs_bible_15_data_flow_auction_end_a1212068 -->|contains| xdocs_bible_codeblock_7_3b2298fd
-    class xdocs_bible_auctionhaus_complete_system_document_13dc16a0 concept;
-    class xdocs_bible_md_5c70159b concept;
-    class xdocs_bible_14_data_flow_bid_placement_aee723a4 concept;
-    class xdocs_bible_15_data_flow_auction_end_a1212068 concept;
-    class xdocs_bible_2_folder_structure_6058b4ac concept;
-    class xdocs_bible_1_what_this_codebase_does_b6889153 concept;
-    class xdocs_bible_11_security_measures_d743a714 concept;
-    class xdocs_bible_12_test_accounts_from_seed_f3a2acee concept;
-    class xdocs_bible_13_known_issues_from_checklist_md_677de987 concept;
-    class xdocs_bible_codeblock_1_ff9aeee2 concept;
-    class xdocs_bible_codeblock_6_7bee26cd concept;
-    class xdocs_bible_codeblock_7_3b2298fd concept;
-    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
-    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
-    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
-    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
-    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
-    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
-    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
-    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
-    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
-</div>
-
-<h3>Call Details</h3>
-<table class="call-table">
-<tr>
-  <th style="width:5%">#</th>
-  <th style="width:28%">Node</th>
-  <th style="width:10%">Type</th>
-  <th style="width:17%">Caller</th>
-  <th style="width:20%">Callees</th>
-  <th style="width:20%">Description</th>
-</tr>
-<tr>
-  <td>1</td>
-  <td><code>bible.md</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing bible.md.</td>
-</tr>
-<tr>
-  <td>2</td>
-  <td><code>AuctionHaus — Complete System Documentation</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing AuctionHaus — Complete System Documentation.</td>
-</tr>
-<tr>
-  <td>3</td>
-  <td><code>1. What This Codebase Does</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 1. What This Codebase Does.</td>
-</tr>
-<tr>
-  <td>4</td>
-  <td><code>2. Folder Structure</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 2. Folder Structure.</td>
-</tr>
-<tr>
-  <td>5</td>
-  <td><code>code:block1 (ah/)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block1 (ah/).</td>
-</tr>
-<tr>
-  <td>6</td>
-  <td><code>11. Security Measures</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 11. Security Measures.</td>
-</tr>
-<tr>
-  <td>7</td>
-  <td><code>12. Test Accounts (from seed)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 12. Test Accounts (from seed).</td>
-</tr>
-<tr>
-  <td>8</td>
-  <td><code>13. Known Issues (from checklist.md)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 13. Known Issues (from checklist.md).</td>
-</tr>
-<tr>
-  <td>9</td>
-  <td><code>14. Data Flow: Bid Placement</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 14. Data Flow: Bid Placement.</td>
-</tr>
-<tr>
-  <td>10</td>
-  <td><code>code:block6 (User → POST /bids/auctions/:id)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block6 (User → POST /bids/auctions/:id).</td>
-</tr>
-<tr>
-  <td>11</td>
-  <td><code>15. Data Flow: Auction End</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing 15. Data Flow: Auction End.</td>
-</tr>
-<tr>
-  <td>12</td>
-  <td><code>code:block7 (Cron tick (every 10s))</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing code:block7 (Cron tick (every 10s)).</td>
-</tr>
-</table>
-
-<div class="grid">
-  <div class="card">
-    <h4>Key Files</h4>
-    <table style="width:100%;font-size:0.85rem;">
-      <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>xdocs/bible.md</code></td><td>12 nodes</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x11. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
-  </div>
-</div>
-<hr>
-
-<!-- ====== 14. Auth System & JWT ====== -->
-<h2 id="auth-system-jwt">14. Auth System &amp; JWT</h2>
-<p>Auth System &amp; JWT groups implementation around pagetsx, front, app, auctions, mostly in auctions/create/page.tsx. This section covers 11 nodes and 12 internal edges; the diagram shows only representative relationships to stay readable.</p>
-
-<div class="mermaid">
-%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
-flowchart LR
-    %% Section: Auth System &amp; JWT (11 nodes, 12 edges)
+    %% Section: Backend Architecture (11 nodes, 12 edges)
     create_page_createauctionpage_6d652cf8("CreateAuctionPage()<br/><small>auctions/create/page.tsx</small>")
     create_page_inputstyle_f4f88881("inputStyle()<br/><small>auctions/create/page.tsx</small>")
     create_page_submitstyle_df69cda6("submitStyle()<br/><small>auctions/create/page.tsx</small>")
@@ -3588,14 +3236,180 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 15. Phase Tracker ====== -->
-<h2 id="phase-tracker">15. Phase Tracker</h2>
-<p>Phase Tracker groups implementation around xdocs, archive, back, learnmd, mostly in xdocs/archive/back-learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 13. English Auction & Sniping ====== -->
+<h2 id="english-auction-sniping">13. English Auction &amp; Sniping</h2>
+<p>English Auction &amp; Sniping groups implementation around 2026, escrow, settlementmd, xdocs, mostly in xdocs/sessions/2026-05-29-a5-escrow-settlement.md. This section covers 11 nodes and 10 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Phase Tracker (10 nodes, 9 edges)
+    %% Section: English Auction &amp; Sniping (11 nodes, 10 edges)
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45("Session: 2026-05-29 — A5 EscrowService...<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_notes_f_d875412c("Notes for Future Self<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    xdocs_sessions_2026_05_29_a5_escrow_settlement_m_0e9a2c9f("2026-05-29-a5-escrow-settlement.md")
+    sessions_2026_05_29_a5_escrow_settlement_goal_3497135e("Goal<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_context_d3124079("Context Loaded<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_decisio_d680c172("Decisions<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_accepta_bb0ae34a("Acceptance signals for the user to run<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_commit_c9f9776c("Commit<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_next_up_b34910de("Next Up<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_open_qu_915a8ab7("Open Questions<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    sessions_2026_05_29_a5_escrow_settlement_what_la_911e1c37("What Landed<br/><small>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small>")
+    xdocs_sessions_2026_05_29_a5_escrow_settlement_m_0e9a2c9f -->|contains| sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_goal_3497135e
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_context_d3124079
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_decisio_d680c172
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_what_la_911e1c37
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_open_qu_915a8ab7
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_next_up_b34910de
+    sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 -->|contains| sessions_2026_05_29_a5_escrow_settlement_notes_f_d875412c
+    sessions_2026_05_29_a5_escrow_settlement_notes_f_d875412c -->|contains| sessions_2026_05_29_a5_escrow_settlement_accepta_bb0ae34a
+    sessions_2026_05_29_a5_escrow_settlement_notes_f_d875412c -->|contains| sessions_2026_05_29_a5_escrow_settlement_commit_c9f9776c
+    class sessions_2026_05_29_a5_escrow_settlement_session_5bc15b45 concept;
+    class sessions_2026_05_29_a5_escrow_settlement_notes_f_d875412c concept;
+    class xdocs_sessions_2026_05_29_a5_escrow_settlement_m_0e9a2c9f concept;
+    class sessions_2026_05_29_a5_escrow_settlement_goal_3497135e concept;
+    class sessions_2026_05_29_a5_escrow_settlement_context_d3124079 concept;
+    class sessions_2026_05_29_a5_escrow_settlement_decisio_d680c172 concept;
+    class sessions_2026_05_29_a5_escrow_settlement_accepta_bb0ae34a concept;
+    class sessions_2026_05_29_a5_escrow_settlement_commit_c9f9776c concept;
+    class sessions_2026_05_29_a5_escrow_settlement_next_up_b34910de concept;
+    class sessions_2026_05_29_a5_escrow_settlement_open_qu_915a8ab7 concept;
+    class sessions_2026_05_29_a5_escrow_settlement_what_la_911e1c37 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>2026-05-29-a5-escrow-settlement.md</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2026-05-29-a5-escrow-settlement.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>Session: 2026-05-29 — A5 EscrowService + A9.x Cross-Instance Invalidation</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Session: 2026-05-29 — A5 EscrowService + A9.x Cross-Instance Invalidation.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>Goal</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Goal.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>Context Loaded</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Context Loaded.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>Decisions</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Decisions.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>What Landed</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing What Landed.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>Open Questions</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Open Questions.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>Next Up</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Next Up.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>Notes for Future Self</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Notes for Future Self.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>Acceptance signals for the user to run</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Acceptance signals for the user to run.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Commit</code><br><small style="color:var(--muted)">xdocs/sessions/2026-05-29-a5-escrow-settlement.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Commit.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>xdocs/sessions/2026-05-29-a5-escrow-settlement.md</code></td><td>11 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x10. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 14. Product Requirements ====== -->
+<h2 id="product-requirements">14. Product Requirements</h2>
+<p>Product Requirements groups implementation around xdocs, archive, back, learnmd, mostly in xdocs/archive/back-learn.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Product Requirements (10 nodes, 9 edges)
     archive_back_learn_16_api_reference_d5bd754f("16. API Reference<br/><small>xdocs/archive/back-learn.md</small>")
     archive_back_learn_auth_8cab3997("Auth<br/><small>xdocs/archive/back-learn.md</small>")
     archive_back_learn_users_71b08dec("Users<br/><small>xdocs/archive/back-learn.md</small>")
@@ -3743,68 +3557,43 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 16. Other ====== -->
-<h2 id="other">16. Other</h2>
-<p>Other groups implementation around xdocs, biblemd, archive, back, mostly in xdocs/bible.md, back/learn.md, xdocs/archive/bible.md. This section covers 236 nodes and 174 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<!-- ====== 15. Git Convention ====== -->
+<h2 id="git-convention">15. Git Convention</h2>
+<p>Git Convention groups implementation around redis, dockermd, xdocs, not, mostly in xdocs/not-for-ai/redis-docker.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Other (236 nodes, 174 edges)
-    subgraph other_front_src_middleware_ts_b9c7d10e["front/src/middleware.ts"]
-        front_src_middleware_ts_516958a5("middleware.ts")
-        src_middleware_protected_routes_debfac46("PROTECTED_ROUTES<br/><small>front/src/middleware.ts</small>")
-        src_middleware_auth_routes_c7ad3959("AUTH_ROUTES<br/><small>front/src/middleware.ts</small>")
-        src_middleware_middleware_4e0a8fd9("middleware()<br/><small>front/src/middleware.ts</small>")
-        src_middleware_config_5fc4b3e8("config<br/><small>front/src/middleware.ts</small>")
-    end
-    subgraph other_front_eslint_config_mjs_e273917f["front/eslint.config.mjs"]
-        front_eslint_config_mjs_7b2961be("eslint.config.mjs")
-        front_eslint_config_eslintconfig_c917ff42("eslintConfig<br/><small>front/eslint.config.mjs</small>")
-    end
-    subgraph other_front_next_config_ts_279995a7["front/next.config.ts"]
-        front_next_config_ts_4ed25105("next.config.ts")
-        front_next_config_nextconfig_de06b1e5("nextConfig<br/><small>front/next.config.ts</small>")
-    end
-    subgraph other_front_postcss_config_mjs_f090aa9d["front/postcss.config.mjs"]
-        front_postcss_config_mjs_92a78f01("postcss.config.mjs")
-        front_postcss_config_config_f84be9f0("config<br/><small>front/postcss.config.mjs</small>")
-    end
-    subgraph other_xdocs_archive_bible_md_63532fca["xdocs/archive/bible.md"]
-        archive_bible_7_core_business_logic_2a0180b8("7. Core Business Logic<br/><small>xdocs/archive/bible.md</small>")
-        archive_bible_5_authentication_system_02fbb21c("5. Authentication System<br/><small>xdocs/archive/bible.md</small>")
-    end
-    back_learn_16_api_reference_575d8321("16. API Reference<br/><small>back/learn.md</small>")
-    front_src_app_page_tsx_7447f761("page.tsx")
-    xdocs_bible_7_core_business_logic_c6195dd0("7. Core Business Logic<br/><small>xdocs/bible.md</small>")
-    sessions_readme_rules_for_claude_765d8228("Rules for Claude<br/><small>xdocs/sessions/README.md</small>")
-    sessions_template_session_yyyy_mm_dd_lt_slug_as_f6637425("Session: YYYY-MM-DD — &amp;lt;slug as title...<br/><small>xdocs/sessions/_TEMPLATE.md</small>")
-    front_eslint_config_mjs_7b2961be -->|contains| front_eslint_config_eslintconfig_c917ff42
-    front_next_config_ts_4ed25105 -->|contains| front_next_config_nextconfig_de06b1e5
-    front_postcss_config_mjs_92a78f01 -->|contains| front_postcss_config_config_f84be9f0
-    front_src_middleware_ts_516958a5 -->|contains| src_middleware_protected_routes_debfac46
-    front_src_middleware_ts_516958a5 -->|contains| src_middleware_auth_routes_c7ad3959
-    front_src_middleware_ts_516958a5 -->|contains| src_middleware_middleware_4e0a8fd9
-    front_src_middleware_ts_516958a5 -->|contains| src_middleware_config_5fc4b3e8
-    %% Omitted for readability: 218 nodes, 0 edges
-    class front_src_middleware_ts_516958a5 module;
-    class src_middleware_protected_routes_debfac46 api;
-    class src_middleware_auth_routes_c7ad3959 api;
-    class src_middleware_middleware_4e0a8fd9 function;
-    class src_middleware_config_5fc4b3e8 function;
-    class front_eslint_config_mjs_7b2961be function;
-    class front_eslint_config_eslintconfig_c917ff42 function;
-    class front_next_config_ts_4ed25105 module;
-    class front_next_config_nextconfig_de06b1e5 function;
-    class front_postcss_config_mjs_92a78f01 function;
-    class front_postcss_config_config_f84be9f0 function;
-    class archive_bible_7_core_business_logic_2a0180b8 concept;
-    class archive_bible_5_authentication_system_02fbb21c concept;
-    class back_learn_16_api_reference_575d8321 concept;
-    class front_src_app_page_tsx_7447f761 ui;
-    class xdocs_bible_7_core_business_logic_c6195dd0 concept;
-    class sessions_readme_rules_for_claude_765d8228 concept;
-    class sessions_template_session_yyyy_mm_dd_lt_slug_as_f6637425 concept;
+    %% Section: Git Convention (10 nodes, 9 edges)
+    not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98("Local Redis Setup for Development<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_option_1_quick_start_sin_521f0bcf("Option 1: Quick Start (Single Command)<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_option_2_docker_compose_d2b6c183("Option 2: Docker Compose Setup<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    xdocs_not_for_ai_redis_docker_md_50dcc96e("redis-docker.md")
+    not_for_ai_redis_docker_environment_variable_set_4f1759dd("Environment Variable Setup<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_codeblock_1_27d07e62("code:bash (docker run --name auctionhau...<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_stopping_and_starting_la_bbf414e6("Stopping and Starting later<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_codeblock_3_5f61d2ab("code:bash (docker compose up -d)<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_codeblock_4_5dade330("code:env ( Comment out production Upst...<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    not_for_ai_redis_docker_codeblock_2_a2e8542f("code:yaml (version: '3.8')<br/><small>xdocs/not-for-ai/redis-docker.md</small>")
+    xdocs_not_for_ai_redis_docker_md_50dcc96e -->|contains| not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98
+    not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98 -->|contains| not_for_ai_redis_docker_option_1_quick_start_sin_521f0bcf
+    not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98 -->|contains| not_for_ai_redis_docker_option_2_docker_compose_d2b6c183
+    not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98 -->|contains| not_for_ai_redis_docker_environment_variable_set_4f1759dd
+    not_for_ai_redis_docker_option_1_quick_start_sin_521f0bcf -->|contains| not_for_ai_redis_docker_codeblock_1_27d07e62
+    not_for_ai_redis_docker_option_1_quick_start_sin_521f0bcf -->|contains| not_for_ai_redis_docker_stopping_and_starting_la_bbf414e6
+    not_for_ai_redis_docker_option_2_docker_compose_d2b6c183 -->|contains| not_for_ai_redis_docker_codeblock_2_a2e8542f
+    not_for_ai_redis_docker_option_2_docker_compose_d2b6c183 -->|contains| not_for_ai_redis_docker_codeblock_3_5f61d2ab
+    not_for_ai_redis_docker_environment_variable_set_4f1759dd -->|contains| not_for_ai_redis_docker_codeblock_4_5dade330
+    class not_for_ai_redis_docker_local_redis_setup_for_de_47a8cc98 concept;
+    class not_for_ai_redis_docker_option_1_quick_start_sin_521f0bcf concept;
+    class not_for_ai_redis_docker_option_2_docker_compose_d2b6c183 concept;
+    class xdocs_not_for_ai_redis_docker_md_50dcc96e concept;
+    class not_for_ai_redis_docker_environment_variable_set_4f1759dd concept;
+    class not_for_ai_redis_docker_codeblock_1_27d07e62 concept;
+    class not_for_ai_redis_docker_stopping_and_starting_la_bbf414e6 concept;
+    class not_for_ai_redis_docker_codeblock_3_5f61d2ab concept;
+    class not_for_ai_redis_docker_codeblock_4_5dade330 concept;
+    class not_for_ai_redis_docker_codeblock_2_a2e8542f concept;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -3906,8 +3695,108 @@ flowchart LR
   <td>No direct outbound edge</td>
   <td>Documentation node describing code:env (# Comment out production Upstash Redis).</td>
 </tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>xdocs/not-for-ai/redis-docker.md</code></td><td>10 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x9. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 16. Other ====== -->
+<h2 id="other">16. Other</h2>
+<p>Other groups implementation around xdocs, biblemd, archive, back, mostly in xdocs/bible.md, back/learn.md, xdocs/archive/bible.md. This section covers 248 nodes and 186 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Other (248 nodes, 186 edges)
+    subgraph other_front_src_middleware_ts_b9c7d10e["front/src/middleware.ts"]
+        front_src_middleware_ts_516958a5("middleware.ts")
+        src_middleware_protected_routes_debfac46("PROTECTED_ROUTES<br/><small>front/src/middleware.ts</small>")
+        src_middleware_auth_routes_c7ad3959("AUTH_ROUTES<br/><small>front/src/middleware.ts</small>")
+        src_middleware_middleware_4e0a8fd9("middleware()<br/><small>front/src/middleware.ts</small>")
+        src_middleware_config_5fc4b3e8("config<br/><small>front/src/middleware.ts</small>")
+    end
+    subgraph other_front_eslint_config_mjs_e273917f["front/eslint.config.mjs"]
+        front_eslint_config_mjs_7b2961be("eslint.config.mjs")
+        front_eslint_config_eslintconfig_c917ff42("eslintConfig<br/><small>front/eslint.config.mjs</small>")
+    end
+    subgraph other_front_next_config_ts_279995a7["front/next.config.ts"]
+        front_next_config_ts_4ed25105("next.config.ts")
+        front_next_config_nextconfig_de06b1e5("nextConfig<br/><small>front/next.config.ts</small>")
+    end
+    subgraph other_front_postcss_config_mjs_f090aa9d["front/postcss.config.mjs"]
+        front_postcss_config_mjs_92a78f01("postcss.config.mjs")
+        front_postcss_config_config_f84be9f0("config<br/><small>front/postcss.config.mjs</small>")
+    end
+    subgraph other_xdocs_archive_bible_md_63532fca["xdocs/archive/bible.md"]
+        archive_bible_7_core_business_logic_2a0180b8("7. Core Business Logic<br/><small>xdocs/archive/bible.md</small>")
+        archive_bible_5_authentication_system_02fbb21c("5. Authentication System<br/><small>xdocs/archive/bible.md</small>")
+    end
+    back_learn_16_api_reference_575d8321("16. API Reference<br/><small>back/learn.md</small>")
+    front_src_app_page_tsx_7447f761("page.tsx")
+    xdocs_bible_7_core_business_logic_c6195dd0("7. Core Business Logic<br/><small>xdocs/bible.md</small>")
+    sessions_readme_rules_for_claude_765d8228("Rules for Claude<br/><small>xdocs/sessions/README.md</small>")
+    sessions_template_session_yyyy_mm_dd_lt_slug_as_f6637425("Session: YYYY-MM-DD — &amp;lt;slug as title...<br/><small>xdocs/sessions/_TEMPLATE.md</small>")
+    front_eslint_config_mjs_7b2961be -->|contains| front_eslint_config_eslintconfig_c917ff42
+    front_next_config_ts_4ed25105 -->|contains| front_next_config_nextconfig_de06b1e5
+    front_postcss_config_mjs_92a78f01 -->|contains| front_postcss_config_config_f84be9f0
+    front_src_middleware_ts_516958a5 -->|contains| src_middleware_protected_routes_debfac46
+    front_src_middleware_ts_516958a5 -->|contains| src_middleware_auth_routes_c7ad3959
+    front_src_middleware_ts_516958a5 -->|contains| src_middleware_middleware_4e0a8fd9
+    front_src_middleware_ts_516958a5 -->|contains| src_middleware_config_5fc4b3e8
+    %% Omitted for readability: 230 nodes, 0 edges
+    class front_src_middleware_ts_516958a5 module;
+    class src_middleware_protected_routes_debfac46 api;
+    class src_middleware_auth_routes_c7ad3959 api;
+    class src_middleware_middleware_4e0a8fd9 function;
+    class src_middleware_config_5fc4b3e8 function;
+    class front_eslint_config_mjs_7b2961be function;
+    class front_eslint_config_eslintconfig_c917ff42 function;
+    class front_next_config_ts_4ed25105 module;
+    class front_next_config_nextconfig_de06b1e5 function;
+    class front_postcss_config_mjs_92a78f01 function;
+    class front_postcss_config_config_f84be9f0 function;
+    class archive_bible_7_core_business_logic_2a0180b8 concept;
+    class archive_bible_5_authentication_system_02fbb21c concept;
+    class back_learn_16_api_reference_575d8321 concept;
+    class front_src_app_page_tsx_7447f761 ui;
+    class xdocs_bible_7_core_business_logic_c6195dd0 concept;
+    class sessions_readme_rules_for_claude_765d8228 concept;
+    class sessions_template_session_yyyy_mm_dd_lt_slug_as_f6637425 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
 <tr>
-  <td>11</td>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
   <td><code>16. API Reference</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3915,7 +3804,7 @@ flowchart LR
   <td>Documentation node describing 16. API Reference.</td>
 </tr>
 <tr>
-  <td>12</td>
+  <td>2</td>
   <td><code>Auth</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3923,7 +3812,7 @@ flowchart LR
   <td>Documentation node describing Auth.</td>
 </tr>
 <tr>
-  <td>13</td>
+  <td>3</td>
   <td><code>Users</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3931,7 +3820,7 @@ flowchart LR
   <td>Documentation node describing Users.</td>
 </tr>
 <tr>
-  <td>14</td>
+  <td>4</td>
   <td><code>Auctions</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3939,7 +3828,7 @@ flowchart LR
   <td>Documentation node describing Auctions.</td>
 </tr>
 <tr>
-  <td>15</td>
+  <td>5</td>
   <td><code>Bidding</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3947,7 +3836,7 @@ flowchart LR
   <td>Documentation node describing Bidding.</td>
 </tr>
 <tr>
-  <td>16</td>
+  <td>6</td>
   <td><code>Wallet</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3955,7 +3844,7 @@ flowchart LR
   <td>Documentation node describing Wallet.</td>
 </tr>
 <tr>
-  <td>17</td>
+  <td>7</td>
   <td><code>Notifications</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3963,7 +3852,7 @@ flowchart LR
   <td>Documentation node describing Notifications.</td>
 </tr>
 <tr>
-  <td>18</td>
+  <td>8</td>
   <td><code>Watchlist</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3971,7 +3860,7 @@ flowchart LR
   <td>Documentation node describing Watchlist.</td>
 </tr>
 <tr>
-  <td>19</td>
+  <td>9</td>
   <td><code>Admin</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3979,7 +3868,7 @@ flowchart LR
   <td>Documentation node describing Admin.</td>
 </tr>
 <tr>
-  <td>20</td>
+  <td>10</td>
   <td><code>Payments</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3987,7 +3876,7 @@ flowchart LR
   <td>Documentation node describing Payments.</td>
 </tr>
 <tr>
-  <td>21</td>
+  <td>11</td>
   <td><code>Wallet Escrow Design</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -3995,7 +3884,7 @@ flowchart LR
   <td>Design note for Wallet Escrow Design.</td>
 </tr>
 <tr>
-  <td>22</td>
+  <td>12</td>
   <td><code>Bidding Engine Architecture</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4003,7 +3892,7 @@ flowchart LR
   <td>Design note for Bidding Engine Architecture.</td>
 </tr>
 <tr>
-  <td>23</td>
+  <td>13</td>
   <td><code>Escrow Service Settlement</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4011,7 +3900,7 @@ flowchart LR
   <td>Design note for Escrow Service Settlement.</td>
 </tr>
 <tr>
-  <td>24</td>
+  <td>14</td>
   <td><code>Wallet System (Pessimistic Lock)</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4019,7 +3908,7 @@ flowchart LR
   <td>Design note for Wallet System (Pessimistic Lock).</td>
 </tr>
 <tr>
-  <td>25</td>
+  <td>15</td>
   <td><code>Critical Bug Fixes (Phase 1)</code><br><small style="color:var(--muted)">xdocs/not-for-ai/done.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4027,7 +3916,7 @@ flowchart LR
   <td>Design note for Critical Bug Fixes (Phase 1).</td>
 </tr>
 <tr>
-  <td>26</td>
+  <td>16</td>
   <td><code>Deep Audit: Concurrency Fixes</code><br><small style="color:var(--muted)">xdocs/not-for-ai/done.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4035,7 +3924,7 @@ flowchart LR
   <td>Design note for Deep Audit: Concurrency Fixes.</td>
 </tr>
 <tr>
-  <td>27</td>
+  <td>17</td>
   <td><code>Escrow Centralization</code><br><small style="color:var(--muted)">xdocs/not-for-ai/done.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4043,7 +3932,7 @@ flowchart LR
   <td>Design note for Escrow Centralization.</td>
 </tr>
 <tr>
-  <td>28</td>
+  <td>18</td>
   <td><code>Sealed Bid Auction Type</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4051,7 +3940,7 @@ flowchart LR
   <td>Design note for Sealed Bid Auction Type.</td>
 </tr>
 <tr>
-  <td>29</td>
+  <td>19</td>
   <td><code>Pessimistic Locking Pattern</code><br><small style="color:var(--muted)">xdocs/bible.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -4059,12 +3948,92 @@ flowchart LR
   <td>Design note for Pessimistic Locking Pattern.</td>
 </tr>
 <tr>
-  <td>30</td>
+  <td>20</td>
   <td><code>Prisma Transaction Pattern</code><br><small style="color:var(--muted)">back/learn.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
   <td>Design note for Prisma Transaction Pattern.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>7. Core Business Logic</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7. Core Business Logic.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>7.1 Bidding Engine (`bid.service.ts`)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7.1 Bidding Engine (`bid.service.ts`).</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>code:block3 (1. Validate auction is ACTIVE)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing code:block3 (1. Validate auction is ACTIVE).</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>7.2 Auto-Bid Engine (`auto-bid.service.ts`)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7.2 Auto-Bid Engine (`auto-bid.service.ts`).</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>code:block4 (1. Fetch all ACTIVE auto-bids for the auction (excluding cur)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing code:block4 (1. Fetch all ACTIVE auto-bids for the auction (excluding cur).</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>7.3 Auction Scheduler (`auction.scheduler.ts`)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7.3 Auction Scheduler (`auction.scheduler.ts`).</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>7.4 Escrow Service (`escrow.service.ts`)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7.4 Escrow Service (`escrow.service.ts`).</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>code:block5 (1. Idempotency check: look for existing PAYMENT transaction)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing code:block5 (1. Idempotency check: look for existing PAYMENT transaction).</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>7.5 Wallet System (`wallet.service.ts`)</code><br><small style="color:var(--muted)">xdocs/archive/bible.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7.5 Wallet System (`wallet.service.ts`).</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>README.md</code><br><small style="color:var(--muted)">xdocs/sessions/README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing README.md.</td>
 </tr>
 </table>
 
@@ -4075,9 +4044,9 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>xdocs/bible.md</code></td><td>50 nodes</td></tr>
 <tr><td><code>back/learn.md</code></td><td>37 nodes</td></tr>
-<tr><td><code>xdocs/archive/bible.md</code></td><td>34 nodes</td></tr>
+<tr><td><code>xdocs/archive/bible.md</code></td><td>31 nodes</td></tr>
+<tr><td><code>suggesstion.md</code></td><td>25 nodes</td></tr>
 <tr><td><code>xdocs/archive/back-learn.md</code></td><td>15 nodes</td></tr>
-<tr><td><code>xdocs/not-for-ai/redis-docker.md</code></td><td>11 nodes</td></tr>
 <tr><td><code>xdocs/sessions/README.md</code></td><td>9 nodes</td></tr>
 <tr><td><code>xdocs/sessions/_TEMPLATE.md</code></td><td>9 nodes</td></tr>
 <tr><td><code>xdocs/not-for-ai/done.md</code></td><td>6 nodes</td></tr>
@@ -4085,7 +4054,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x148, references x11, semantically similar to x7, explains x5. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x160, references x11, semantically similar to x7, explains x5. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -4130,17 +4099,17 @@ flowchart LR
   <div class="card">
     <h4>Graph</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>Nodes</td><td>1137</td></tr>
-      <tr><td>Edges</td><td>1466</td></tr>
+      <tr><td>Nodes</td><td>1163</td></tr>
+      <tr><td>Edges</td><td>1512</td></tr>
       <tr><td>Hyperedges</td><td>3</td></tr>
-      <tr><td>Communities</td><td>136</td></tr>
+      <tr><td>Communities</td><td>144</td></tr>
       <tr><td>Documented Sections</td><td>15</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Edge Confidence</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>EXTRACTED</td><td>1444</td></tr>
+      <tr><td>EXTRACTED</td><td>1490</td></tr>
       <tr><td>INFERRED</td><td>22</td></tr>
       <tr><td>AMBIGUOUS</td><td>0</td></tr>
     </table>
@@ -4149,7 +4118,7 @@ flowchart LR
 
 <div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
   <p>auctionhaus — Architecture Documentation</p>
-  <p>Generated: 2026-05-28 17:25 UTC · graphify callflow-html</p>
+  <p>Generated: 2026-05-29 04:11 UTC · graphify callflow-html</p>
 </div>
 
 </div><!-- .container -->
