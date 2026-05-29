@@ -64,6 +64,14 @@ enum NotificationType {
   GENERAL
 }
 
+// Phase A5: how a settlement's money moved. DIRECT_SALE = buyNow (buyer
+// balance -> seller balance). WON_AUCTION = confirmWinnerPayment (winner
+// heldAmount -> seller balance; the balance was already debited at bid time).
+enum SettlementKind {
+  DIRECT_SALE
+  WON_AUCTION
+}
+
 // ─── MODELS ──────────────────────────────────────────────────────────────────
 
 model User {
@@ -264,4 +272,24 @@ model Rating {
 
   @@unique([raterId, rateeId, auctionId])
   @@map("ratings")
+}
+
+// Phase A5: single source of truth that an auction's money has settled. One
+// row per auction (auctionId @unique) is the idempotency guard shared by
+// buyNow (DIRECT_SALE) and confirmWinnerPayment (WON_AUCTION) -- whichever
+// path runs first inserts the row inside its locked tx; a concurrent or
+// retried second call sees the row and no-ops instead of moving money twice.
+// Scalar-only by design: this is an append-only audit/guard table we never
+// navigate from in code, so no Prisma relations (keeps the migration to one
+// table + one unique index, matching the hand-written SQL exactly).
+model Settlement {
+  id        String         @id @default(uuid())
+  auctionId String         @unique
+  sellerId  String
+  partyId   String         // buyer (DIRECT_SALE) or winner (WON_AUCTION)
+  amount    Decimal        @db.Decimal(18, 2)
+  kind      SettlementKind
+  createdAt DateTime       @default(now())
+
+  @@map("settlements")
 }
