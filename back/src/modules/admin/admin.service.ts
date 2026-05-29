@@ -1,5 +1,6 @@
 import { AuctionStatus, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
+import { redis } from '../../lib/redis';
 import { createError } from '../../middleware/error.middleware';
 import { serializeMoney, toNum } from '../../lib/decimal';
 import { invalidateUser } from '../../middleware/auth.middleware';
@@ -91,10 +92,17 @@ export const suspendUser = async (userId: string, suspend: boolean) => {
     select: { id: true, name: true, email: true, isSuspended: true },
   });
 
-  // Phase A9: evict the auth-middleware cache so the suspended user can't
-  // keep getting through on a TTL-cached entry for up to 30s. Single-process
-  // only -- a multi-instance deployment would need Redis pub/sub here.
+  // Phase A9: evict this instance's auth-middleware cache immediately so the
+  // suspended user can't keep getting through on a TTL-cached entry for up to
+  // 30s.
   invalidateUser(userId);
+
+  // Phase A9.x: fan the eviction out to every other instance over Redis
+  // pub/sub (see index.ts 'user:invalidate' subscriber). Fire-and-forget: a
+  // Redis hiccup must not block the suspension itself -- the local evict above
+  // already covers this node, and the 30s TTL bounds the worst case elsewhere.
+  // Promise.resolve() tolerates the ioredis test mock returning undefined.
+  void Promise.resolve(redis.publish('user:invalidate', userId)).catch(() => {});
 
   return updated;
 };

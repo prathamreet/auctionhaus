@@ -11,8 +11,9 @@ import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 
 import { prisma } from './lib/prisma';
-import { redis, redisPub, redisSub } from './lib/redis';
+import { redis, redisPub, redisSub, redisInvalidateSub } from './lib/redis';
 import { initSocketGateway } from './gateway/socket.gateway';
+import { invalidateUser } from './middleware/auth.middleware';
 import { initWorkers } from './workers';
 
 import authRoutes from './modules/auth/auth.routes';
@@ -103,6 +104,18 @@ async function bootstrap() {
       // lib/redis.ts and unused -- they earn their keep here.
       io.adapter(createAdapter(redisPub, redisSub));
       console.log('✅ Socket.io Redis adapter connected');
+
+      // Phase A9.x: cross-instance auth-cache invalidation. admin.suspendUser
+      // publishes the suspended userId on 'user:invalidate'; every instance
+      // (including the publisher) evicts its in-memory userCache so a suspended
+      // account stops authenticating everywhere at once, not just on the node
+      // that handled the suspend. invalidateUser is idempotent, so receiving
+      // our own publish is harmless.
+      await redisInvalidateSub.subscribe('user:invalidate');
+      redisInvalidateSub.on('message', (channel, message) => {
+        if (channel === 'user:invalidate' && message) invalidateUser(message);
+      });
+      console.log('✅ Auth-cache invalidation channel subscribed');
 
       initWorkers();
       console.log('✅ BullMQ workers started');
