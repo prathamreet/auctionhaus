@@ -98,6 +98,8 @@ model User {
   transactions  Transaction[]
   sentRatings   Rating[]          @relation("RaterRatings")
   receivedRatings Rating[]        @relation("RateeRatings")
+  fraudFlags    FraudFlag[]
+  bidCommitments BidCommitment[]
 
   @@map("users")
 }
@@ -183,6 +185,8 @@ model Auction {
   bids       Bid[]
   autoBids   AutoBid[]
   watchlist  WatchlistItem[]
+  fraudFlags     FraudFlag[]
+  bidCommitments BidCommitment[]
 
   // Phase A3: catalog read paths. The GIN tsvector(title + description) FTS
   // index is in raw SQL only -- Prisma cannot express it -- see the migration
@@ -272,6 +276,51 @@ model Rating {
 
   @@unique([raterId, rateeId, auctionId])
   @@map("ratings")
+}
+
+// Phase C2/C3: persisted fraud flag row. One row per flagged bid event.
+// score is stored as Float (0-1) — approximate ML output, no financial
+// arithmetic, so Float precision is fine here.
+model FraudFlag {
+  id         String   @id @default(uuid())
+  bidderId   String
+  auctionId  String
+  bidId      String
+  score      Float
+  features   Json
+  reason     String
+  dismissed  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  bidder  User    @relation(fields: [bidderId], references: [id])
+  auction Auction @relation(fields: [auctionId], references: [id])
+
+  @@index([bidderId])
+  @@index([auctionId])
+  @@index([dismissed, createdAt])
+  @@map("fraud_flags")
+}
+
+// Phase C6: cryptographic sealed-bid commitment. Two-phase sealed bid:
+// client commits H = SHA-256(amount || nonce) during bidding; reveals
+// (amount, nonce) after close. Server stores commit then verifies reveal.
+model BidCommitment {
+  id              String    @id @default(uuid())
+  auctionId       String
+  bidderId        String
+  commitHash      String
+  nonce           String?
+  createdAt       DateTime  @default(now())
+  revealedAt      DateTime?
+  revealedAmount  Decimal?  @db.Decimal(18, 2)
+  revealedNonce   String?
+  isValid         Boolean?
+
+  auction Auction @relation(fields: [auctionId], references: [id])
+  bidder  User    @relation(fields: [bidderId], references: [id])
+
+  @@unique([auctionId, bidderId])
+  @@map("bid_commitments")
 }
 
 // Phase A5: single source of truth that an auction's money has settled. One
