@@ -1,4 +1,4 @@
-import { authenticate, requireAdmin, AuthRequest } from './auth.middleware';
+import { authenticate, requireAdmin, AuthRequest, invalidateUser } from './auth.middleware';
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prismaMock } from '../__mocks__/prisma';
@@ -16,6 +16,7 @@ describe('Auth Middleware', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
+    invalidateUser('u1');
     jest.clearAllMocks();
   });
 

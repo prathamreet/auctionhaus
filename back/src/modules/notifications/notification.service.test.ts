@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { notifyUser, getNotifications, markRead, deleteNotification, deleteAllNotifications } from './notification.service';
 import { prismaMock } from '../../__mocks__/prisma';
+import { notificationQueue } from '../../queues/auction.queue';
 import { io } from '../../index';
 
 jest.mock('../../index', () => ({
@@ -16,10 +17,7 @@ describe('Notification Service', () => {
   });
 
   describe('notifyUser', () => {
-    it('should create notification and emit to socket room', async () => {
-      const mockNotification = { id: 'n1', type: 'OUTBID' };
-      prismaMock.notification.create.mockResolvedValue(mockNotification as any);
-
+    it('should enqueue notification onto the BullMQ queue', async () => {
       await notifyUser('u1', {
         type: 'OUTBID',
         title: 'Hello',
@@ -27,25 +25,21 @@ describe('Notification Service', () => {
         data: { test: true }
       });
 
-      expect(prismaMock.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId: 'u1',
-          type: 'OUTBID',
-          title: 'Hello',
-          message: 'World',
-          data: { test: true }
-        }
+      expect(notificationQueue.add).toHaveBeenCalledWith('deliver', {
+        userId: 'u1',
+        type: 'OUTBID',
+        title: 'Hello',
+        message: 'World',
+        data: { test: true }
       });
-      expect(io.to).toHaveBeenCalledWith('user:u1');
-      expect((io.to('user:u1') as any).emit).toHaveBeenCalledWith('notification:new', mockNotification);
     });
 
     it('should silently catch errors and log them', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      prismaMock.notification.create.mockRejectedValue(new Error('DB Error'));
+      (notificationQueue.add as jest.Mock).mockRejectedValueOnce(new Error('Queue Error'));
 
       await expect(notifyUser('u1', { type: 'OUTBID', title: '', message: '' })).resolves.not.toThrow();
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to create notification:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to enqueue notification:', expect.any(Error));
       
       consoleSpy.mockRestore();
     });
