@@ -60,8 +60,8 @@
     "hash": "0bd6c47dc8338cd0cbc952d881618d90"
   },
   "E:\\projects\\auctionhaus\\back\\src\\middleware\\auth.middleware.test.ts": {
-    "mtime": 1778729820.549067,
-    "hash": "0f5c284776562c9228d41bc8e133db9b"
+    "mtime": 1780135796.3548205,
+    "hash": "b782a519e124d7b0d06790cebc475a5a"
   },
   "E:\\projects\\auctionhaus\\back\\src\\middleware\\auth.middleware.ts": {
     "mtime": 1779989044.0212438,
@@ -120,8 +120,8 @@
     "hash": "839a8d25d2d142876451265babe21549"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\auctions\\auction.service.ts": {
-    "mtime": 1780028910.2089694,
-    "hash": "d71575e235ebc161601c94eded2c4990"
+    "mtime": 1780136761.2027292,
+    "hash": "eca9d9d2eef9d869893521106947c07e"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\auth\\auth.controller.test.ts": {
     "mtime": 1778729820.5516138,
@@ -240,8 +240,8 @@
     "hash": "c8d13579d5acb213d2e300c3c3c955a5"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\notifications\\notification.service.test.ts": {
-    "mtime": 1778729820.5526361,
-    "hash": "d8be1de89ea44ff90c69d38d30f35e5a"
+    "mtime": 1780135780.468174,
+    "hash": "57aeda18058e4ea188f2ffe7c2239657"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\notifications\\notification.service.ts": {
     "mtime": 1779988987.80808,
