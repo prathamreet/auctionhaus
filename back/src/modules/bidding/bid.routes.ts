@@ -11,6 +11,7 @@ router.use(authenticate);
 
 // Bidding
 router.post('/auctions/:auctionId', bidController.placeBid);
+router.post('/auctions/:auctionId/stream', bidController.placeBidStream);
 router.get('/auctions/:auctionId', bidController.getAuctionBids);
 
 // Auto-bidding
