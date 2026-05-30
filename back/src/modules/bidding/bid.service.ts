@@ -5,6 +5,7 @@ import { notifyUser } from '../notifications/notification.service';
 import { autoBidQueue } from '../../queues/auction.queue';
 import { io } from '../../index';
 import { D, neg, toNum } from '../../lib/decimal';
+import { FraudEngine } from '../fraud/fraud.engine';
 
 /**
  * Place a bid on an auction.
@@ -236,6 +237,42 @@ export const placeBid = async (data: {
     // inside this function.
     return { ...bid, amount: toNum(bid.amount) ?? amount };
   });
+
+  // ── Phase C2/C3: feed the fraud engine AFTER the tx commits. Fire-and-forget
+  // so a detector error never breaks the bid response. The engine adds the bid
+  // to its sliding-window graph, extracts 5 features, scores, and emits
+  // fraud:flag to the admin room if score >= SCORE_THRESHOLD.
+  void (async () => {
+    try {
+      const auctionMeta = await prisma.auction.findUnique({
+        where: { id: auctionId },
+        select: {
+          title: true,
+          sellerId: true,
+          minIncrement: true,
+          seller: { select: { name: true } },
+        },
+      });
+      const bidder = await prisma.user.findUnique({
+        where: { id: bidderId },
+        select: { name: true },
+      });
+      if (auctionMeta && bidder) {
+        await FraudEngine.getInstance().onBid({
+          bidId: bid.id,
+          auctionId,
+          bidderId,
+          bidderName: bidder.name,
+          sellerId: auctionMeta.sellerId,
+          auctionTitle: auctionMeta.title,
+          amount,
+          minIncrement: toNum(auctionMeta.minIncrement) ?? 1,
+          ts: Date.now(),
+          isAutoBid,
+        });
+      }
+    } catch { /* detector must not affect bid result */ }
+  })();
 
   // ── Phase A6: enqueue the auto-bid ladder AFTER the manual bid's tx commits.
   // Enqueueing inside the tx would queue a phantom job if the tx then rolls
