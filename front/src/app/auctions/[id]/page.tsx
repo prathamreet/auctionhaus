@@ -5,10 +5,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api, { parseApiError } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useAuctionRoom } from "@/lib/useSocketListener";
-import { AuctionMeta, KeyDetails, InfoPanel } from "./_components/InfoPanel";
+import { KeyDetails, InfoPanel } from "./_components/InfoPanel";
 import { BidHistory } from "./_components/BidHistory";
 import type { Bid } from "./_components/BidHistory";
-import { PricePanel } from "./_components/PricePanel";
+import { PricePanel, AuctionMeta } from "./_components/PricePanel";
 import { CommitmentPanel } from "./_components/CommitmentPanel";
 import { PageShell, SkeletonCard } from "@/components/ui";
 
