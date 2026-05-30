@@ -60,18 +60,21 @@ let bidBase = 1000;
 
 export default function () {
   const amount = bidBase + Math.floor(Math.random() * 10000);
+  const mode = __ENV.MODE === 'stream' ? 'stream' : 'direct';
+  const url = mode === 'stream'
+    ? `${BASE}/bids/auctions/${AUCTION_ID}/stream`
+    : `${BASE}/bids/auctions/${AUCTION_ID}`;
 
-  // ── Direct (FOR UPDATE) ──
-  const directRes = http.post(
-    `${BASE}/bids/auctions/${AUCTION_ID}`,
+  const res = http.post(
+    url,
     JSON.stringify({ amount }),
-    { headers, tags: { mode: 'direct' } }
+    { headers, tags: { mode } }
   );
-  bidLatency.add(directRes.timings.duration, { mode: 'direct' });
+  bidLatency.add(res.timings.duration, { mode });
 
-  const ok = check(directRes, {
-    'bid accepted (2xx or 400 expected)': (r) =>
-      r.status === 201 || r.status === 200 || r.status === 400,
+  const ok = check(res, {
+    'bid accepted (2xx, 202, or 400 expected)': (r) =>
+      r.status === 201 || r.status === 200 || r.status === 202 || r.status === 400,
   });
   if (!ok) bidErrors.add(1);
 
