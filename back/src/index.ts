@@ -25,7 +25,7 @@ import notificationRoutes from './modules/notifications/notification.routes';
 import watchlistRoutes from './modules/watchlist/watchlist.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import paymentRoutes from './modules/payments/payment.routes';
-import fraudRoutes from './modules/fraud/fraud.controller';
+import fraudRoutes from './modules/fraud/fraud.routes';
 import { FraudEngine } from './modules/fraud/fraud.engine';
 
 import { errorHandler } from './middleware/error.middleware';
