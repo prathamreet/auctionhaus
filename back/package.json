@@ -14,6 +14,8 @@
     "db:clear-users": "ts-node src/scripts/clear-users.ts",
     "db:seed-users": "ts-node src/scripts/seed-users.ts",
     "docs:generate": "ts-node src/scripts/generate-docs.ts",
+    "sim:run": "ts-node ../packages/simulator/src/run.ts",
+    "eval:fraud": "ts-node ../packages/simulator/src/eval.ts",
     "lint": "eslint src",
     "test": "jest",
     "test:watch": "jest --watch"
