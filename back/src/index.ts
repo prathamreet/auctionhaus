@@ -25,6 +25,8 @@ import notificationRoutes from './modules/notifications/notification.routes';
 import watchlistRoutes from './modules/watchlist/watchlist.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import paymentRoutes from './modules/payments/payment.routes';
+import fraudRoutes from './modules/fraud/fraud.controller';
+import { FraudEngine } from './modules/fraud/fraud.engine';
 
 import { errorHandler } from './middleware/error.middleware';
 import { rateLimiter } from './middleware/rateLimiter.middleware';
@@ -78,6 +80,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/fraud', fraudRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler);
@@ -127,6 +130,11 @@ async function bootstrap() {
 
     initSocketGateway(io);
     console.log('✅ Socket.io gateway initialized');
+
+    // Phase C2/C3: wire the fraud detection engine so it can emit fraud:flag
+    // events to the admin socket room after each bid commits.
+    FraudEngine.getInstance().init(io);
+    console.log('✅ Fraud detection engine initialised');
 
     httpServer.listen(PORT, () => {
       console.log(`🚀 AuctionHaus backend running on http://localhost:${PORT}`);
