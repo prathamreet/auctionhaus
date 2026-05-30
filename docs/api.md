@@ -104,6 +104,9 @@ Derived from the `app.use('/api/...', ...)` mount table in `back/src/index.ts`, 
 | GET | `/api/bids/auctions/:auctionId/auto-bid` | Auth | `autoBidController.getMyAutoBid` | — |
 | POST | `/api/bids/auctions/:auctionId/auto-bid` | Auth | `autoBidController.setAutoBid` | body |
 | DELETE | `/api/bids/auctions/:auctionId/auto-bid` | Auth | `autoBidController.cancelAutoBid` | — |
+| POST | `/api/bids/auctions/:auctionId/commit` | Auth | `bidController.commitBid` | body |
+| POST | `/api/bids/auctions/:auctionId/reveal` | Auth | `bidController.revealBid` | body |
+| GET | `/api/bids/auctions/:auctionId/commitments` | Auth | `bidController.getCommitments` | — |
 
 #### Request schemas
 
@@ -115,6 +118,13 @@ Derived from the `app.use('/api/...', ...)` mount table in `back/src/index.ts`, 
 
 **POST `/api/bids/auctions/:auctionId/auto-bid`** (body)
 - `maxAmount`: `z.number().positive()`
+
+**POST `/api/bids/auctions/:auctionId/commit`** (body)
+- `commitHash`: `z.string().length(64)`
+
+**POST `/api/bids/auctions/:auctionId/reveal`** (body)
+- `amount`: `z.number().positive()`
+- `nonce`: `z.string().min(8)`
 
 ## `/api/wallet`  — src/modules/wallet/wallet.routes.ts
 
@@ -201,7 +211,18 @@ Derived from the `app.use('/api/...', ...)` mount table in `back/src/index.ts`, 
 |---|---|---|---|---|
 | POST | `/api/payments/auctions/:auctionId/confirm` | Auth | `paymentController.confirmPayment` | — |
 
-## `/api/fraud`  — src/modules/fraud/fraud.controller.ts
+## `/api/fraud`  — src/modules/fraud/fraud.routes.ts
 
 | Method | Path | Auth | Handler | Request |
 |---|---|---|---|---|
+| GET | `/api/fraud/flags` | Admin | `fraudController.getFraudFlags` | query |
+| GET | `/api/fraud/stats` | Admin | `fraudController.getFraudStats` | — |
+| PUT | `/api/fraud/flags/:id/dismiss` | Admin | `fraudController.dismissFlag` | — |
+
+#### Request schemas
+
+**GET `/api/fraud/flags`** (query)
+- `dismissed`: `z.coerce.boolean().optional().default(false)`
+- `limit`: `z.coerce.number().int().positive().max(200).optional().default(50)`
+- `auctionId`: `z.string().uuid().optional()`
+- `bidderId`: `z.string().uuid().optional()`
