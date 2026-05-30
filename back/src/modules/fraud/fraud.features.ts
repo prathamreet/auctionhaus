@@ -21,8 +21,8 @@ export function extractFeatures(event: BidEvent, graph: BidGraph): FeatureVector
   const auctionBids = graph.getAuctionBids(event.auctionId);
 
   // ── 1. Response time ──────────────────────────────────────────────────────
-  // Time since the last bid by a DIFFERENT bidder (ms). 0 if first bid.
-  let responseTimeMs = 0;
+  // Time since the last bid by a DIFFERENT bidder (ms). Default to 8000 (neutral mean) if first bid.
+  let responseTimeMs = 8000;
   for (let i = auctionBids.length - 1; i >= 0; i--) {
     const prev = auctionBids[i];
     if (prev.bidderId !== event.bidderId) {
@@ -41,9 +41,19 @@ export function extractFeatures(event: BidEvent, graph: BidGraph): FeatureVector
     WINDOW_MINUTES > 0 ? recentBids.length / WINDOW_MINUTES : 0;
 
   // ── 3. Increment ratio ────────────────────────────────────────────────────
-  // bid.amount / auction.minIncrement. Constant values near 1.0 = scripted.
+  // bid.increment / auction.minIncrement. Constant values near 1.0 = scripted.
+  // If first bid, default to 5.0 (legitimate mean) to keep features neutral.
+  let incrementAmount = event.amount;
+  let hasPrev = false;
+  if (auctionBids.length > 1) {
+    const prevBid = auctionBids[auctionBids.length - 2];
+    incrementAmount = event.amount - prevBid.amount;
+    hasPrev = true;
+  }
   const incrementRatio =
-    event.minIncrement > 0 ? event.amount / event.minIncrement : 1;
+    event.minIncrement > 0
+      ? (hasPrev ? incrementAmount / event.minIncrement : 5.0)
+      : 1.0;
 
   // ── 4. Seller co-occurrence ───────────────────────────────────────────────
   // Number of distinct auctions by the same seller the bidder has appeared in.
