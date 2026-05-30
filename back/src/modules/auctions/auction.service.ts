@@ -199,36 +199,88 @@ export const updateAuction = async (
 };
 
 export const cancelAuction = async (auctionId: string, userId: string, isAdmin = false) => {
-  const auction = await prisma.auction.findUnique({ where: { id: auctionId } });
-  if (!auction) throw createError('Auction not found', 404);
+  const result = await prisma.$transaction(async (tx) => {
+    // ── 1. Lock auction row first ──
+    const lockedAuction = await tx.$queryRaw<{ id: string }[]>`
+      SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE
+    `;
+    if (lockedAuction.length === 0) throw createError('Auction not found', 404);
 
-  if (!isAdmin && auction.sellerId !== userId) throw createError('Not authorized', 403);
-  if (auction.status === AuctionStatus.ENDED) throw createError('Auction already ended', 400);
+    const auction = await tx.auction.findUnique({ where: { id: auctionId } });
+    if (!auction) throw createError('Auction not found', 404);
 
-  // Refund all held bids. bid.amount is Decimal -- Prisma increment/decrement
-  // accept it directly.
-  const topBids = await prisma.bid.findMany({
-    where: { auctionId, status: 'WINNING' },
-    include: { bidder: { include: { wallet: true } } },
-  });
+    if (!isAdmin && auction.sellerId !== userId) throw createError('Not authorized', 403);
+    if (auction.status === AuctionStatus.ENDED) throw createError('Auction already ended', 400);
+    if (auction.status === AuctionStatus.CANCELLED) throw createError('Auction already cancelled', 400);
 
-  for (const bid of topBids) {
-    if (bid.bidder.wallet) {
-      await prisma.wallet.update({
-        where: { id: bid.bidder.wallet.id },
-        data: {
-          balance: { increment: bid.amount },
-          heldAmount: { decrement: bid.amount },
-        },
+    // Fetch winning bids to refund
+    const topBids = await tx.bid.findMany({
+      where: { auctionId, status: 'WINNING' },
+      include: { bidder: { include: { wallet: true } } },
+    });
+
+    if (topBids.length > 0) {
+      // Phase A1: Decimal-safe per-user refund aggregation.
+      // This handles sealed-bid auctions with multiple winning bids cleanly.
+      const refunds: Record<string, Prisma.Decimal> = {};
+      const userWallets: Record<string, any> = {};
+
+      for (const bid of topBids) {
+        if (bid.bidder.wallet) {
+          const prior = refunds[bid.bidderId] ?? D(0);
+          refunds[bid.bidderId] = prior.add(bid.amount);
+          userWallets[bid.bidderId] = bid.bidder.wallet;
+        }
+      }
+
+      // ── 2. Lock wallets in strict ascending order of userId to prevent deadlocks ──
+      const sortedUserIds = Object.keys(refunds).sort();
+      for (const uid of sortedUserIds) {
+        await tx.$queryRaw`SELECT id FROM wallets WHERE "userId" = ${uid} FOR UPDATE`;
+      }
+
+      // Execute wallet updates + ledger logs
+      for (const uid of sortedUserIds) {
+        const amount = refunds[uid];
+        const wallet = userWallets[uid];
+
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: { increment: amount },
+            heldAmount: { decrement: amount },
+          },
+        });
+
+        await tx.transaction.create({
+          data: {
+            walletId: wallet.id,
+            userId: uid,
+            type: 'BID_RELEASE',
+            amount,
+            description: `Auction cancelled: "${auction.title}"`,
+            referenceId: auctionId,
+          },
+        });
+      }
+
+      // Update bids status to OUTBID
+      const bidIds = topBids.map((b) => b.id);
+      await tx.bid.updateMany({
+        where: { id: { in: bidIds } },
+        data: { status: 'OUTBID' },
       });
     }
-  }
 
-  const cancelled = await prisma.auction.update({
-    where: { id: auctionId },
-    data: { status: AuctionStatus.CANCELLED },
+    const cancelled = await tx.auction.update({
+      where: { id: auctionId },
+      data: { status: AuctionStatus.CANCELLED },
+    });
+
+    return cancelled;
   });
-  return serializeMoney(cancelled);
+
+  return serializeMoney(result);
 };
 
 export const buyNow = async (auctionId: string, buyerId: string) => {
