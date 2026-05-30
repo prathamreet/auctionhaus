@@ -7,6 +7,7 @@ import { prisma } from '../../lib/prisma';
 import { BidSequencer } from './bid.sequencer';
 import { createError } from '../../middleware/error.middleware';
 import { D } from '../../lib/decimal';
+import * as commitmentService from './commitment.service';
 
 export const placeBid = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -123,6 +124,51 @@ export const getAuctionBids = async (req: AuthRequest, res: Response, next: Next
   try {
     const bids = await bidService.getAuctionBids(req.params.auctionId, req.user!.id);
     res.json({ bids });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Phase C6: cryptographic sealed-bid commitments
+export const commitBid = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const schema = z.object({
+      commitHash: z.string().length(64),
+    });
+    const { commitHash } = schema.parse(req.body);
+    const result = await commitmentService.commitBid({
+      auctionId: req.params.auctionId,
+      bidderId: req.user!.id,
+      commitHash,
+    });
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const revealBid = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const schema = z.object({
+      amount: z.number().positive(),
+      nonce: z.string().min(8),
+    });
+    const body = schema.parse(req.body);
+    const result = await commitmentService.revealBid({
+      auctionId: req.params.auctionId,
+      bidderId: req.user!.id,
+      ...body,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getCommitments = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const commitments = await commitmentService.getCommitments(req.params.auctionId);
+    res.json({ commitments });
   } catch (err) {
     next(err);
   }
