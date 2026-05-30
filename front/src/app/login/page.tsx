@@ -1,136 +1,76 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import api, { parseApiError } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { reconnectSocket } from "@/lib/socket";
+import { loginSchema } from "@/lib/contracts";
+import { useZodForm } from "@/lib/useZodForm";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Field } from "@/components/ui/Field";
+import { Alert } from "@/components/ui/Alert";
+import { AuthHeroPanel } from "@/components/AuthHeroPanel";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
-  const [loading, setLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErr("");
-    setLoading(true);
+  const form = useZodForm(loginSchema, { email: "", password: "" });
+
+  const submit = form.onSubmit(async (data) => {
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/auth/login", data);
       setAuth(res.data.user, res.data.token);
       reconnectSocket();
       router.push("/auctions");
-    } catch (e: unknown) {
-      setErr(parseApiError(e, "Login failed"));
-    } finally {
-      setLoading(false);
+    } catch (e) {
+      form.setGlobalError(parseApiError(e, "Login failed"));
     }
-  };
+  });
 
   return (
     <div
+      className="auth-grid"
       style={{
         minHeight: "calc(100vh - var(--navbar-h))",
         display: "grid",
-        gridTemplateColumns: "1fr 1fr" }}
+        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+      }}
     >
-      {/* Left — Brand panel */}
-      <div
-        style={{
-          background: "#111111",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "3.5rem",
-          borderRight: "1px solid var(--border)" }}
-      >
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              marginBottom: "3rem" }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                width: 12,
-                height: 12,
-                background: "#c41e1e" }}
-            />
-            <span
-              style={{
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: "var(--font-base)" }}
-            >
-              AuctionHaus
-            </span>
-          </div>
-
-          <h2
-            style={{
-              fontSize: "clamp(2rem, 4vw, 3.5rem)",
-              fontWeight: 600,
-
-              lineHeight: 0.95,
-              color: "#fff",
-              marginBottom: "1.5rem" }}
-          >
+      <AuthHeroPanel
+        heading={
+          <>
             Bid.
             <br />
             Win.
             <br />
-            <span style={{ color: "#c41e1e" }}>Sell.</span>
-          </h2>
+            <span style={{ color: "var(--accent)" }}>Settle.</span>
+          </>
+        }
+        body="Real-time English, Dutch, and sealed-bid auctions on one streaming engine. Auto-bid included."
+      />
 
-          <p
-            style={{
-              fontSize: "var(--font-base)",
-              color: "#888",
-              lineHeight: 1.6,
-              maxWidth: 320 }}
-          >
-            Real-time auctions with English, Dutch, and Sealed-bid formats.
-            Auto-bid engine included.
-          </p>
-        </div>
-
-        <div
-          style={{
-            fontSize: "var(--font-xs)",
-            color: "#555" }}
-        >
-          CSE Major Project · Real-Time Platform
-        </div>
-      </div>
-
-      {/* Right — Form */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "3rem",
-          background: "var(--bg)" }}
+          padding: "clamp(1.5rem, 5vw, 3rem)",
+          background: "var(--bg)",
+        }}
       >
         <div style={{ width: "100%", maxWidth: 380 }}>
-          <div
-            style={{
-              marginBottom: "2rem" }}
-          >
+          <div style={{ marginBottom: "2rem" }}>
             <h1
               style={{
-                fontSize: "var(--font-xl)",
-                fontWeight: 600,
-
-                marginBottom: "0.4rem" }}
+                fontSize: "var(--font-2xl)",
+                fontWeight: 700,
+                marginBottom: "0.4rem",
+                letterSpacing: "-0.02em",
+              }}
             >
-              Sign In
+              Sign in
             </h1>
             <p style={{ fontSize: "var(--font-sm)", color: "var(--muted)" }}>
               Don&apos;t have an account?{" "}
@@ -139,70 +79,57 @@ export default function LoginPage() {
                 style={{
                   color: "var(--accent)",
                   fontWeight: 700,
-                  textDecoration: "underline" }}
+                  textDecoration: "underline",
+                }}
               >
                 Register
               </Link>
             </p>
           </div>
 
-          {err && (
-            <div
-              style={{
-                padding: "0.7rem 0.9rem",
-                background: "rgba(196,30,30,0.08)",
-                border: "1.5px solid var(--accent)",
-                color: "var(--accent)",
-                fontSize: "var(--font-sm)",
-                fontWeight: 600,
-                marginBottom: "1.25rem" }}
-            >
-              {err}
-            </div>
+          {form.globalError && (
+            <Alert tone="error" style={{ marginBottom: "1rem" }}>
+              {form.globalError}
+            </Alert>
           )}
 
           <form
-            onSubmit={handleSubmit}
-            style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}
+            onSubmit={submit}
+            noValidate
+            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
           >
-            <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
-                Email
-              </label>
-              <input
+            <Field label="Email" error={form.errors.email}>
+              <Input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                autoComplete="email"
                 placeholder="alice@example.com"
-                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                {...form.register("email")}
+                value={(form.values.email as string) ?? ""}
               />
-            </div>
-            <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", fontWeight: 700, fontSize: "var(--font-xs)" }}>
-                Password
-              </label>
-              <input
+            </Field>
+            <Field label="Password" error={form.errors.password}>
+              <Input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                autoComplete="current-password"
                 placeholder="••••••••"
-                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", padding: "0.85rem 1rem", background: "var(--surface)", width: "100%" }}
+                {...form.register("password")}
+                value={(form.values.password as string) ?? ""}
               />
-            </div>
+            </Field>
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="btn-primary"
-              style={{ width: "100%", padding: "1rem", marginTop: "0.5rem", borderRadius: "var(--radius)",   fontWeight: 500 }}
+              size="lg"
+              fullWidth
+              loading={form.submitting}
+              style={{ marginTop: "0.5rem" }}
             >
-              {loading ? "SIGNING IN..." : "SIGN IN →"}
-            </button>
+              {form.submitting ? "Signing in..." : "Sign in →"}
+            </Button>
           </form>
         </div>
       </div>
     </div>
   );
 }
+
