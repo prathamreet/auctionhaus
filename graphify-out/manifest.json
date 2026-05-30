@@ -36,8 +36,8 @@
     "hash": "c6d21a7fa190828b334dbe00cb07394a"
   },
   "E:\\projects\\auctionhaus\\back\\src\\index.ts": {
-    "mtime": 1780084919.70137,
-    "hash": "d3686ed7fbffc1a960ed43b0a921787d"
+    "mtime": 1780133002.69037,
+    "hash": "13102a0ba9a01715101a21a04e59d6db"
   },
   "E:\\projects\\auctionhaus\\back\\src\\gateway\\socket.gateway.test.ts": {
     "mtime": 1778729820.5479867,
@@ -164,12 +164,12 @@
     "hash": "5e738cf84a053947c7690a9c24a79b59"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\bidding\\bid.controller.ts": {
-    "mtime": 1780132140.6797986,
-    "hash": "efd9e69b405ae07d6e61d32877c29591"
+    "mtime": 1780133007.9358857,
+    "hash": "0377883af7665ce00b456ca21dbe1ac2"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\bidding\\bid.routes.ts": {
-    "mtime": 1780132145.0988245,
-    "hash": "8bf636b5bd1b94ffc9404c9048244e65"
+    "mtime": 1780133014.3329678,
+    "hash": "9a3a5d9fb5a40739321fcbc16f9e6d62"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\bidding\\bid.sequencer.ts": {
     "mtime": 1780085018.831993,
@@ -200,20 +200,24 @@
     "hash": "a519e95ddc5f8fb24bdf27b131233919"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\fraud\\fraud.controller.ts": {
-    "mtime": 1780085932.7297559,
-    "hash": "615759829d50be9b6fd0446c7f52aa0a"
+    "mtime": 1780132994.1078105,
+    "hash": "7b0a376a8cd22f6554d79f3d93a632c6"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\fraud\\fraud.engine.ts": {
     "mtime": 1780084837.0069895,
     "hash": "a491305108511bf35162f0395e8f4299"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\fraud\\fraud.features.ts": {
-    "mtime": 1780084790.0986626,
-    "hash": "4413749c53178625777e8307e4f16419"
+    "mtime": 1780132521.3197656,
+    "hash": "717f9911a5dc8f1ade35b31ff29fb323"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\fraud\\fraud.graph.ts": {
     "mtime": 1780084778.0814219,
     "hash": "f3667309c35c1b5f2e5730c70b7c561d"
+  },
+  "E:\\projects\\auctionhaus\\back\\src\\modules\\fraud\\fraud.routes.ts": {
+    "mtime": 1780132998.1973603,
+    "hash": "7c36dd433ff702a0b332d7135c7a0b72"
   },
   "E:\\projects\\auctionhaus\\back\\src\\modules\\fraud\\fraud.service.ts": {
     "mtime": 1780084846.4432447,
@@ -596,8 +600,8 @@
     "hash": "ffb5688b9d1d76b29de651302a60b32e"
   },
   "E:\\projects\\auctionhaus\\packages\\simulator\\src\\eval.ts": {
-    "mtime": 1780085173.1965573,
-    "hash": "1dc2b0ab2846bf8974b978a7b6ed0d58"
+    "mtime": 1780132531.596567,
+    "hash": "2c8f8a7d91caa889ca2009d1b25577ae"
   },
   "E:\\projects\\auctionhaus\\packages\\simulator\\src\\run.ts": {
     "mtime": 1780085129.819862,
@@ -631,9 +635,17 @@
     "mtime": 1778477898.6061254,
     "hash": "af061653b2ebcb6f917b523337d54e93"
   },
+  "E:\\projects\\auctionhaus\\docs\\api.md": {
+    "mtime": 1780133022.519609,
+    "hash": "3900ea0329711b3429d6eb81e38c96cd"
+  },
   "E:\\projects\\auctionhaus\\docs\\hardening.md": {
     "mtime": 1780085780.280524,
     "hash": "c3c7aa6bf27f57a51267fcda9bf59055"
+  },
+  "E:\\projects\\auctionhaus\\docs\\schema.md": {
+    "mtime": 1780133022.4924893,
+    "hash": "23e9e048f781a0f8acc6b2bd3533c5db"
   },
   "E:\\projects\\auctionhaus\\docs\\architecture\\sequencer.md": {
     "mtime": 1780085042.5401993,
