@@ -35,12 +35,21 @@ export const initSocketGateway = (io: Server) => {
     }
   });
 
-  io.on('connection', (socket: Socket) => {
+  io.on('connection', async (socket: Socket) => {
     const userId = socket.data.userId;
+    const userRole = socket.data.userRole;
 
     // Join personal notification room if authenticated
     if (userId) {
       socket.join(`user:${userId}`);
+
+      // Phase C2/C3: admins join the fraud monitoring room to receive fraud:flag
+      // events emitted by FraudEngine. The room is named 'admin:fraud' to
+      // distinguish it from the per-auction 'auction:{id}' rooms.
+      if (userRole === 'ADMIN') {
+        socket.join('admin:fraud');
+      }
+
       console.log(`Socket: user ${userId} connected`);
     }
 
