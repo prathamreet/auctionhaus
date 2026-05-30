@@ -129,7 +129,8 @@ export type AddWatchlistInput = z.infer<typeof addWatchlistSchema>;
  */
 export function zodIssuesToErrors(err: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const issue of err.errors) {
+  const issues = err.issues || err.errors || [];
+  for (const issue of issues) {
     const key = issue.path.join(".") || "_root";
     if (!out[key]) out[key] = issue.message;
   }
