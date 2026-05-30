@@ -4,6 +4,9 @@ import { AuctionStatus, AuctionType } from '@prisma/client';
 import * as bidService from './bid.service';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { prisma } from '../../lib/prisma';
+import { BidSequencer } from './bid.sequencer';
+import { createError } from '../../middleware/error.middleware';
+import { D } from '../../lib/decimal';
 
 export const placeBid = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -55,6 +58,62 @@ export const placeBid = async (req: AuthRequest, res: Response, next: NextFuncti
     // also kick off `processAutoBids` synchronously here -- that path is gone.
 
     res.status(201).json(bid);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const placeBidStream = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const schema = z.object({
+      amount: z.number().positive(),
+    });
+    const { amount } = schema.parse(req.body);
+    const auctionId = req.params.auctionId;
+
+    // Validate auction existence & status prior to enqueuing
+    const auction = await prisma.auction.findUnique({
+      where: { id: auctionId },
+    });
+    if (!auction) throw createError('Auction not found', 404);
+    if (auction.status !== AuctionStatus.ACTIVE) throw createError('Auction is not active', 400);
+    if (auction.sellerId === req.user!.id) throw createError("Can't bid on your own auction", 403);
+    
+    const now = new Date();
+    if (now > auction.endTime) throw createError('Auction has ended', 400);
+
+    if (auction.type === AuctionType.ENGLISH) {
+      const minBid = D(auction.currentPrice).add(auction.minIncrement);
+      if (D(amount).lt(minBid)) {
+        throw createError(`Minimum bid is ${minBid.toString()}`, 400);
+      }
+    } else if (auction.type === AuctionType.DUTCH) {
+      if (!D(amount).eq(auction.currentPrice)) {
+        throw createError(
+          `Dutch auction bid must be exactly ${D(auction.currentPrice).toString()}`,
+          400
+        );
+      }
+    } else if (auction.type === AuctionType.SEALED_BID) {
+      if (D(amount).lte(auction.startingPrice)) {
+        throw createError(
+          `Bid must be above starting price ${D(auction.startingPrice).toString()}`,
+          400
+        );
+      }
+    }
+
+    const entryId = await BidSequencer.getInstance().enqueue(
+      auctionId,
+      req.user!.id,
+      amount
+    );
+
+    res.status(202).json({
+      message: 'Bid queued',
+      auctionId,
+      entryId,
+    });
   } catch (err) {
     next(err);
   }
