@@ -90,7 +90,12 @@ async function main() {
 
   // Re-score every event using the classifier (offline re-play)
   const graph = new BidGraph();
-  const scored: Array<{ isShill: boolean; score: number; features: ReturnType<typeof extractFeatures> }> = [];
+  const scored: Array<{
+    isShill: boolean;
+    score: number;
+    features: ReturnType<typeof extractFeatures>;
+    baselineScore: number;
+  }> = [];
 
   for (const e of events) {
     // We need seller info — fetch from manifest's agentMap for the auction
@@ -128,7 +133,13 @@ async function main() {
     graph.add(event);
     const features = extractFeatures(event, graph);
     const s = classifierScore(features);
-    scored.push({ isShill: e.isShill, score: s, features });
+
+    // Baseline heuristic: flag bidder as shill if they placed > 10 bids on this auction
+    const bidsSoFar = graph.getAuctionBids(e.auctionId);
+    const bidderBids = bidsSoFar.filter((b) => b.bidderId === e.bidderId);
+    const bScore = bidderBids.length > 10 ? 0.8 : 0.2;
+
+    scored.push({ isShill: e.isShill, score: s, features, baselineScore: bScore });
   }
 
   // ── ROC curve ──────────────────────────────────────────────────────────
@@ -163,8 +174,8 @@ async function main() {
     console.log(`  ${a.feature.padEnd(24)} F1=${a.f1.toFixed(3)} P=${a.precision.toFixed(3)} R=${a.recall.toFixed(3)}`);
   }
 
-  // Baseline: count > 10 outbids heuristic (simulated)
-  const baselineScore = scored.map(({ isShill }) => ({ isShill, score: isShill ? 0.8 : 0.2 }));
+  // Baseline: count > 10 outbids heuristic (actual)
+  const baselineScore = scored.map(({ isShill, baselineScore }) => ({ isShill, score: baselineScore }));
   const baseline = computeMetrics(baselineScore, 0.5);
 
   // ── LaTeX metrics table ────────────────────────────────────────────────
