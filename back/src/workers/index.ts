@@ -6,6 +6,7 @@ import { io } from '../index';
 import { notifyUser } from '../modules/notifications/notification.service';
 import { dutchAuctionQueue } from '../queues/auction.queue';
 import { D, neg, toNum } from '../lib/decimal';
+import { BidSequencer } from '../modules/bidding/bid.sequencer';
 
 const workerOptions = {
   connection: bullMQConnection as any, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -566,6 +567,14 @@ export const initWorkers = () => {
   notificationWorker.on('failed', (job, err) => {
     console.error(`[Notifications Worker] Job ${job?.name} failed:`, err.message);
   });
+
+  // Phase C7: start the Redis Stream bid sequencer consumer if the feature
+  // flag is set. It runs as a long-lived async loop alongside the BullMQ
+  // workers — one process, multiple concurrent consumers.
+  if (process.env.BID_SEQUENCER === 'true') {
+    BidSequencer.getInstance().startConsumer();
+    console.log('[BidSequencer] Stream consumer started (BID_SEQUENCER=true)');
+  }
 
   console.log('BullMQ workers initialized');
 };
