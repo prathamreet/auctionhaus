@@ -28,6 +28,9 @@ bibtex main
 pdflatex main.tex
 pdflatex main.tex
 ```
+```
+pdflatex main ; bibtex main ; pdflatex main ; pdflatex main
+```
 
 #### Compile the Atomic Ladder Concurrency Paper (`auto-bid-ladder.tex`)
 ```powershell
@@ -35,6 +38,9 @@ pdflatex auto-bid-ladder.tex
 bibtex auto-bid-ladder
 pdflatex auto-bid-ladder.tex
 pdflatex auto-bid-ladder.tex
+```
+```
+pdflatex auto-bid-ladder ; bibtex auto-bid-ladder ; pdflatex auto-bid-ladder ; pdflatex auto-bid-ladder
 ```
 
 #### Compile the Project Poster (`poster.tex`)
