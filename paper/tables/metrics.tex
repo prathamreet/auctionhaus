@@ -3,12 +3,13 @@
 \centering
 \caption{Fraud Detection Performance Comparison}
 \label{tab:fraud-metrics}
+\small
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Method} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{Threshold} \\
+\textbf{Method} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} & \textbf{$\theta$} \\
 \midrule
-Baseline (outbid count $>10$) & 0.000 & 0.000 & 0.000 & --- \\
-LR (5-feature, this work)    & 0.864 & 1.000 & 0.927 & 0.05 \\
+Baseline (outbid $>$10) & 0.000 & 0.000 & 0.000 & -- \\
+LR (5-feature, ours)    & 0.864 & 1.000 & 0.927 & 0.05 \\
 \bottomrule
 \end{tabular}
 \end{table}
