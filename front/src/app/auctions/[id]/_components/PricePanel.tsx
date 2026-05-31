@@ -3,6 +3,7 @@ import * as React from "react";
 import Link from "next/link";
 import {
   Alert,
+  AutoBidHealth,
   Badge,
   Button,
   Card,
@@ -31,6 +32,10 @@ interface AuctionForPrice {
 
 interface AutoBidState {
   maxAmount: number;
+  // Phase F6: server's getMyAutoBid returns the full row including
+  // `currentBid` (the last bid the auto-bid placed on your behalf, 0 if
+  // never fired). The AutoBidHealth card uses it for the capacity bar.
+  currentBid?: number;
 }
 
 export function PricePanel({
@@ -39,6 +44,7 @@ export function PricePanel({
   viewerId,
   isSeller,
   isWinner,
+  isViewerWinning,
   hasOwnSealedBid,
   bidAmount,
   setBidAmount,
@@ -59,13 +65,16 @@ export function PricePanel({
   onBuyNow,
   onCancelAuction,
   rating,
-  onRate,
 }: {
   auction: AuctionForPrice;
   effectiveEndTime: string;
   viewerId: string | undefined;
   isSeller: boolean;
+  /** True after the auction ENDED and the viewer is the final winner. */
   isWinner: boolean;
+  /** Phase F6: true while the auction is LIVE and the viewer is the top
+   *  bidder (used to colour the auto-bid health card green vs amber). */
+  isViewerWinning: boolean;
   hasOwnSealedBid: boolean;
   bidAmount: string;
   setBidAmount: (v: string) => void;
@@ -300,6 +309,9 @@ export function PricePanel({
           cancelLoading={cancelLoading}
           onSet={onSetAutoBid}
           onCancel={onCancelAutoBid}
+          // Phase F6: data feed for the AutoBidHealth card.
+          currentPrice={auction.currentPrice}
+          isViewerWinning={isViewerWinning}
         />
       )}
     </Card>
@@ -376,6 +388,77 @@ function BidForm({
           </Button>
         </div>
       </Field>
+      {/* Phase F5: live feedback as the user types. Three states:
+            - empty → silent
+            - below minimum → red explaining the gap
+            - valid → green showing the overshoot
+          The check uses the same Number() conversion the server does on
+          parse; if the user pastes "abc" the cast is NaN and we show
+          nothing (the input validation handles the error path on submit). */}
+      <BidInputFeedback
+        type={type}
+        bidAmount={bidAmount}
+        startingPrice={startingPrice}
+        minNext={minNext}
+      />
+    </div>
+  );
+}
+
+function BidInputFeedback({
+  type,
+  bidAmount,
+  startingPrice,
+  minNext,
+}: {
+  type: "ENGLISH" | "DUTCH" | "SEALED_BID";
+  bidAmount: string;
+  startingPrice: number;
+  minNext: number;
+}) {
+  if (!bidAmount.trim()) return null;
+  const parsed = Number(bidAmount);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+
+  const threshold = type === "SEALED_BID" ? startingPrice : minNext;
+  const isValid =
+    type === "SEALED_BID" ? parsed > startingPrice : parsed >= minNext;
+  const delta = parsed - threshold;
+
+  const tone = isValid ? "var(--success)" : "var(--danger)";
+  const label = isValid
+    ? type === "SEALED_BID"
+      ? `${formatMoney(delta)} above starting price`
+      : `${formatMoney(delta)} above minimum`
+    : type === "SEALED_BID"
+      ? `Must be above ${formatMoney(startingPrice)}`
+      : `${formatMoney(threshold - parsed)} below minimum`;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        marginTop: "0.45rem",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.45rem",
+        fontSize: "var(--font-xs)",
+        fontWeight: 700,
+        color: tone,
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          display: "inline-block",
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: tone,
+        }}
+      />
+      {label}
     </div>
   );
 }
@@ -424,6 +507,8 @@ function AutoBidPanel({
   cancelLoading,
   onSet,
   onCancel,
+  currentPrice,
+  isViewerWinning,
 }: {
   type: "ENGLISH" | "DUTCH";
   autoBidData: AutoBidState | null | undefined;
@@ -433,12 +518,35 @@ function AutoBidPanel({
   cancelLoading: boolean;
   onSet: () => void;
   onCancel: () => void;
+  /** Phase F6: current auction price, for the health card. */
+  currentPrice: number;
+  /** Phase F6: is the viewer the current top bidder? */
+  isViewerWinning: boolean;
 }) {
   const label = type === "DUTCH" ? "Auto-accept" : "Auto-bid";
   const description =
     type === "DUTCH"
       ? "Set a target — the system accepts when the price drops here."
       : "Set a maximum — the system bids on your behalf, one increment at a time.";
+
+  // Phase F6: for English auctions with an active auto-bid, render the
+  // dedicated health card instead of the plain "Active up to ₹X" alert.
+  // Dutch keeps the simple display because the semantics differ (a target
+  // price, not a ceiling — no capacity bar to draw).
+  if (autoBidData && type === "ENGLISH") {
+    return (
+      <div style={{ marginTop: "1rem" }}>
+        <AutoBidHealth
+          maxAmount={autoBidData.maxAmount}
+          currentBid={autoBidData.currentBid ?? 0}
+          currentPrice={currentPrice}
+          isViewerWinning={isViewerWinning}
+          loading={cancelLoading}
+          onCancel={onCancel}
+        />
+      </div>
+    );
+  }
 
   return (
     <Card padding="md" style={{ marginTop: "1rem" }}>
@@ -565,6 +673,7 @@ export function AuctionMeta({
   sellerId,
   sellerName,
   bidCount,
+  viewers,
 }: {
   type: "ENGLISH" | "DUTCH" | "SEALED_BID";
   status: string;
@@ -572,6 +681,12 @@ export function AuctionMeta({
   sellerId: string;
   sellerName: string;
   bidCount: number;
+  /**
+   * Phase E8: live viewer count from `auction:presence`. Undefined / null
+   * means "we have not yet received the first emit"; render nothing rather
+   * than flash "0 watching".
+   */
+  viewers?: number | null;
 }) {
   return (
     <div
@@ -602,6 +717,30 @@ export function AuctionMeta({
           >
             <span className="live-dot" />
             Live
+          </span>
+        )}
+        {!isEnded && typeof viewers === "number" && viewers > 0 && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: "var(--font-xs)",
+              color: "var(--muted)",
+              fontWeight: 600,
+            }}
+            title={`${viewers} ${viewers === 1 ? "viewer is" : "viewers are"} watching this auction`}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "var(--muted)",
+              }}
+            />
+            {viewers} watching
           </span>
         )}
       </div>
