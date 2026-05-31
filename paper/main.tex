@@ -17,6 +17,10 @@
 \tolerance=2000
 \emergencystretch=1.5em
 
+% Breathing room between a table body and its caption-below
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{4pt}
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -111,7 +115,52 @@ We address this limitation with four contributions:
     100 concurrent bidders relative to direct PostgreSQL row locking.
 \end{enumerate}
 
-% ─── II. RELATED WORK ───────────────────────────────────────────────────────
+% ─── II. LITERATURE SURVEY ──────────────────────────────────────────────────
+\section{Literature Survey}
+
+This section reviews the broader research landscape in which our work
+sits: comprehensive surveys of fraud detection methodology, graph-based
+techniques for auction fraud, and the recent shift toward real-time and
+stream-based detection pipelines.
+
+\subsection{Comprehensive Surveys of Fraud Detection}
+
+The data-mining survey of Phua, Lee, Smith, and Gayler~\cite{Phua2010}
+remains the most cited overview of fraud detection across credit-card,
+insurance, and online-auction domains, and the taxonomy of supervised,
+semi-supervised, and unsupervised approaches it introduced still
+organises the field. Akoglu, Tong, and Koutra~\cite{Akoglu2015} survey
+graph-based anomaly detection in detail, formalising the structural and
+relational features that recur in modern auction-fraud detectors --
+including the bidder-seller co-occurrence patterns this paper exploits in
+its reciprocity feature.
+
+\subsection{Graph-Based Auction Fraud Analysis}
+
+Pandit, Chau, Wang, and Faloutsos~\cite{Pandit2007} introduced NetProbe,
+a belief-propagation algorithm over eBay transaction graphs that
+classifies users as honest, fraudulent, or accomplice based on
+neighbourhood structure. NetProbe operates as a batch process over
+completed auctions and inspired the bipartite-graph view adopted by Ford,
+Xu, and Valova~\cite{Ford2010} and the community-detection method of
+Tsang, Koh, and Dobbie~\cite{Tsang2014}, both of which are discussed in
+detail in the next section. The community-structure algorithms used in
+these later works descend from Newman and Girvan~\cite{Newman2004}, whose
+modularity-based decomposition remains the standard baseline for
+relational fraud clustering.
+
+\subsection{Real-Time and Stream-Based Detection}
+
+Most early auction-fraud literature is retrospective: it scores users
+only after auctions close. The shift toward in-flight detection is
+articulated by Sadaoui and Wang~\cite{Sadaoui2017}, who propose a
+stage-based monitoring framework that updates fraud scores as bid events
+arrive across multiple concurrent auctions. Our work follows the same
+intent -- producing a verdict before the gavel falls -- and operationalises
+it through a per-bid feature pipeline attached to a Redis Stream
+consumer rather than periodic batch re-scoring.
+
+% ─── III. RELATED WORK ──────────────────────────────────────────────────────
 \section{Related Work}
 
 \subsection{Shill-Bidding Detection}
@@ -157,7 +206,7 @@ sequencer applies the same per-partition ordering principle at a smaller
 operational scale, using Redis Streams as the durable event log and a
 consumer group for at-least-once delivery.
 
-% ─── III. SYSTEM DESIGN ─────────────────────────────────────────────────────
+% ─── IV. SYSTEM DESIGN ──────────────────────────────────────────────────────
 \section{System Design}
 
 \subsection{Platform Architecture}
@@ -191,7 +240,7 @@ following a global lock order that prevents deadlocks across all write
 paths. Proxy-bid resolution runs atomically inside a single transaction,
 writing every increment as a separate {\tt Bid} row.
 
-% ─── IV. FRAUD DETECTION ────────────────────────────────────────────────────
+% ─── V. FRAUD DETECTION ─────────────────────────────────────────────────────
 \section{Fraud Detection Method}
 \label{sec:fraud}
 
@@ -259,7 +308,7 @@ cites the specific features exceeding their respective thresholds (e.g.,
 (co-occurrence)''). This string is rendered inline on the administrative
 fraud dashboard.
 
-% ─── V. EVALUATION ──────────────────────────────────────────────────────────
+% ─── VI. EVALUATION ─────────────────────────────────────────────────────────
 \section{Evaluation}
 
 \subsection{Experimental Setup}
@@ -315,8 +364,6 @@ the results.
 
 \begin{table}[h]
 \centering
-\caption{Feature Ablation -- F1 at $\theta=0.05$}
-\label{tab:ablation}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Feature Removed} & \textbf{F1} & \textbf{P} & \textbf{R} \\
@@ -329,6 +376,9 @@ Seller co-occurrence ($\sigma$) & 0.788 & 0.929 & 0.684 \\
 Reciprocity ($\gamma$)    & 0.000 & 0.000 & 0.000       \\
 \bottomrule
 \end{tabular}
+\vspace{8pt}
+\caption{Feature Ablation -- F1 at $\theta=0.05$}
+\label{tab:ablation}
 \end{table}
 
 Ablation results confirm that reciprocity alone carries the
@@ -348,8 +398,6 @@ Redis~7).
 
 \begin{table}[h]
 \centering
-\caption{Bid Latency: Row Locking vs Redis Stream Sequencer}
-\label{tab:throughput}
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Concurrency} & \multicolumn{2}{c}{\textbf{FOR UPDATE}} & \multicolumn{2}{c}{\textbf{Redis Stream}} \\
@@ -360,6 +408,9 @@ Redis~7).
 100  & 5{,}772\,ms & 30.0 & 8.1\,ms & 975.0 \\
 \bottomrule
 \end{tabular}
+\vspace{8pt}
+\caption{Bid Latency: Row Locking vs Redis Stream Sequencer}
+\label{tab:throughput}
 \end{table}
 
 At low concurrency, both approaches perform adequately. Under heavy
@@ -367,7 +418,7 @@ contention ($C\!=\!100$), the direct path degrades to 30~bids/s while the
 sequencer sustains 975~bids/s -- a $\mathbf{32.5\times}$ throughput gain
 attributable to the elimination of database lock contention.
 
-% ─── VI. SECURITY ANALYSIS ──────────────────────────────────────────────────
+% ─── VII. SECURITY ANALYSIS ─────────────────────────────────────────────────
 \section{Security Analysis}
 \label{sec:security}
 
@@ -408,7 +459,7 @@ class imbalance. In a production setting where shill bids are rare, a
 precision-recall trade-off analysis (see Fig.~\ref{fig:roc}) is more
 informative than a single F1 number.
 
-% ─── VII. CONCLUSION ────────────────────────────────────────────────────────
+% ─── VIII. CONCLUSION ───────────────────────────────────────────────────────
 \section{Conclusion}
 
 We described an online shill-bidding detection engine that classifies
