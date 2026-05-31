@@ -154,6 +154,107 @@ button { cursor: pointer; font-family: inherit; }
 }
 .ah-flash { animation: ah-flash 1.4s ease-out; }
 
+/* ──────────────────────────────────────────────────────────────────────────
+ * Phase F (real-time UI). Animations introduced for the live-bidding pass.
+ * Each is gated by prefers-reduced-motion at the bottom of this file.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* Toast / LiveTicker slide-in from the right. Eased cubic so the entrance
+ * feels controlled, not snappy.
+ */
+@keyframes ah-toast-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.ah-toast-in { animation: ah-toast-in 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes ah-toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(32px); }
+}
+.ah-toast-out { animation: ah-toast-out 0.22s ease-in forwards; }
+
+/* Countdown urgency states. Warning (under 2 min) is a steady amber colour
+ * applied via inline style; this animation is only for the under-30s state.
+ */
+@keyframes ah-pulse-urgent {
+  0%, 100% { transform: scale(1);   color: var(--danger); }
+  50%      { transform: scale(1.04); color: color-mix(in srgb, var(--danger) 80%, white); }
+}
+.ah-pulse-urgent {
+  animation: ah-pulse-urgent 0.9s ease-in-out infinite;
+  transform-origin: left center;
+  font-weight: 800;
+}
+
+/* Ladder cascade. Each rung in the bid history briefly highlights then
+ * settles, staggered by --i index variable set inline (--i: 0, 1, 2, ...).
+ */
+@keyframes ah-ladder-cascade {
+  0%   { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+  100% { background: transparent; }
+}
+.ah-ladder-cascade {
+  animation: ah-ladder-cascade 1.6s ease-out;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  animation-fill-mode: backwards;
+}
+
+/* Banner that drops from the top of the bid history when a ladder resolves. */
+@keyframes ah-banner-drop {
+  from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0);   max-height: 80px; }
+}
+.ah-banner-drop {
+  animation: ah-banner-drop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Auto-dismiss fade for the ladder banner after a few seconds. */
+@keyframes ah-banner-fade {
+  from { opacity: 1; max-height: 80px; }
+  to   { opacity: 0; max-height: 0; }
+}
+.ah-banner-fade {
+  animation: ah-banner-fade 0.4s ease-in forwards;
+  animation-delay: 3s;
+}
+
+/* Connection-status dot pulse (used by both connected + reconnecting states
+ * with different colours via inline style).
+ */
+@keyframes ah-conn-pulse {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.85); }
+}
+.ah-conn-pulse { animation: ah-conn-pulse 1.4s ease-in-out infinite; }
+
+/* Shake for backpressure banner — subtle, single iteration. */
+@keyframes ah-banner-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-2px); }
+  40%, 80% { transform: translateX(2px); }
+}
+.ah-banner-shake { animation: ah-banner-shake 0.4s ease-in-out; }
+
+/* Reduced motion: kill every Phase F animation. The user gets the same UI
+ * states (toast appears, count changes) but without the kinetic flourishes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ah-toast-in,
+  .ah-toast-out,
+  .ah-pulse-urgent,
+  .ah-ladder-cascade,
+  .ah-banner-drop,
+  .ah-banner-fade,
+  .ah-conn-pulse,
+  .ah-banner-shake,
+  .ah-slidein,
+  .ah-flash {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border-hard); border-radius: 4px; }

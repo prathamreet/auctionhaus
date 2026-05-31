@@ -9,6 +9,7 @@ import { disconnectSocket } from "@/lib/socket";
 import { useSocketListener } from "@/lib/useSocketListener";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/Button";
+import { ConnectionStatus } from "@/components/ui/ConnectionStatus";
 
 export default function Navbar() {
   const { user, logout, isHydrated } = useAuthStore();
@@ -121,6 +122,13 @@ export default function Navbar() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+        {/* Phase F2: socket connection indicator. Renders nothing when
+            healthy; pulses amber when reconnecting; red when offline.
+            Sits left of the auth/alerts cluster so the user catches it on
+            the path their eye is already tracking. Mounted for both
+            authed and anonymous users -- live bid pages work without auth
+            and still need the signal. */}
+        {isHydrated && <ConnectionStatus mode="full" />}
         {isHydrated &&
           (user ? (
             <>

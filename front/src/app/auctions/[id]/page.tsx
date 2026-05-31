@@ -7,10 +7,16 @@ import { useAuthStore } from "@/store/authStore";
 import { useAuctionRoom } from "@/lib/useSocketListener";
 import { KeyDetails, InfoPanel } from "./_components/InfoPanel";
 import { BidHistory } from "./_components/BidHistory";
-import type { Bid } from "./_components/BidHistory";
+import type { Bid, LatestLadder } from "./_components/BidHistory";
 import { PricePanel, AuctionMeta } from "./_components/PricePanel";
 import { CommitmentPanel } from "./_components/CommitmentPanel";
-import { PageShell, SkeletonCard } from "@/components/ui";
+import {
+  BackpressureBanner,
+  PageShell,
+  SkeletonCard,
+  formatMoney,
+  useLiveTicker,
+} from "@/components/ui";
 
 interface Auction {
   id: string;
@@ -53,6 +59,22 @@ export default function AuctionDetailPage() {
   const [ratingComment, setRatingComment] = useState("");
   const [ratingLoading, setRatingLoading] = useState(false);
   const [ratingDone, setRatingDone] = useState(false);
+  // Phase E8: live viewer count from auction:presence. Starts at null so we
+  // don't flash "0 watching" before the server emits the first count.
+  const [viewers, setViewers] = useState<number | null>(null);
+  // Phase F3: latest auto-bid ladder for the ephemeral banner above the
+  // bid history. Keyed by serverTs so the banner remounts (and replays its
+  // entrance/fade) each time a new ladder lands.
+  const [latestLadder, setLatestLadder] = useState<LatestLadder | null>(null);
+  // Phase F7: latest backpressure event for the top banner. Cleared on
+  // dismiss or auto-timeout (8 s, inside the banner).
+  const [backpressure, setBackpressure] = useState<{
+    streamLength: number;
+    threshold: number;
+    key: string;
+  } | null>(null);
+  // Phase F1: live ticker handle. Provider lives in app/providers.tsx.
+  const ticker = useLiveTicker();
 
   const { data: auctionData, isLoading } = useQuery<Auction>({
     queryKey: ["auction", id],
@@ -87,21 +109,139 @@ export default function AuctionDetailPage() {
     qc.refetchQueries({ queryKey: ["auction-bids", id] });
   };
 
-  useAuctionRoom(id, {
-    "bid:new": (data: unknown) => {
-      const d = data as { bid?: { id: string } } | undefined;
-      if (d?.bid?.id) setRecentBidId(d.bid.id);
-      invalidate();
+  useAuctionRoom(
+    id,
+    {
+      "bid:new": (data: unknown) => {
+        const d = data as
+          | { bid?: { id: string; bidderId?: string; amount?: number }; sealed?: boolean }
+          | undefined;
+        if (d?.bid?.id) setRecentBidId(d.bid.id);
+        invalidate();
+        // Phase F1: push to the live ticker -- but ONLY for bids by other
+        // users. The bidder who placed the bid already sees the form's
+        // success state; another toast for them would be noise.
+        const isMine = d?.bid?.bidderId && user?.id && d.bid.bidderId === user.id;
+        if (!isMine) {
+          ticker.push({
+            id: `bidnew-${d?.bid?.id ?? Date.now()}`,
+            kind: "manual",
+            title: d?.sealed
+              ? "New sealed bid received"
+              : d?.bid?.amount != null
+                ? `Bid placed · ${formatMoney(d.bid.amount)}`
+                : "New bid placed",
+            detail: auctionData?.title,
+          });
+        }
+        // Phase F7: dismiss backpressure banner once new bids start flowing
+        // again (a successful bid:new means the stream is draining).
+        setBackpressure(null);
+      },
+      // Phase E1: ladder steps arrive as a single `bid:ladder` event with the
+      // full `steps[]`. We flash the LAST rung (the new winner) and let
+      // TanStack Query refetch the bid history -- the chart renders all rungs
+      // in one React commit.
+      "bid:ladder": (data: unknown) => {
+        const d = data as
+          | {
+              lastBidId?: string;
+              steps?: { amount: number }[];
+              finalPrice?: number;
+              serverTs?: number;
+            }
+          | undefined;
+        if (d?.lastBidId) setRecentBidId(d.lastBidId);
+        invalidate();
+
+        // Phase F3: stash the latest ladder for the ephemeral banner above
+        // the bid history. We need from→to prices for the announcement;
+        // derive `fromPrice` from the first rung minus the audion's
+        // minIncrement (a reliable lower bound) or from the current cached
+        // currentPrice as fallback.
+        const rungs = d?.steps?.length ?? 0;
+        if (rungs >= 1 && d?.finalPrice != null) {
+          const firstRung = d.steps?.[0]?.amount ?? d.finalPrice;
+          const inc = auctionData?.minIncrement ?? 0;
+          const fromPrice = Math.max(0, firstRung - inc);
+          setLatestLadder({
+            rungs,
+            fromPrice,
+            toPrice: d.finalPrice,
+            key: `ladder-${d.serverTs ?? Date.now()}`,
+          });
+        }
+
+        // Phase F1: ticker push -- ladders of 2+ get a dedicated label,
+        // single-rung ladders fold into the existing bid:new toast.
+        if (rungs >= 2 && d?.finalPrice != null) {
+          ticker.push({
+            id: `ladder-${d.lastBidId ?? Date.now()}`,
+            kind: "ladder",
+            title: `Auto-bid ladder · ${rungs} rungs`,
+            detail: `Settled at ${formatMoney(d.finalPrice)}`,
+            serverTs: d.serverTs,
+          });
+        }
+      },
+      "auction:price-drop": () => invalidate(),
+      "auction:extended": (data: unknown) => {
+        const d = data as { newEndTime?: string } | undefined;
+        if (d?.newEndTime) setNewEndTime(d.newEndTime);
+        qc.refetchQueries({ queryKey: ["auction", id] });
+        // Phase F1: anti-snipe extension is the kind of thing users miss if
+        // they're focused on the bid input -- the timer just stops counting
+        // down. A toast makes the cause explicit.
+        ticker.push({
+          id: `extended-${Date.now()}`,
+          kind: "extended",
+          title: "Auction extended",
+          detail: "Anti-snipe — bid in the final minutes",
+        });
+      },
+      "auction:ended": () => {
+        invalidate();
+        // Phase F1: clear the ticker on close so leftover toasts don't
+        // linger over the WINNER / UNSOLD UI.
+        ticker.clear();
+      },
+      "auction:started": () => invalidate(),
+      // Phase E8: live viewer count.
+      "auction:presence": (data: unknown) => {
+        const d = data as { viewers?: number } | undefined;
+        if (typeof d?.viewers === "number") setViewers(d.viewers);
+      },
+      // Phase F7: backpressure event from the BidSequencer. Broadcasts go
+      // to the admin:fraud room today; in a future iteration each auction
+      // room would also receive its own scoped warning. For now, admins on
+      // the auction detail page see the banner.
+      "bid:backpressure": (data: unknown) => {
+        const d = data as
+          | { streamLength?: number; threshold?: number }
+          | undefined;
+        if (d?.streamLength == null || d?.threshold == null) return;
+        setBackpressure({
+          streamLength: d.streamLength,
+          threshold: d.threshold,
+          key: `bp-${Date.now()}`,
+        });
+        ticker.push({
+          id: `bp-${Date.now()}`,
+          kind: "backpressure",
+          title: "High traffic — bids may be delayed",
+          detail: `${d.streamLength} pending / threshold ${d.threshold}`,
+        });
+      },
     },
-    "auction:price-drop": () => invalidate(),
-    "auction:extended": (data: unknown) => {
-      const d = data as { newEndTime?: string } | undefined;
-      if (d?.newEndTime) setNewEndTime(d.newEndTime);
+    // Phase E9: refetch everything after a socket reconnect. While the socket
+    // was down we may have missed bid:new / bid:ladder / auction:ended events,
+    // so the cache is stale. The room re-join is handled inside the hook.
+    () => {
       qc.refetchQueries({ queryKey: ["auction", id] });
-    },
-    "auction:ended": () => invalidate(),
-    "auction:started": () => invalidate(),
-  });
+      qc.refetchQueries({ queryKey: ["auction-bids", id] });
+      qc.refetchQueries({ queryKey: ["auto-bid", id] });
+    }
+  );
 
   const placeBid = async () => {
     if (!bidAmount) return;
@@ -255,9 +395,31 @@ export default function AuctionDetailPage() {
   const isWinner = user?.id === auction.winnerId;
   const isEnded = auction.status === "ENDED";
   const hasOwnSealedBid = bids.some((b) => b.bidder?.id === user?.id);
+  // Phase F6: live "is the viewer currently winning?" for the AutoBidHealth
+  // card. WINNING-status bid in the loaded list is the source of truth (the
+  // server marks the active top bid as WINNING; outbidding flips it to
+  // OUTBID inside the same tx). Falsy for SEALED_BID because the bid list
+  // is masked while live -- the health card path doesn't apply (sealed
+  // auctions block auto-bid anyway).
+  const isViewerWinning =
+    !!user &&
+    auction.type !== "SEALED_BID" &&
+    bids.some((b) => b.status === "WINNING" && b.bidder?.id === user.id);
 
   return (
     <PageShell>
+      {/* Phase F7: backpressure banner above page chrome. Sticky below
+          Navbar; auto-dismisses after 8 s or on manual close. */}
+      {backpressure && (
+        <BackpressureBanner
+          key={backpressure.key}
+          auctionId={auction.id}
+          streamLength={backpressure.streamLength}
+          threshold={backpressure.threshold}
+          onDismiss={() => setBackpressure(null)}
+        />
+      )}
+
       <AuctionMeta
         type={auction.type}
         status={auction.status}
@@ -265,6 +427,7 @@ export default function AuctionDetailPage() {
         sellerId={auction.seller?.id}
         sellerName={auction.seller?.name}
         bidCount={auction._count?.bids ?? 0}
+        viewers={viewers}
       />
 
       <div className="grid-main-sidebar">
@@ -312,6 +475,7 @@ export default function AuctionDetailPage() {
             startingPrice={auction.startingPrice}
             recentBidId={recentBidId}
             viewerId={user?.id}
+            latestLadder={latestLadder}
           />
         </div>
 
@@ -323,6 +487,7 @@ export default function AuctionDetailPage() {
             viewerId={user?.id}
             isSeller={isSeller}
             isWinner={isWinner}
+            isViewerWinning={isViewerWinning}
             hasOwnSealedBid={hasOwnSealedBid}
             bidAmount={bidAmount}
             setBidAmount={setBidAmount}
