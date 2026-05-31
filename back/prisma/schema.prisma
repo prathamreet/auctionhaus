@@ -206,12 +206,27 @@ model Bid {
   isAutoBid Boolean   @default(false)
   createdAt DateTime  @default(now())
 
+  // Phase E7: idempotency marker for sealed-bid end-of-auction refunds. The
+  // status flip and the wallet refunds used to live in SEPARATE transactions,
+  // so a worker that crashed between them left losers permanently unrefunded
+  // (the retry would see status=ENDED and bail). Now: the refund block filters
+  // on `refundedAt IS NULL`, sets it as part of the same tx, and a retry
+  // resumes from wherever the previous run left off without ever
+  // double-refunding. Nullable on purpose so existing rows from before the
+  // migration carry NULL and are never touched (no auction can transition
+  // back to ACTIVE).
+  refundedAt DateTime?
+
   auction Auction @relation(fields: [auctionId], references: [id])
   bidder  User    @relation(fields: [bidderId], references: [id])
 
   // Phase A3: getAuctionBids + placeBid previous-winner lookup + bid history.
+  // Phase E5: bid history page paginates by createdAt DESC for a given auction;
+  // the index also covers the ladder load (which is small enough that the
+  // planner picks it for the auction-scoped scan).
   @@index([auctionId, status])
   @@index([bidderId])
+  @@index([auctionId, createdAt(sort: Desc)])
   @@map("bids")
 }
 
@@ -228,7 +243,14 @@ model AutoBid {
   auction Auction @relation(fields: [auctionId], references: [id])
   bidder  User    @relation(fields: [bidderId], references: [id])
 
+  // Phase E5: processAutoBidLadder runs
+  //   WHERE auctionId=? AND isActive=true AND bidderId<>?
+  //   ORDER BY maxAmount DESC, createdAt ASC
+  // on every manual bid. This composite index is index-only friendly for the
+  // first three columns and the `maxAmount DESC` lets Postgres skip the sort
+  // for the typical small ladder pool.
   @@unique([auctionId, bidderId])
+  @@index([auctionId, isActive, maxAmount(sort: Desc)])
   @@map("auto_bids")
 }
 
