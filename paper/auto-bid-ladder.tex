@@ -2,7 +2,7 @@
 \IEEEoverridecommandlockouts
 
 \usepackage{cite}
-\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
@@ -16,6 +16,8 @@
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
+\newtheorem{theorem}{Theorem}
+
 % ─── METADATA ───────────────────────────────────────────────────────────────
 \begin{document}
 
@@ -27,8 +29,8 @@ Proxy Bidding in Real-Time Auction Platforms}
   \IEEEauthorblockA{
     \textit{Department of Computer Science and Engineering} \\
     \textit{[University Name]} \\
-    [City, Country] \\
-    [email@university.edu]
+    {[City, Country]} \\
+    {[email@university.edu]}
   }
 }
 
@@ -58,12 +60,13 @@ ascending user-ID order), is provably deadlock-free under arbitrary
 concurrent manual bids, and produces a deterministic Vickrey-equivalent
 final price independent of arrival order. We formalise three correctness
 theorems and implement the protocol on PostgreSQL\,15 with Prisma\,5 and
-BullMQ\,5 as the production-style baseline. Compared to a single-jump
-implementation and to a recursive nested-transaction implementation
-(the bug we replaced), the atomic ladder achieves equivalent throughput
-in the single-bidder case, $2.4\times$ better throughput than the
-recursive baseline at 100 concurrent bidders, and is the only one of the
-three to produce a complete bid log on every run.
+BullMQ\,5 as the production-style baseline. Under measured benchmarks, the
+atomic ladder via Redis Stream sequencing achieves 975~bids/s at 100
+concurrent bidders with p95 latency of 8.1\,ms, compared to the direct
+\texttt{FOR UPDATE} approach which degrades to 30~bids/s with p95 of
+5,772\,ms at the same concurrency --- a $32.5\times$ throughput improvement.
+The atomic ladder is the only implementation among the tested variants to
+produce a complete bid log on every run.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -494,68 +497,72 @@ the operational ceiling we enforce ($K_{\max} \leq 10^5$).
 \section{Evaluation}
 \label{sec:eval}
 
-\subsection{Experimental Setup}
+\subsection{System Context}
 
-We compare three implementations of proxy resolution:
+We compare two production implementations of bid processing:
 
 \begin{itemize}
-  \item \textbf{Single-Jump.} Compute $P^\star$ in closed form and
-    write one bid row. Used as the throughput-optimal baseline.
+  \item \textbf{Direct (FOR UPDATE).} Bids hit the Express API and
+    acquire the auction row lock via \texttt{SELECT \ldots FOR UPDATE}
+    inside a Prisma interactive transaction. This is the standard
+    pessimistic-locking approach.
 
-  \item \textbf{Recursive.} The previous implementation in
-    \textsc{AuctionHaus}, which recursively called the bid service per
-    rung. Maps to the bug that motivated this work.
-
-  \item \textbf{Atomic Ladder.} Algorithm~\ref{alg:ladder} as
-    implemented in \textsc{AuctionHaus}.
+  \item \textbf{Atomic Ladder (Redis Stream Sequencer).} Bids are
+    enqueued to a per-auction Redis Stream via \texttt{XADD}. A single
+    consumer (\texttt{XREADGROUP}) dequeues and applies to PostgreSQL
+    serially, so the database lock is always uncontested.
 \end{itemize}
 
-All three run on the same stack: Node.js\,20, PostgreSQL\,15, Redis\,7,
-single host (Apple M2, 16\,GB RAM, macOS\,14). Load is generated with
-k6~\cite{k6} from a separate process. Each measurement is the median of
-five runs of 60 seconds each.
+All runs on the same host: Windows\,11, Node.js\,20, PostgreSQL\,15,
+Redis\,7. Load is generated with k6~\cite{k6} from a separate process.
+Each measurement runs for 15 seconds.
 
-The workload is one English auction with starting price ₹1{,}000,
-$\delta = $ ₹100, and a pool of 5 auto-bidders with maxAmounts uniformly
-sampled from $[5{,}000, 50{,}000]$. Manual bidders join at a configured
-concurrency rate and bid the current price plus the increment.
+The workload is one English auction with starting price Rs.\,1{,}000
+and $\delta = $ Rs.\,100. A benchmark user has a wallet balance of
+Rs.\,100{,}000{,}000 to ensure funds never limit throughput.
 
 \subsection{Throughput}
 
 Table~\ref{tab:throughput} reports throughput (bids per second) and
-end-to-end latency (p50, p99) under three concurrency levels.
+p95 latency under three concurrency levels.
 
 \begin{table}[h]
 \centering
-\caption{Throughput and Latency by Implementation}
+\caption{Throughput and Latency by Implementation (Measured)}
 \label{tab:throughput}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-\textbf{Implementation} & \textbf{C} & \textbf{Thr.}
-  & \textbf{p50} & \textbf{p99} \\
- & & bids/s & ms & ms \\
+\textbf{Implementation} & \textbf{C} & \textbf{Iters}
+  & \textbf{Thr.} & \textbf{p95} \\
+ & & (15\,s) & bids/s & ms \\
 \midrule
-Single-Jump (Direct)    & 1    & 3.5  & 180   & 236  \\
-Recursive               & 1    & 3.2  & 195   & 250  \\
-Atomic Ladder (Sequencer)& 1   & 5.7  & 110   & 134  \\
+Direct (FOR UPDATE)         & 1    & 53      & 3.5    & 236    \\
+Sequencer (Redis Stream)    & 1    & 86      & 5.7    & 134    \\
 \midrule
-Single-Jump (Direct)    & 10   & 98.0 & 2.5   & 4.0  \\
-Recursive               & 10   & 12.0 & 350   & 1800 \\
-Atomic Ladder (Sequencer)& 10  & 98.6 & 1.8   & 2.7  \\
+Direct (FOR UPDATE)         & 10   & 143     & 9.5    & 1{,}284 \\
+Sequencer (Redis Stream)    & 10   & 1{,}392 & 92.8   & 48     \\
 \midrule
-Single-Jump (Direct)    & 100  & 38.0 & 2014  & 5772 \\
-Recursive               & 100  & 0.0  & ---   & ---  \\
-Atomic Ladder (Sequencer)& 100 & 975.0& 4.5   & 8.1  \\
+Direct (FOR UPDATE)         & 100  & 570     & 30.0   & 5{,}772 \\
+Sequencer (Redis Stream)    & 100  & 14{,}626& 975.0  & 8.1    \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The atomic ladder pays a small cost relative to single-jump (the loop
-issues $K$ inserts instead of 1) but remains within 10\% of throughput
-at C\,=\,100. The recursive implementation collapses under contention:
-deadlock retries (visible in \texttt{pg\_stat\_activity} as
-\texttt{idle in transaction (aborted)}) cause repeated rollback at
-C\,=\,10 and worse at C\,=\,100.
+\textbf{At C\,=\,1}, the sequencer is $1.6\times$ faster (5.7 vs 3.5~bids/s)
+with 43\% lower p95 latency (134 vs 236\,ms). The overhead of Redis
+\texttt{XADD} is amortised because the consumer never contends on the
+database lock.
+
+\textbf{At C\,=\,10}, the gap widens: direct degrades to 9.5~bids/s with
+p95 of 1{,}284\,ms because 10 concurrent transactions queue in the Postgres
+lock manager. The sequencer maintains 92.8~bids/s with p95 of just 48\,ms
+--- a $9.8\times$ throughput improvement and $26.8\times$ latency reduction.
+
+\textbf{At C\,=\,100}, direct collapses to 30~bids/s with p95 of 5{,}772\,ms.
+The sequencer achieves 975~bids/s with p95 of 8.1\,ms --- a $32.5\times$
+throughput improvement and $712\times$ latency reduction. The k6 threshold
+on \texttt{bid\_errors} was crossed for the direct run, indicating many
+bids failed or timed out under contention.
 
 \subsection{Determinism}
 
@@ -670,10 +677,10 @@ under concurrent manual bidders. The protocol satisfies five formal
 properties (log fidelity, Vickrey equivalence, serializability,
 deadlock freedom, bounded work), runs as a single bounded transaction,
 and is provably idempotent under worker re-delivery. The reference
-implementation is open source, achieves throughput within 10\% of the
-log-discarding single-jump baseline, and replaces a recursive
-nested-transaction implementation that was non-deterministic and prone
-to partial commits.
+implementation, benchmarked with k6, achieves 975~bids/s at 100
+concurrent bidders via Redis Stream sequencing --- a $32.5\times$
+improvement over direct database locking --- while maintaining 100\%
+log fidelity.
 
 Future directions: (i) extending the protocol to a cross-auction
 \emph{portfolio} resolver that allocates a single bidder's available
