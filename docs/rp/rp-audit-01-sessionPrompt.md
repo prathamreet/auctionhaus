@@ -41,3 +41,11 @@ and it will better if u give me rp-content.md for my research paper and as well 
 
 and also some diagram or table , can use mermaid js code for diragram ,
  please do it and tell me
+
+
+your response was "E:\projects\auctionhaus\docs\rp\rp-audit-01-sessionSummary.md"
+
+-----
+
+finaly all things was completed for reasearc paper
+session was closed
