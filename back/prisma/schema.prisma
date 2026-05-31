@@ -24,10 +24,10 @@ enum AuctionType {
 }
 
 enum AuctionStatus {
-  PENDING    // not started yet
-  ACTIVE     // accepting bids
-  ENDED      // ended naturally or manually
-  CANCELLED  // cancelled by seller or admin
+  PENDING // not started yet
+  ACTIVE // accepting bids
+  ENDED // ended naturally or manually
+  CANCELLED // cancelled by seller or admin
 }
 
 enum BidStatus {
@@ -75,44 +75,44 @@ enum SettlementKind {
 // ─── MODELS ──────────────────────────────────────────────────────────────────
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password      String?  // null if OAuth
-  name          String
-  avatar        String?
-  role          Role     @default(USER)
-  rating        Float    @default(0)
-  ratingCount   Int      @default(0)
-  isSuspended   Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String? // null if OAuth
+  name        String
+  avatar      String?
+  role        Role     @default(USER)
+  rating      Float    @default(0)
+  ratingCount Int      @default(0)
+  isSuspended Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  wallet        Wallet?
-  auctions      Auction[]         @relation("SellerAuctions")
-  wonAuctions   Auction[]         @relation("WinnerAuctions")
-  bids          Bid[]
-  autoBids      AutoBid[]
-  notifications Notification[]
-  watchlist     WatchlistItem[]
-  transactions  Transaction[]
-  sentRatings   Rating[]          @relation("RaterRatings")
+  wallet          Wallet?
+  auctions        Auction[]       @relation("SellerAuctions")
+  wonAuctions     Auction[]       @relation("WinnerAuctions")
+  bids            Bid[]
+  autoBids        AutoBid[]
+  notifications   Notification[]
+  watchlist       WatchlistItem[]
+  transactions    Transaction[]
+  sentRatings     Rating[]        @relation("RaterRatings")
   receivedRatings Rating[]        @relation("RateeRatings")
-  fraudFlags    FraudFlag[]
-  bidCommitments BidCommitment[]
+  fraudFlags      FraudFlag[]
+  bidCommitments  BidCommitment[]
 
   @@map("users")
 }
 
 model Wallet {
-  id        String   @id @default(uuid())
-  userId    String   @unique
+  id         String   @id @default(uuid())
+  userId     String   @unique
   // Phase A1: money is exact -- NUMERIC(18,2) in Postgres, Prisma.Decimal in JS.
   // Float would lose precision under repeated holds / releases.
-  balance   Decimal  @default(0) @db.Decimal(18, 2)
-  heldAmount Decimal @default(0) @db.Decimal(18, 2) // locked for active bids
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  balance    Decimal  @default(0) @db.Decimal(18, 2)
+  heldAmount Decimal  @default(0) @db.Decimal(18, 2) // locked for active bids
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -129,7 +129,7 @@ model Transaction {
   amount      Decimal           @db.Decimal(18, 2)
   status      TransactionStatus @default(COMPLETED)
   description String?
-  referenceId String?           // auctionId or bidId
+  referenceId String? // auctionId or bidId
   createdAt   DateTime          @default(now())
 
   wallet Wallet @relation(fields: [walletId], references: [id])
@@ -145,46 +145,46 @@ model Transaction {
 }
 
 model Auction {
-  id              String        @id @default(uuid())
-  sellerId        String
-  title           String
-  description     String
-  imageUrl        String?
-  type            AuctionType   @default(ENGLISH)
-  status          AuctionStatus @default(PENDING)
+  id          String        @id @default(uuid())
+  sellerId    String
+  title       String
+  description String
+  imageUrl    String?
+  type        AuctionType   @default(ENGLISH)
+  status      AuctionStatus @default(PENDING)
 
   // Pricing (Phase A1: Decimal for exact arithmetic)
-  startingPrice   Decimal       @db.Decimal(18, 2)
-  reservePrice    Decimal?      @db.Decimal(18, 2) // minimum to sell
-  currentPrice    Decimal       @db.Decimal(18, 2)
-  buyNowPrice     Decimal?      @db.Decimal(18, 2) // instant buy option
+  startingPrice Decimal  @db.Decimal(18, 2)
+  reservePrice  Decimal? @db.Decimal(18, 2) // minimum to sell
+  currentPrice  Decimal  @db.Decimal(18, 2)
+  buyNowPrice   Decimal? @db.Decimal(18, 2) // instant buy option
 
   // Dutch auction specific
-  dutchPriceStep  Decimal?      @db.Decimal(18, 2) // price drops by this per interval
-  dutchInterval   Int?          // seconds between price drops
+  dutchPriceStep Decimal? @db.Decimal(18, 2) // price drops by this per interval
+  dutchInterval  Int? // seconds between price drops
 
   // Bidding rules
-  minIncrement    Decimal       @default(1) @db.Decimal(18, 2)
-  antiSnipingMins Int           @default(5) // extend by X mins if bid in last X mins
+  minIncrement    Decimal @default(1) @db.Decimal(18, 2)
+  antiSnipingMins Int     @default(5) // extend by X mins if bid in last X mins
 
   // Timing
-  startTime       DateTime
-  endTime         DateTime
-  actualEndTime   DateTime?     // if extended due to anti-sniping
+  startTime     DateTime
+  endTime       DateTime
+  actualEndTime DateTime? // if extended due to anti-sniping
 
   // Winner
-  winnerId        String?
-  winnerBidId     String?
+  winnerId    String?
+  winnerBidId String?
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  seller     User           @relation("SellerAuctions", fields: [sellerId], references: [id])
-  winner     User?          @relation("WinnerAuctions", fields: [winnerId], references: [id])
-  bids       Bid[]
-  autoBids   AutoBid[]
-  watchlist  WatchlistItem[]
+  seller         User            @relation("SellerAuctions", fields: [sellerId], references: [id])
+  winner         User?           @relation("WinnerAuctions", fields: [winnerId], references: [id])
+  bids           Bid[]
+  autoBids       AutoBid[]
+  watchlist      WatchlistItem[]
   fraudFlags     FraudFlag[]
   bidCommitments BidCommitment[]
 
@@ -274,7 +274,7 @@ model Notification {
   title     String
   message   String
   isRead    Boolean          @default(false)
-  data      Json?            // extra payload (auctionId, amount, etc.)
+  data      Json? // extra payload (auctionId, amount, etc.)
   createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -285,13 +285,13 @@ model Notification {
 }
 
 model Rating {
-  id         String   @id @default(uuid())
-  raterId    String
-  rateeId    String
-  auctionId  String
-  score      Int      // 1-5
-  comment    String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  raterId   String
+  rateeId   String
+  auctionId String
+  score     Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
 
   rater User @relation("RaterRatings", fields: [raterId], references: [id])
   ratee User @relation("RateeRatings", fields: [rateeId], references: [id])
@@ -304,15 +304,15 @@ model Rating {
 // score is stored as Float (0-1) — approximate ML output, no financial
 // arithmetic, so Float precision is fine here.
 model FraudFlag {
-  id         String   @id @default(uuid())
-  bidderId   String
-  auctionId  String
-  bidId      String
-  score      Float
-  features   Json
-  reason     String
-  dismissed  Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  bidderId  String
+  auctionId String
+  bidId     String
+  score     Float
+  features  Json
+  reason    String
+  dismissed Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   bidder  User    @relation(fields: [bidderId], references: [id])
   auction Auction @relation(fields: [auctionId], references: [id])
@@ -327,16 +327,16 @@ model FraudFlag {
 // client commits H = SHA-256(amount || nonce) during bidding; reveals
 // (amount, nonce) after close. Server stores commit then verifies reveal.
 model BidCommitment {
-  id              String    @id @default(uuid())
-  auctionId       String
-  bidderId        String
-  commitHash      String
-  nonce           String?
-  createdAt       DateTime  @default(now())
-  revealedAt      DateTime?
-  revealedAmount  Decimal?  @db.Decimal(18, 2)
-  revealedNonce   String?
-  isValid         Boolean?
+  id             String    @id @default(uuid())
+  auctionId      String
+  bidderId       String
+  commitHash     String
+  nonce          String?
+  createdAt      DateTime  @default(now())
+  revealedAt     DateTime?
+  revealedAmount Decimal?  @db.Decimal(18, 2)
+  revealedNonce  String?
+  isValid        Boolean?
 
   auction Auction @relation(fields: [auctionId], references: [id])
   bidder  User    @relation(fields: [bidderId], references: [id])
@@ -357,7 +357,7 @@ model Settlement {
   id        String         @id @default(uuid())
   auctionId String         @unique
   sellerId  String
-  partyId   String         // buyer (DIRECT_SALE) or winner (WON_AUCTION)
+  partyId   String // buyer (DIRECT_SALE) or winner (WON_AUCTION)
   amount    Decimal        @db.Decimal(18, 2)
   kind      SettlementKind
   createdAt DateTime       @default(now())
