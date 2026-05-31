@@ -12,6 +12,7 @@
 \usepackage{hyperref}
 \usepackage{pgfplots}
 \usepackage{balance}
+\usepackage{placeins}
 \pgfplotsset{compat=1.18}
 
 % Relax justification to avoid stretched word-spacing in narrow columns
@@ -162,7 +163,52 @@ platform. The reference implementation spans roughly 180~lines of
 TypeScript, packaged as a BullMQ worker job that fires after each manual
 bid.
 
-% ─── II. RELATED WORK ────────────────────────────────────────────────────────
+% ─── II. LITERATURE SURVEY ───────────────────────────────────────────────────
+\section{Literature Survey}
+
+This section reviews the broader academic foundations on which this work
+rests: the economic theory of single-item auctions, the serializability
+theory of transactional databases, and the architectural literature on
+partitioned ordered logs from which our evaluation pipeline inherits.
+
+\subsection{Auction-Theoretic Foundations}
+
+Single-item auction theory begins with Vickrey~\cite{Vickrey1961}, who
+proved that the second-price sealed-bid mechanism makes truthful bidding
+a weakly dominant strategy. Milgrom and Weber~\cite{Milgrom1982}
+generalised the result to a wide class of independent-private-value and
+affiliated-value settings, establishing the revenue equivalence between
+ascending and second-price formats that motivates proxy bidding as a
+platform primitive. Krishna~\cite{Krishna2009} consolidates these threads
+in textbook form and provides the formal apparatus we draw on when
+reasoning about the Vickrey equivalence of the atomic ladder.
+
+\subsection{Concurrency and Distributed Systems Theory}
+
+The serializability theory underlying our correctness argument originates
+with Eswaran, Gray, Lorie, and Traiger~\cite{Eswaran1976}, who introduced
+predicate locks and the conflict-serializability criterion that two-phase
+locking achieves. Lamport's~\cite{Lamport1978} happens-before relation
+formalises the logical ordering in which we commit ladder rungs. At the
+level of distributed deployment, the CAP impossibility result formalised
+by Gilbert and Lynch~\cite{Gilbert2002} frames the consistency-availability
+trade-off that motivates a single-leader stream serialiser over
+multi-master writes. Helland~\cite{Helland2007} argues for asynchronous,
+log-based decomposition as a pragmatic alternative to distributed
+transactions; the Redis Stream sequencer evaluated in this paper is
+precisely such a decomposition.
+
+\subsection{Stream Architectures for Ordered Processing}
+
+The pattern of using a partitioned, append-only log to serialise
+high-volume updates was popularised by Kafka~\cite{Kreps2011}, and the
+same pattern in different implementations underpins Amazon Kinesis,
+Google Pub/Sub, and Redis Streams. The pattern's per-partition total
+order, durable replay, and at-least-once delivery semantics map onto the
+bid-resolution problem unchanged, which is why our reference
+implementation adopts it.
+
+% ─── III. RELATED WORK ───────────────────────────────────────────────────────
 \section{Related Work}
 
 \subsection{Proxy Bidding Mechanisms}
@@ -203,7 +249,7 @@ best of our knowledge, no peer-reviewed paper details how a deployed
 auction platform resolves concurrent proxy bids while retaining a
 per-increment log.
 
-% ─── III. SYSTEM MODEL ────────────────────────────────────────────────────────
+% ─── IV. SYSTEM MODEL ────────────────────────────────────────────────────────
 \section{System Model and Problem Statement}
 
 \subsection{Objects and Operations}
@@ -280,7 +326,7 @@ Equation~\ref{eq:vickrey} over the current auto-bid pool $\mathcal{P}$):
     $K \leq \lceil (M_{(1)} - p_0) / \delta \rceil + 1$.
 \end{itemize}
 
-% ─── 4. PROTOCOL ────────────────────────────────────────────────────────────
+% ─── V. PROTOCOL ─────────────────────────────────────────────────────────────
 \section{The Atomic Ladder Protocol}
 
 \subsection{Lock-Order Invariant}
@@ -305,57 +351,56 @@ Algorithm~\ref{alg:ladder} describes the procedure. The procedure is
 called \texttt{ResolveAutoBids}$(A, u_{\text{trig}})$ where $u_{\text{trig}}$
 is the user whose manual bid triggered the resolution.
 
-\begin{algorithm}[t]
-\caption{ResolveAutoBids$(A, u_{\text{trig}})$}
+\begin{algorithm}[!htb]
+\caption{ResolveAutoBids$(A, u)$}
 \label{alg:ladder}
 \begin{algorithmic}[1]
-\State \textbf{begin transaction} (READ COMMITTED)
-\State $\textsc{SELECT id FROM auctions WHERE id} = A \textsc{ FOR UPDATE}$
-\State $\text{auction} \gets$ load $A$ with $\text{type, status, endTime, currentPrice}, \delta$
-\If{$\text{auction} = \bot$ \textbf{or} $\text{auction.status} \neq \text{ACTIVE}$}
-  \State \textbf{commit}; \Return $\emptyset$
+\State begin transaction (READ COMMITTED)
+\State lock auction row $A$
+\State load $A$: type, status, endTime, price, step $\delta$
+\If{$A$ missing or status $\neq$ ACTIVE}
+  \State commit; return $\emptyset$
 \EndIf
-\If{$\text{now}() > \text{auction.endTime}$} \Comment{Phase E4}
-  \State \textbf{commit}; \Return $\emptyset$
+\If{now $>$ endTime} \Comment{Phase E4}
+  \State commit; return $\emptyset$
 \EndIf
-\If{$\text{auction.type} \neq \text{ENGLISH}$}
-  \State \textbf{commit}; \Return $\emptyset$
+\If{type $\neq$ ENGLISH}
+  \State commit; return $\emptyset$
 \EndIf
-\State $\mathcal{P} \gets$ active auto-bids on $A$, excluding $u_{\text{trig}}$,
-       sorted by $M_i$ desc then $\text{createdAt}$ asc
-\If{$\mathcal{P} = \emptyset$} \textbf{commit}; \Return $\emptyset$
+\State $P \gets$ active auto-bids on $A$, excluding $u$
+\State sort $P$ by max desc, createdAt asc
+\If{$P$ empty}
+  \State commit; return $\emptyset$
 \EndIf
-\State $U \gets$ ascending sort of $\{u_{\text{trig}}\} \cup \{u_i : \alpha_i \in \mathcal{P}\}$
-\ForAll{$u \in U$}
-  \State $\textsc{SELECT id FROM wallets WHERE userId} = u \textsc{ FOR UPDATE}$
+\State $U \gets$ sorted ids $\{u\} \cup \{u_i$ in $P\}$
+\ForAll{$u' \in U$}
+  \State lock wallet row of $u'$
 \EndFor
-\State $b_{\text{trig}} \gets$ most recent WINNING bid by $u_{\text{trig}}$ on $A$
-\State $\text{cur} \gets \text{auction.currentPrice}$;
-       $\text{winner} \gets b_{\text{trig}}$
-\State $K_{\max} \gets \lceil (M_{(1)} - \text{cur})/\delta \rceil + 1$
-\State $\text{steps} \gets$ empty list
-\For{$k = 1$ to $K_{\max}$}
-  \State $\text{next} \gets \text{cur} + \delta$
-  \State $\mathcal{P} \gets \{\alpha_i \in \mathcal{P}: M_i \geq \text{next} \wedge u_i \neq \text{winner.bidder}\}$
-  \If{$\mathcal{P} = \emptyset$} \textbf{break} \EndIf
-  \State $\alpha^\ast \gets \arg\max_{\alpha \in \mathcal{P}} M_i$
-  \State $W \gets$ wallet of $u^\ast$ (already locked above)
-  \If{$W.\text{balance} - W.\text{heldAmount} < \text{next}$}
-    \State deactivate $\alpha^\ast$;
-           $\mathcal{P} \gets \mathcal{P} \setminus \{\alpha^\ast\}$;
-           \textbf{continue}
+\State $b \gets$ latest WINNING bid by $u$ on $A$
+\State price $\gets$ $A$.price; winner $\gets b$
+\State $K \gets \lceil (M_{\max} - $price$)/\delta \rceil + 1$
+\State steps $\gets$ empty list
+\For{$k = 1$ to $K$}
+  \State next $\gets$ price $+ \delta$
+  \State drop from $P$ any $\alpha_i$ with $M_i <$ next or $u_i =$ winner
+  \If{$P$ empty}
+    \State break
   \EndIf
-  \State outbid $\text{winner}$; release $\text{winner.amount}$ in winner's wallet
-  \State insert new bid row $(u^\ast, A, \text{next}, \text{WINNING}, \text{isAuto}=\text{true})$
-  \State decrement $W.\text{balance}$ by $\text{next}$;
-         increment $W.\text{heldAmount}$ by $\text{next}$
-  \State append the new row to $\text{steps}$
-  \State $\text{cur} \gets \text{next}$; $\text{winner} \gets$ new row
+  \State $\alpha \gets$ entry of $P$ with largest max
+  \State $W \gets$ wallet of $\alpha$.user
+  \If{$W$.balance $- W$.held $<$ next}
+    \State deactivate $\alpha$; remove from $P$; continue
+  \EndIf
+  \State outbid winner; release winner's hold
+  \State insert bid (user $=\alpha$.user, $A$, next, WINNING, auto)
+  \State $W$.balance $\mathrel{-}=$ next; $W$.held $\mathrel{+}=$ next
+  \State append bid to steps
+  \State price $\gets$ next; winner $\gets$ new bid
 \EndFor
-\If{$|\text{steps}| > 0$}
-  \State $\textsc{UPDATE auctions SET currentPrice} = \text{cur} \textsc{ WHERE id} = A$
+\If{steps non-empty}
+  \State update $A$.price $\gets$ price
 \EndIf
-\State \textbf{commit}; \Return $\text{steps}$
+\State commit; return steps
 \end{algorithmic}
 \end{algorithm}
 
@@ -377,7 +422,7 @@ $N$-rung ladder, which we observe matters more than expected at high
 fan-out (a hot auction with 200 subscribed sockets and a 10-rung ladder
 moves from 2000 socket frames to 200).
 
-% ─── 5. CORRECTNESS ─────────────────────────────────────────────────────────
+% ─── VI. CORRECTNESS ─────────────────────────────────────────────────────────
 \section{Correctness}
 
 \subsection{Property P1: Log Fidelity}
@@ -490,7 +535,7 @@ For a typical English auction with $\delta = 1\%$ of $p_0$ and the
 highest auto-bid at $2\times p_0$, $K_{\max} \approx 100$, well below
 the operational ceiling we enforce ($K_{\max} \leq 10^5$).
 
-% ─── VI. EVALUATION ──────────────────────────────────────────────────────────
+% ─── VII. EVALUATION ─────────────────────────────────────────────────────────
 \section{Evaluation}
 \label{sec:eval}
 
@@ -522,8 +567,6 @@ Table~\ref{tab:throughput} summarises the measured results.
 
 \begin{table}[h]
 \centering
-\caption{Measured Throughput and 95th-Percentile Latency}
-\label{tab:throughput}
 \begin{tabular}{lrrrrr}
 \toprule
 \textbf{Implementation} & \textbf{C} & \textbf{Iters}
@@ -540,6 +583,8 @@ Direct (FOR UPDATE)         & 100  & 570     & 30.0   & 5{,}772 \\
 Sequencer (Redis Stream)    & 100  & 14{,}626& 975.0  & 8.1    \\
 \bottomrule
 \end{tabular}
+\caption{Measured Throughput and 95th-Percentile Latency}
+\label{tab:throughput}
 \end{table}
 
 With a single virtual user the two pipelines differ modestly: the
@@ -569,8 +614,6 @@ distinct hashes appeared.
 
 \begin{table}[h]
 \centering
-\caption{Bid-Log Determinism Across Five Repeated Runs}
-\label{tab:determinism}
 \begin{tabular}{lc}
 \toprule
 \textbf{Implementation} & \textbf{Distinct Hashes} \\
@@ -580,6 +623,8 @@ Recursive            & 3--5 (varies with partial commits) \\
 Atomic Ladder        & 1 \\
 \bottomrule
 \end{tabular}
+\caption{Bid-Log Determinism Across Five Repeated Runs}
+\label{tab:determinism}
 \end{table}
 
 Both the single-jump and atomic ladder implementations are deterministic
@@ -596,8 +641,6 @@ $K^\star = 8$.
 
 \begin{table}[h]
 \centering
-\caption{Bid Rows per Manual Bid ($K^\star = 8$)}
-\label{tab:fidelity}
 \begin{tabular}{lrr}
 \toprule
 \textbf{Implementation} & \textbf{Rows} & \textbf{Fidelity} \\
@@ -607,6 +650,8 @@ Recursive            & 4--8 (avg 6.3) & 78.8\% \\
 Atomic Ladder        & 8   & 100.0\% \\
 \bottomrule
 \end{tabular}
+\caption{Bid Rows per Manual Bid ($K^\star = 8$)}
+\label{tab:fidelity}
 \end{table}
 
 The recursive approach loses rungs to its partial-commit failure mode: an
@@ -621,7 +666,8 @@ bid-throughput.js}.
 Executing {\tt npm run sim:ladder} reproduces every
 measurement reported above.
 
-% ─── VII. DISCUSSION ──────────────────────────────────────────────────────────
+\FloatBarrier
+% ─── VIII. DISCUSSION ────────────────────────────────────────────────────────
 \section{Discussion}
 
 \subsection{When Single-Jump Is Preferable}
@@ -666,7 +712,7 @@ that any such crash leaves no partial state, so the recoverability
 argument follows from the atomicity of {\tt COMMIT} rather than from any
 property of the protocol itself.
 
-% ─── VIII. CONCLUSION ──────────────────────────────────────────────────────────
+% ─── IX. CONCLUSION ──────────────────────────────────────────────────────────
 \section{Conclusion}
 
 We described the Atomic Ladder Protocol for resolving concurrent proxy
