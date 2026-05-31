@@ -12,43 +12,69 @@ export function formatRemaining(diffMs: number): string {
   return `${m}m ${s}s`;
 }
 
+/**
+ * Phase F5 — tri-state urgency. Defaults preserve the previous API:
+ *   - default `urgentMs = 3,600,000`   → warning state from 1 h out
+ *   - default `criticalMs = 30,000`    → critical state in last 30 s
+ *
+ * Critical adds an attention-grabbing pulse animation (`ah-pulse-urgent`)
+ * driven by globals.css. Warning is colour-only (amber). Outside both
+ * thresholds the countdown is plain text.
+ *
+ * The 1 s tick is unchanged; under 60 s remaining we tick at 250 ms so the
+ * "29s, 28s, ..." reading feels accurate at the moment the user is most
+ * likely to be racing the clock.
+ */
 export function Countdown({
   endTime,
   size = "lg",
   urgentMs = 3600000,
+  criticalMs = 30000,
   style,
 }: {
   endTime: string;
   size?: "sm" | "md" | "lg";
   urgentMs?: number;
+  criticalMs?: number;
   style?: React.CSSProperties;
 }) {
   const [, force] = React.useReducer((x: number) => x + 1, 0);
 
+  // Adaptive tick rate. Faster ticks when the auction is in its final
+  // minute so the displayed seconds are never stale by more than 250 ms.
   React.useEffect(() => {
-    const id = setInterval(force, 1000);
+    const diff = new Date(endTime).getTime() - Date.now();
+    const fast = diff > 0 && diff < 60_000;
+    const id = setInterval(force, fast ? 250 : 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [endTime]);
 
   const diff = new Date(endTime).getTime() - Date.now();
   const text = formatRemaining(diff);
-  const urgent = diff > 0 && diff < urgentMs;
   const ended = diff <= 0;
+  const critical = !ended && diff < criticalMs;
+  const urgent = !ended && !critical && diff < urgentMs;
 
   const fontSize =
     size === "lg" ? "2rem" : size === "md" ? "1.4rem" : "var(--font-base)";
 
+  const color = ended
+    ? "var(--muted)"
+    : critical
+      ? "var(--danger)"
+      : urgent
+        ? "var(--warning)"
+        : "var(--text)";
+
   return (
     <span
+      className={critical ? "ah-pulse-urgent" : undefined}
       style={{
+        display: "inline-block",
         fontVariantNumeric: "tabular-nums",
-        fontWeight: 700,
+        fontWeight: critical ? 800 : 700,
         fontSize,
-        color: ended
-          ? "var(--muted)"
-          : urgent
-          ? "var(--danger)"
-          : "var(--text)",
+        color,
         ...style,
       }}
     >

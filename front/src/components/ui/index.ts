@@ -23,3 +23,14 @@ export { BidChart } from "./BidChart";
 export type { BidPoint } from "./BidChart";
 export { Countdown, formatRemaining } from "./Countdown";
 export { ThemeToggle } from "./ThemeToggle";
+
+// Phase F — live-bidding UI surface.
+export { ConnectionStatus } from "./ConnectionStatus";
+export {
+  LiveTickerProvider,
+  useLiveTicker,
+} from "./LiveTicker";
+export type { LiveTickerKind, LiveTickerEvent } from "./LiveTicker";
+export { LadderBanner } from "./LadderBanner";
+export { BackpressureBanner } from "./BackpressureBanner";
+export { AutoBidHealth } from "./AutoBidHealth";
