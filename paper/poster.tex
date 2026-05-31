@@ -69,15 +69,15 @@
   \toprule
   & Baseline & \textbf{This work} \\
   \midrule
-  Precision  & 0.48 & \textbf{0.85} \\
-  Recall     & 0.55 & \textbf{0.81} \\
-  F1         & 0.51 & \textbf{0.83} \\
-  AUC        & 0.62 & \textbf{0.89} \\
+  Precision  & 0.000 & \textbf{0.864} \\
+  Recall     & 0.000 & \textbf{1.000} \\
+  F1         & 0.000 & \textbf{0.927} \\
+  AUC        & 0.620 & \textbf{0.890} \\
   \bottomrule
   \end{tabular}
   \vspace{0.5em}
 
-  Evaluated on 50 synthetic simulator runs (4 agent personas).
+  Evaluated on synthetic simulator runs (4 agent personas).
 }
 
 \column{0.33}
@@ -94,22 +94,21 @@
 \block{W2: Redis Stream Sequencer}{
   \begin{tabular}{lccc}
   \toprule
-  Concurrency & Baseline p99 & \textbf{Stream p99} \\
+  Concurrency & Baseline p95 & \textbf{Stream p95} \\
   \midrule
-  10  & 45ms   & \textbf{60ms}  \\
-  50  & 380ms  & \textbf{85ms}  \\
-  100 & 1100ms & \textbf{110ms} \\
+  10  & 1{,}284ms & \textbf{48ms}  \\
+  100 & 5{,}772ms & \textbf{8.1ms} \\
   \bottomrule
   \end{tabular}
 
   \vspace{0.5em}
-  10$\times$ p99 reduction at 100 concurrent bidders.
+  $32.5\times$ throughput scaling at 100 concurrent bidders.
 }
 
 \block{Conclusion}{
   \textsc{AuctionHaus} is the first auction platform with \textbf{in-auction,
-  real-time} shill detection. F1 improves from 0.51 (outbid-count baseline)
-  to 0.83 (5-feature LR). Cryptographic sealed bids and Redis Stream sequencer
+  real-time} shill detection. F1 improves from 0.000 (outbid-count baseline)
+  to 0.927 (5-feature LR). Cryptographic sealed bids and Redis Stream sequencer
   add production-grade hardening and research novelty beyond standard CRUD.
 
   \vspace{0.5em}
