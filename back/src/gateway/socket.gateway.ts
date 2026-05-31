@@ -8,7 +8,42 @@ import jwt from 'jsonwebtoken';
  * Rooms:
  *  - auction:{auctionId} — join to get live bid updates for an auction
  *  - user:{userId}       — personal room for notifications
+ *
+ * Phase E8: per-auction live viewer count emitted as `auction:presence`.
+ *
+ * Trailing-edge debounce, 250 ms — covers the bursts that happen when a hot
+ * auction page is opened from a tab group (Chrome wakes all hidden tabs and
+ * each fires its `auction:join` within the same animation frame). Without
+ * the debounce, every joiner would trigger one emit per existing viewer
+ * (O(N²) socket frames). With it, each burst collapses to a single emit
+ * carrying the final post-burst count.
+ *
+ * The `fetchSockets()` call uses the Socket.io adapter, so the count is
+ * cluster-wide when the Redis adapter (Phase A8) is active.
  */
+const PRESENCE_DEBOUNCE_MS = 250;
+const presenceTimers = new Map<string, NodeJS.Timeout>();
+
+const schedulePresenceEmit = (io: Server, auctionId: string) => {
+  const room = `auction:${auctionId}`;
+  // If a debounce is already pending for this room, leave it alone -- it will
+  // fire shortly and capture the current count. Otherwise schedule a fresh one.
+  if (presenceTimers.has(room)) return;
+  const timer = setTimeout(async () => {
+    presenceTimers.delete(room);
+    try {
+      const sockets = await io.in(room).fetchSockets();
+      io.to(room).emit('auction:presence', {
+        auctionId,
+        viewers: sockets.length,
+      });
+    } catch {
+      // adapter error -- emit nothing rather than emit a bogus count
+    }
+  }, PRESENCE_DEBOUNCE_MS);
+  presenceTimers.set(room, timer);
+};
+
 export const initSocketGateway = (io: Server) => {
   // Authentication middleware for socket connections
   io.use((socket, next) => {
@@ -58,11 +93,26 @@ export const initSocketGateway = (io: Server) => {
       if (!auctionId) return;
       socket.join(`auction:${auctionId}`);
       socket.emit('auction:joined', { auctionId });
+      schedulePresenceEmit(io, auctionId);
     });
 
     // ── Leave auction room ──
     socket.on('auction:leave', (auctionId: string) => {
       socket.leave(`auction:${auctionId}`);
+      schedulePresenceEmit(io, auctionId);
+    });
+
+    // Phase E8: presence on disconnect. socket.io fires `disconnecting`
+    // BEFORE the rooms are cleared, so socket.rooms still contains the
+    // auction rooms this socket was watching. After `disconnect` they're
+    // already gone and fetchSockets would return one extra.
+    socket.on('disconnecting', () => {
+      for (const room of socket.rooms) {
+        if (room.startsWith('auction:')) {
+          const auctionId = room.slice('auction:'.length);
+          schedulePresenceEmit(io, auctionId);
+        }
+      }
     });
 
     // ── Request current bid (for sync on reconnect) ──

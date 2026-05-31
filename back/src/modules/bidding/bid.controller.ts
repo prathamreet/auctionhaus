@@ -34,6 +34,13 @@ export const placeBid = async (req: AuthRequest, res: Response, next: NextFuncti
       auctionMeta?.type === AuctionType.SEALED_BID &&
       auctionMeta?.status === AuctionStatus.ACTIVE;
 
+    // Phase E10: stamp every bid:new with serverTs so subscribed clients can
+    // compute "X seconds ago" against the server clock instead of their own.
+    // The fraud engine's BidEvent.ts is already server-stamped; keeping the
+    // socket payload in sync means a reviewer comparing the bid log and the
+    // fraud feed sees one consistent timeline.
+    const serverTs = Date.now();
+
     if (isSealedLive) {
       req.io?.to(`auction:${auctionId}`).emit('bid:new', {
         bid: {
@@ -42,6 +49,7 @@ export const placeBid = async (req: AuthRequest, res: Response, next: NextFuncti
           // amount + bidderId intentionally omitted
         },
         sealed: true,
+        serverTs,
       });
     } else {
       req.io?.to(`auction:${auctionId}`).emit('bid:new', {
@@ -51,6 +59,7 @@ export const placeBid = async (req: AuthRequest, res: Response, next: NextFuncti
           bidderId: bid.bidderId,
           createdAt: bid.createdAt,
         },
+        serverTs,
       });
     }
 

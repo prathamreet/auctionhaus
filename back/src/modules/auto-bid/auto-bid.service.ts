@@ -54,12 +54,32 @@ export const setAutoBid = async (data: {
     }
   }
 
-  // Check wallet can cover the bid
-  const minBid =
-    auction.type === 'DUTCH' ? maxD : currentD.add(auction.minIncrement);
+  // Phase E2: require enough available balance to cover the FULL maxAmount,
+  // not just the next increment.
+  //
+  // The old check passed any wallet that could cover one minIncrement above
+  // current price; a $0-balance user could register a $10,000 auto-bid and
+  // discover it silently deactivated later by the ladder's affordability
+  // probe. That UX is bad two ways: the user thinks they have a $10k auto-bid
+  // running, and the bidder log on the auction page suddenly shows no auto-bid
+  // activity with no error surfaced.
+  //
+  // We now require `available >= maxAmount` at registration. The cost: a user
+  // who funds their wallet later but auto-bids early will get rejected. The
+  // benefit: every accepted auto-bid is honoured; the ladder's per-step
+  // affordability probe in `processAutoBidLadder` becomes a defence-in-depth
+  // check rather than the primary gate.
   const wallet = await prisma.wallet.findUnique({ where: { userId: bidderId } });
-  if (!wallet || D(wallet.balance).sub(wallet.heldAmount).lt(minBid)) {
-    throw createError('Insufficient available balance for auto-bid', 400);
+  if (!wallet) {
+    throw createError('Wallet not found', 400);
+  }
+  const available = D(wallet.balance).sub(wallet.heldAmount);
+  if (available.lt(maxD)) {
+    throw createError(
+      `Insufficient available balance for auto-bid. ` +
+        `Need ₹${maxD.toString()}, have ₹${available.toString()} available.`,
+      400,
+    );
   }
 
   const autoBid = await prisma.autoBid.upsert({

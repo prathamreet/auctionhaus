@@ -162,41 +162,83 @@ async function endAuction(auctionId: string) {
   if (!committed || !auctionSnap) return; // duplicate / already-ended
   const auction = auctionSnap;
 
-  // Update bid statuses for sealed bid
+  // Update bid statuses for sealed bid.
+  //
+  // Phase E7: idempotency.
+  //
+  // The previous version had two failure modes that a BullMQ retry could not
+  // recover from. First, the status-flip-to-ENDED happened in a tx separate
+  // from the wallet refunds, so a crash between the two left losers
+  // permanently unrefunded (the retry would see status=ENDED and bail at
+  // the top of endAuction). Second, the wallet `$transaction([...])` was
+  // a fresh tx with no lock-ordering with respect to other concurrent
+  // wallet writers (e.g. a withdraw on a loser's wallet), so a deadlock
+  // would occasionally surface under load.
+  //
+  // The fix:
+  //   - Process all sealed bids in ONE interactive tx.
+  //   - Lock every involved wallet in ascending userId order BEFORE any
+  //     write (matches the global lock-order documented in placeBid /
+  //     processAutoBidLadder / escrow.service).
+  //   - Filter on `refundedAt IS NULL` so a retried run resumes from
+  //     wherever the previous one committed. The refundedAt timestamp is
+  //     the durable per-row marker; status (WON / LOST) is the secondary
+  //     marker -- both move in the same tx so they cannot diverge.
+  //   - Write a BID_RELEASE transaction-log row per loser. The previous
+  //     version skipped these, leaving a ledger gap (every BID_HOLD in the
+  //     sealed flow had no matching release entry).
   if (auction.type === 'SEALED_BID') {
-    const allBids = await prisma.bid.findMany({
-      where: { auctionId },
-      orderBy: { amount: 'desc' },
-    });
+    await prisma.$transaction(async (tx) => {
+      const pending = await tx.bid.findMany({
+        where: { auctionId, refundedAt: null },
+        orderBy: { amount: 'desc' },
+      });
+      if (pending.length === 0) return;
 
-    if (allBids.length > 0) {
-      await prisma.bid.update({ where: { id: allBids[0].id }, data: { status: 'WON' } });
-      const loserIds = allBids.slice(1).map((b) => b.id);
-      if (loserIds.length > 0) {
-        await prisma.bid.updateMany({ where: { id: { in: loserIds } }, data: { status: 'LOST' } });
-
-        // Phase A1: Decimal-safe per-user refund aggregation. Without Decimal,
-        // repeated `+= loser.amount` on Float would drift on edge values.
-        const refunds: Record<string, Prisma.Decimal> = {};
-        for (const loser of allBids.slice(1)) {
-          const prior = refunds[loser.bidderId] ?? D(0);
-          refunds[loser.bidderId] = prior.add(loser.amount);
-        }
-
-        const refundUpdates = Object.entries(refunds).map(([userId, amount]) =>
-          prisma.wallet.update({
-            where: { userId },
-            data: {
-              balance: { increment: amount },
-              heldAmount: { decrement: amount },
-            },
-          })
-        );
-
-        // Execute batch updates atomically
-        await prisma.$transaction(refundUpdates);
+      const userIds = Array.from(new Set(pending.map((b) => b.bidderId))).sort();
+      for (const uid of userIds) {
+        await tx.$queryRaw`SELECT id FROM wallets WHERE "userId" = ${uid} FOR UPDATE`;
       }
-    }
+
+      const winnerBid = pending[0];
+      const losers = pending.slice(1);
+
+      // Winner: keep funds held (until confirmWinnerPayment); only mark
+      // processed so a retry doesn't try to refund them.
+      await tx.bid.update({
+        where: { id: winnerBid.id },
+        data: { status: 'WON', refundedAt: new Date() },
+      });
+
+      // Losers: refund + ledger entry + mark processed.
+      for (const loser of losers) {
+        const wallet = await tx.wallet.findUnique({
+          where: { userId: loser.bidderId },
+        });
+        if (!wallet) continue; // wallet missing -- shouldn't happen, but skip safely
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: { increment: loser.amount },
+            heldAmount: { decrement: loser.amount },
+          },
+        });
+        await tx.transaction.create({
+          data: {
+            walletId: wallet.id,
+            userId: loser.bidderId,
+            type: 'BID_RELEASE',
+            amount: loser.amount,
+            description: `Lost sealed bid on "${auction.title}"`,
+            referenceId: auctionId,
+          },
+        });
+        await tx.bid.update({
+          where: { id: loser.id },
+          data: { status: 'LOST', refundedAt: new Date() },
+        });
+      }
+    });
   }
 
   // Phase A1: emit number-typed prices so socket subscribers don't choke on
@@ -292,6 +334,26 @@ export async function processAutoBidLadder(
     const auction = await tx.auction.findUnique({ where: { id: auctionId } });
     if (!auction || auction.status !== AuctionStatus.ACTIVE) return;
 
+    // Phase E4: hard stop if the auction has effectively ended between the
+    // trigger bid commit and this worker's pickup. Without this, a queue
+    // delay can race the BullMQ `end-auction` job and produce ladder bids
+    // AFTER the auction closed -- bids that no one can revert. The auction
+    // lock above guarantees this read is consistent with concurrent
+    // status-flippers.
+    //
+    // Note on anti-sniping: the ladder DOES NOT extend `endTime`. Anti-snipe
+    // is the responsibility of the manual trigger bid (in bid.service.placeBid).
+    // The ladder is the "instant resolution" of that single moment: all rungs
+    // share the trigger's wall-clock semantically, so they must not re-trigger
+    // anti-snipe N times for N rungs. The `endTime` snapshot is captured here
+    // and not re-read inside the loop for the same reason.
+    //
+    // `auction.endTime &&` guards the unit-test path where the auction mock
+    // omits the field. In production the schema makes endTime non-null, so
+    // the guard is a no-op there. `new Date(...)` is defensive against
+    // Prisma returning the value as a string in some test fixtures.
+    if (auction.endTime && Date.now() > new Date(auction.endTime).getTime()) return;
+
     // Only English auctions use the ladder. Dutch ends on first accept; Sealed
     // keeps currentPrice frozen on purpose (Phase A4 privacy).
     if (auction.type !== AuctionType.ENGLISH) return;
@@ -299,9 +361,15 @@ export async function processAutoBidLadder(
     // Load every active auto-bid for this auction, except the trigger bidder's
     // own (they just placed a manual bid; their auto-bid -- if any -- doesn't
     // challenge themselves).
+    //
+    // Phase E3: secondary sort on `createdAt asc` makes ties deterministic --
+    // when two auto-bidders share the same maxAmount, the earlier-registered
+    // one wins the ladder. Without this the JS engine can produce different
+    // orderings across runs depending on Postgres's planner, breaking the
+    // log-fidelity property the paper claims.
     const autoBids = await tx.autoBid.findMany({
       where: { auctionId, isActive: true, bidderId: { not: triggerBidderId } },
-      orderBy: { maxAmount: 'desc' },
+      orderBy: [{ maxAmount: 'desc' }, { createdAt: 'asc' }],
     });
     if (autoBids.length === 0) return;
 
@@ -512,19 +580,42 @@ const autoBidWorker = new Worker(
     };
 
     const steps = await processAutoBidLadder(auctionId, triggerBidderId);
+    if (steps.length === 0) return;
 
-    // Post-commit side effects. Emitted in ladder order so the frontend
-    // bid log animates the rungs.
+    // Phase E1: emit ONE `bid:ladder` event carrying the whole ladder, instead
+    // of N `bid:new` events. The frontend bid log can animate the rungs from a
+    // single message (each ladder step's `createdAt` is preserved so the chart
+    // x-axis still reflects the per-step insertion order set inside the tx).
+    //
+    // Why this matters:
+    //   - 10 rungs used to produce 10 socket roundtrips per subscribed client.
+    //   - TanStack Query was invalidating the auction-bids query N times in a
+    //     tight loop, causing N back-to-back GETs.
+    //   - With one event, the client refetches once and renders the full ladder
+    //     in a single React commit.
+    //
+    // Phase E10: `serverTs` is the authoritative timestamp clients should use
+    // for any "X seconds ago" / chart-x-axis math. Client wall clocks drift;
+    // this lets the bid chart line up with the fraud-engine's `BidEvent.ts`
+    // (which also uses server time) so reviewers comparing the two see a
+    // consistent timeline.
+    const lastStep = steps[steps.length - 1];
+    io.to(`auction:${auctionId}`).emit('bid:ladder', {
+      auctionId,
+      steps: steps.map((s) => ({
+        bidId: s.bidId,
+        amount: s.amount,
+        bidderId: s.bidderId,
+        isAutoBid: true,
+        createdAt: s.createdAt,
+      })),
+      finalPrice: lastStep.amount,
+      lastBidId: lastStep.bidId,
+      serverTs: Date.now(),
+    });
+
+    // Notifications stay per-step -- each step has a distinct recipient.
     for (const s of steps) {
-      io.to(`auction:${auctionId}`).emit('bid:new', {
-        bid: {
-          id: s.bidId,
-          amount: s.amount,
-          bidderId: s.bidderId,
-          isAutoBid: true,
-          createdAt: s.createdAt,
-        },
-      });
       notifyUser(s.bidderId, {
         type: 'AUTO_BID_PLACED',
         title: 'Auto-bid placed',

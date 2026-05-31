@@ -38,10 +38,22 @@ import { placeBid } from './bid.service';
 import { io } from '../../index';
 import { serializeMoney } from '../../lib/decimal';
 import { prisma } from '../../lib/prisma';
+import { createError } from '../../middleware/error.middleware';
 
 const STREAM_TTL_ENTRIES = 1000; // trim stream to last 1000 entries per auction
 const CONSUMER_GROUP = 'bid-processors';
 const BLOCK_MS = 2000; // XREADGROUP block timeout
+
+// Phase E6: backpressure threshold. If the unconsumed stream length exceeds
+// this, enqueue rejects with 503 and emits a `bid:backpressure` event to the
+// admin room. Configurable via env (BID_STREAM_BACKPRESSURE) so a load test
+// can lower it to trigger the path deliberately. The default sits below the
+// STREAM_TTL_ENTRIES MAXLEN trim threshold, so we warn before the stream
+// starts dropping older entries.
+const BACKPRESSURE_THRESHOLD = (() => {
+  const raw = parseInt(process.env.BID_STREAM_BACKPRESSURE ?? '', 10);
+  return Number.isFinite(raw) && raw > 0 ? raw : 750;
+})();
 
 export class BidSequencer {
   private static instance: BidSequencer;
@@ -63,6 +75,37 @@ export class BidSequencer {
   /** Producer: publish a bid command to the auction stream. */
   async enqueue(auctionId: string, bidderId: string, amount: number): Promise<string> {
     const key = this.streamKey(auctionId);
+
+    // Phase E6: backpressure check before XADD. If the stream is saturated,
+    // the consumer is falling behind and accepting more entries just delays
+    // the response further (or worse, pushes older un-consumed entries past
+    // the MAXLEN trim threshold and silently drops them).
+    //
+    // We check XLEN -- which is O(1) -- and reject with 503 if over the
+    // threshold. A `bid:backpressure` event goes to the admin:fraud room so
+    // an operator sees the saturation in real time. The bidder gets a clean
+    // "service unavailable" instead of a silently-dropped bid.
+    //
+    // .catch(() => 0) means: if Redis is down, XLEN returns 0 and we let the
+    // XADD attempt proceed -- the XADD itself will fail loudly. Treating a
+    // Redis error here as "backpressure" would mask the real fault.
+    const currentLen = await redis.xlen(key).catch(() => 0);
+    if (currentLen >= BACKPRESSURE_THRESHOLD) {
+      if (io) {
+        io.to('admin:fraud').emit('bid:backpressure', {
+          auctionId,
+          streamLength: currentLen,
+          threshold: BACKPRESSURE_THRESHOLD,
+          ts: Date.now(),
+        });
+      }
+      throw createError(
+        `Bid stream saturated for auction ${auctionId} ` +
+          `(${currentLen} pending, threshold ${BACKPRESSURE_THRESHOLD}). Retry shortly.`,
+        503,
+      );
+    }
+
     const entryId = await redis.xadd(
       key,
       'MAXLEN', '~', String(STREAM_TTL_ENTRIES),
