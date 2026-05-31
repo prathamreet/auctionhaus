@@ -123,10 +123,16 @@ async function runSimulation() {
     makeCred('col', 2),
   ]);
 
-  // Also deposit wallet funds for each bidder
+  // Also deposit wallet funds for each bidder (respecting the ₹100,000 single deposit limit)
   const deposit = async (cred: UserCred) => {
-    await axios.post(`${BASE}/wallet/deposit`, { amount: 500000 },
-      { headers: { Authorization: `Bearer ${cred.token}` } }).catch(() => {});
+    for (let i = 0; i < 5; i++) {
+      try {
+        await axios.post(`${BASE}/wallet/deposit`, { amount: 100000 },
+          { headers: { Authorization: `Bearer ${cred.token}` } });
+      } catch (err: any) {
+        console.error(`[Sim] Deposit failed for ${cred.email}:`, err.response?.data?.message || err.message);
+      }
+    }
   };
   await Promise.all([t1, t2, sniper, shill, colA, colB].map(deposit));
 

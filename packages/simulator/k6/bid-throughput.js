@@ -59,7 +59,8 @@ const headers = {
 let bidBase = 1000;
 
 export default function () {
-  const amount = bidBase + Math.floor(Math.random() * 10000);
+  // Use VU and iteration count to ensure monotonically increasing bid values that keep pace with currentPrice
+  const amount = bidBase + (__ITER * 100) + (__VU * 10);
   const mode = __ENV.MODE === 'stream' ? 'stream' : 'direct';
   const url = mode === 'stream'
     ? `${BASE}/bids/auctions/${AUCTION_ID}/stream`

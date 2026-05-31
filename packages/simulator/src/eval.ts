@@ -33,7 +33,9 @@ import type { BidEvent } from '../../../back/src/modules/fraud/fraud.types';
 const prisma = new PrismaClient();
 
 const RUN_DIR = process.env.SIM_RUN_DIR ?? '';
-const PAPER_DIR = path.join(process.cwd(), 'paper');
+const PAPER_DIR = process.cwd().endsWith('back')
+  ? path.join(process.cwd(), '..', 'paper')
+  : path.join(process.cwd(), 'paper');
 const FIGURES_DIR = path.join(PAPER_DIR, 'figures');
 const TABLES_DIR = path.join(PAPER_DIR, 'tables');
 

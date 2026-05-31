@@ -9,6 +9,7 @@
     "run:eval": "ts-node src/eval.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.10.2",
     "axios": "^1.6.0",
     "socket.io-client": "^4.7.4",
     "uuid": "^9.0.1"
