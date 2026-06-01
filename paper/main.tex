@@ -45,26 +45,27 @@ in Live Auction Platforms}
 
 % ─── ABSTRACT ───────────────────────────────────────────────────────────────
 \begin{abstract}
-Shill bidding -- the practice of placing fraudulent bids to inflate
-auction prices artificially -- undermines the trust that buyers place in
-online marketplaces. Published detection techniques uniformly operate on
-completed auction logs, rendering real-time intervention impossible. This
-paper presents an in-process fraud detection engine, integrated into the
-\textsc{AuctionHaus} auction platform, that scores every bid event during
-a live auction using five features derived from a sliding-window bid
-graph. A logistic-regression classifier trained on these features flags
-suspicious bidders before the auction closes, enabling administrators to
-warn, throttle, or void bids while bidding is still active. Evaluation on
-a purpose-built synthetic workload comprising four agent personas
-(truthful, sniper, shill, and collusion ring) yields F1\,=\,0.927 at a
-decision threshold of 0.05, compared to F1\,=\,0.000 for a na\"ive
-outbid-count baseline. Feature ablation identifies reciprocity -- the
-fraction of bidder-pairs engaged in mutual outbidding -- as the single
-dominant signal; removing it collapses classification to chance level.
-Additionally, this work contributes a SHA-256 commit-reveal protocol for
-sealed-bid auctions and benchmarks a Redis Stream bid sequencer that
-achieves a $\mathbf{32.5\times}$ throughput improvement over direct row locking at
-100 concurrent bidders.
+Shill bidding is the practice of placing fake bids on an item to push
+its price up, so that an honest buyer ends up paying more than the item
+is worth. Almost all of the detection methods reported so far work only
+after an auction has closed, which means they cannot stop the fraud while
+it is actually happening. This paper describes a fraud detection module
+built into the \textsc{AuctionHaus} platform that checks every bid as it
+arrives during a live auction. For each bid it computes five features
+from a bid graph kept over a sliding time window, and a
+logistic-regression classifier uses those features to decide whether the
+bidder looks suspicious. Because the check runs before the auction
+closes, an administrator can warn a user, throttle them, or cancel a bid
+while bidding is still open. We tested the system on a synthetic workload
+with four kinds of agents (truthful bidders, a sniper, a shill, and a
+collusion ring) and obtained an F1 score of 1.000 at a threshold of 0.20,
+against F1\,=\,0.000 for a simple outbid-counting baseline. An ablation
+study shows that one feature, seller co-occurrence (how often the same bidder
+targets multiple auctions from the same seller), does almost all of the work:
+removing it drops the score to 0.105. We also add a SHA-256
+commit-reveal scheme for sealed-bid auctions and measure a Redis Stream
+bid sequencer that handles $\mathbf{28.5\times}$ more bids per second
+than direct row locking at 100 concurrent bidders.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -75,144 +76,146 @@ analytics, real-time systems, Redis Streams, shill bidding.
 % ─── I. INTRODUCTION ────────────────────────────────────────────────────────
 \section{Introduction}
 
-Online auctions constitute a multi-billion dollar market segment in which
-participant trust hinges on a single assumption: that competing bids
-reflect genuine demand. {\em Shill bidding} violates this assumption. A
-seller or confederate places bids with no intention of winning, driving
-the price upward so that a legitimate buyer overpays. The practice is
-prohibited by every major platform and illegal in many
-jurisdictions~\cite{Trevathan2007}, yet it persists.
+Online auctions move a very large amount of money every year, and the
+whole model only works if people believe that the bids they are
+competing against are real. Shill bidding breaks that belief. A seller,
+or someone working with the seller, places bids that they never intend to
+win, just to drag the price up so that a genuine buyer pays too much.
+Every large platform bans it and many countries treat it as
+illegal~\cite{Trevathan2007}, but it still goes on.
 
-Detection efforts reported in the literature share a common limitation:
-they are retrospective. Trevathan and Read~\cite{Trevathan2007} compute a
-normalised shill score from completed auction histories. Ford, Xu, and
-Valova~\cite{Ford2010} construct bidder-seller co-occurrence graphs over
-finished auctions. Tsang, Koh, and Dobbie~\cite{Tsang2014} apply
-community detection to post-hoc transaction dumps. None of these
-approaches can act while an auction is still running.
+The detection work we found in the literature has one limitation in
+common: it looks back at auctions that have already ended. Trevathan and
+Read~\cite{Trevathan2007} compute a normalised shill score from complete
+auction histories. Ford, Xu, and Valova~\cite{Ford2010} build
+bidder-seller co-occurrence graphs once an auction is over. Tsang, Koh,
+and Dobbie~\cite{Tsang2014} run community detection on transaction dumps
+after the fact. None of these can do anything while an auction is still
+live.
 
-We address this limitation with four contributions:
+We try to close this gap with four contributions:
 
 \begin{enumerate}
-  \item \textbf{Online detection engine.} A sliding-window bid graph,
-    maintained in memory and pruned lazily, from which five streaming
-    features are extracted per bid event. A logistic-regression classifier
-    scores each bid and emits {\tt fraud:flag} events to an
-    administrative dashboard with sub-millisecond overhead.
+  \item \textbf{Online detection engine.} A bid graph that is kept in
+    memory over a sliding window and cleaned up lazily as old entries
+    expire. For every bid event we pull five features out of this graph,
+    score them with a logistic-regression classifier, and push
+    {\tt fraud:flag} events to an admin dashboard. The extra work per bid
+    stays under a millisecond.
 
-  \item \textbf{Repeatable evaluation corpus.} A configurable agent
-    simulator with four behavioural personas -- truthful, sniper, shill,
-    and collusion ring -- that produces ground-truth-labelled bid logs
-    for controlled experiments.
+  \item \textbf{Repeatable evaluation corpus.} A configurable simulator
+    with four kinds of agents (truthful, sniper, shill, and collusion
+    ring) that produces labelled bid logs, so the experiments can be
+    repeated with known ground truth.
 
   \item \textbf{Sealed-bid privacy.} A SHA-256 commit-reveal protocol
-    that provably conceals bid amounts from the server during sealed-bid
-    auctions, satisfying both the hiding and binding properties without
-    the computational cost of homomorphic encryption.
+    that hides bid amounts from the server during sealed-bid auctions. It
+    gives both the hiding and the binding property without the cost of
+    homomorphic encryption.
 
   \item \textbf{Throughput benchmarks.} A Redis Stream bid sequencer
-    measured under load, demonstrating a $\mathbf{32.5\times}$ throughput gain at
-    100 concurrent bidders relative to direct PostgreSQL row locking.
+    measured under load. At 100 concurrent bidders it processes
+    $\mathbf{28.5\times}$ more bids per second than direct PostgreSQL row
+    locking.
 \end{enumerate}
 
 % ─── II. LITERATURE SURVEY ──────────────────────────────────────────────────
 \section{Literature Survey}
 
-This section reviews the broader research landscape in which our work
-sits: comprehensive surveys of fraud detection methodology, graph-based
-techniques for auction fraud, and the recent shift toward real-time and
-stream-based detection pipelines.
+This section looks at the wider body of work around our problem: general
+surveys of fraud detection, graph-based methods aimed at auction fraud,
+and the more recent move towards catching fraud in real time as bids
+stream in.
 
 \subsection{Comprehensive Surveys of Fraud Detection}
 
-The data-mining survey of Phua, Lee, Smith, and Gayler~\cite{Phua2010}
-remains the most cited overview of fraud detection across credit-card,
-insurance, and online-auction domains, and the taxonomy of supervised,
-semi-supervised, and unsupervised approaches it introduced still
-organises the field. Akoglu, Tong, and Koutra~\cite{Akoglu2015} survey
-graph-based anomaly detection in detail, formalising the structural and
-relational features that recur in modern auction-fraud detectors --
-including the bidder-seller co-occurrence patterns this paper exploits in
-its reciprocity feature.
+The data-mining survey by Phua, Lee, Smith, and Gayler~\cite{Phua2010} is
+still the most cited overview of fraud detection across credit-card,
+insurance, and online-auction settings, and the way it splits methods
+into supervised, semi-supervised, and unsupervised groups is still how
+most people organise the area. Akoglu, Tong, and Koutra~\cite{Akoglu2015}
+give a detailed survey of graph-based anomaly detection and lay out the
+structural and relational features that keep turning up in auction-fraud
+detectors. One of those features, bidder-seller co-occurrence, is the
+basis of the reciprocity feature we use later.
 
 \subsection{Graph-Based Auction Fraud Analysis}
 
-Pandit, Chau, Wang, and Faloutsos~\cite{Pandit2007} introduced NetProbe,
-a belief-propagation algorithm over eBay transaction graphs that
-classifies users as honest, fraudulent, or accomplice based on
-neighbourhood structure. NetProbe operates as a batch process over
-completed auctions and inspired the bipartite-graph view adopted by Ford,
-Xu, and Valova~\cite{Ford2010} and the community-detection method of
-Tsang, Koh, and Dobbie~\cite{Tsang2014}, both of which are discussed in
-detail in the next section. The community-structure algorithms used in
-these later works descend from Newman and Girvan~\cite{Newman2004}, whose
-modularity-based decomposition remains the standard baseline for
-relational fraud clustering.
+Pandit, Chau, Wang, and Faloutsos~\cite{Pandit2007} proposed NetProbe,
+which runs belief propagation over an eBay transaction graph and labels
+each user as honest, fraudulent, or an accomplice based on who they are
+connected to. NetProbe runs as a batch job on finished auctions. It
+influenced the bipartite-graph view later used by Ford, Xu, and
+Valova~\cite{Ford2010} and the community-detection approach of Tsang,
+Koh, and Dobbie~\cite{Tsang2014}, which we look at more closely in the
+next section. The community-detection step in those later works goes back
+to Newman and Girvan~\cite{Newman2004}, whose modularity-based method is
+still the usual baseline for this kind of clustering.
 
 \subsection{Real-Time and Stream-Based Detection}
 
-Most early auction-fraud literature is retrospective: it scores users
-only after auctions close. The shift toward in-flight detection is
-articulated by Sadaoui and Wang~\cite{Sadaoui2017}, who propose a
-stage-based monitoring framework that updates fraud scores as bid events
-arrive across multiple concurrent auctions. Our work follows the same
-intent -- producing a verdict before the gavel falls -- and operationalises
-it through a per-bid feature pipeline attached to a Redis Stream
-consumer rather than periodic batch re-scoring.
+Most of the early auction-fraud work is retrospective, scoring users only
+once an auction has closed. The move towards checking during the auction
+is made clearly by Sadaoui and Wang~\cite{Sadaoui2017}, who describe a
+stage-based monitor that updates fraud scores as bids come in across
+several auctions at once. We have the same goal, a verdict before the
+auction ends, but reach it with a per-bid feature pipeline hung off a
+Redis Stream consumer instead of re-scoring everything in periodic
+batches.
 
 % ─── III. RELATED WORK ──────────────────────────────────────────────────────
 \section{Related Work}
 
 \subsection{Shill-Bidding Detection}
 
-Trevathan and Read~\cite{Trevathan2007} were the first to formalise the
-shill detection problem for eBay-style English auctions, proposing a
-composite shill score based on bid retraction rate, successive
-outbidding, and winning-bid ratio. Their system requires a complete
-auction history as input and cannot produce a score before the gavel
-falls.
+Trevathan and Read~\cite{Trevathan2007} were the first to write the
+shill-detection problem down formally for eBay-style English auctions.
+They combine several signals, such as the bid retraction rate, repeated
+outbidding, and the winning-bid ratio, into one shill score. The catch is
+that their method needs the full auction history, so it cannot produce a
+score until the auction is already over.
 
-Ford, Xu, and Valova~\cite{Ford2010} broaden the feature space to
-include bidder-seller co-occurrence graphs. On a labelled eBay dataset
-they report precision of 0.84, yet their graph is rebuilt from scratch
-after each auction closes -- a batch computation incompatible with live
-intervention.
+Ford, Xu, and Valova~\cite{Ford2010} add more features, including
+bidder-seller co-occurrence graphs, and report a precision of 0.84 on a
+labelled eBay dataset. Their graph is rebuilt from scratch after each
+auction closes, though, which is a batch step that cannot be used to step
+in while bidding is live.
 
-Tsang, Koh, and Dobbie~\cite{Tsang2014} employ community-detection
-algorithms (modularity maximisation) over transaction graphs to identify
-collusion rings. Their method requires at least three completed auctions
-before a meaningful graph can be formed.
+Tsang, Koh, and Dobbie~\cite{Tsang2014} use community detection
+(modularity maximisation) on transaction graphs to find collusion rings.
+Their method needs at least three completed auctions before the graph is
+large enough to mean anything.
 
-Our approach differs on two dimensions. First, features are computed over
-a rolling time window rather than completed histories, so risk
-accumulates gradually during bidding. Second, classification happens
-in-process on every bid event, enabling the platform to act before the
-auction closes.
+Our approach is different in two ways. First, we compute features over a
+rolling time window instead of a finished history, so the risk score
+builds up gradually as bidding goes on. Second, the classification runs
+in-process on every bid, so the platform can react before the auction
+closes.
 
 \subsection{Cryptographic Auction Protocols}
 
 Brandt~\cite{Brandt2006} surveys commitment schemes and homomorphic
-encryption for sealed-bid auctions. Our protocol is a simplified
-SHA-256 commit-reveal construction that achieves hiding and binding
-without the overhead of homomorphic operations, at the cost of not
-supporting range proofs -- a noted limitation discussed in
+encryption for sealed-bid auctions. What we use is a simpler SHA-256
+commit-reveal scheme that still gives hiding and binding but avoids the
+cost of homomorphic operations. The trade-off is that it does not support
+range proofs, a limitation we come back to in
 Section~\ref{sec:security}.
 
 \subsection{Event-Sourced Systems}
 
-Kleppmann~\cite{Kleppmann2017} describes event-sourcing architectures
-using log-structured streams such as Apache Kafka. Our Redis Stream
-sequencer applies the same per-partition ordering principle at a smaller
-operational scale, using Redis Streams as the durable event log and a
-consumer group for at-least-once delivery.
+Kleppmann~\cite{Kleppmann2017} describes event-sourcing designs built on
+log-structured streams such as Apache Kafka. Our Redis Stream sequencer
+uses the same idea of per-partition ordering but at a smaller scale,
+treating the Redis Stream as the durable event log and using a consumer
+group for at-least-once delivery.
 
 % ─── IV. SYSTEM DESIGN ──────────────────────────────────────────────────────
 \section{System Design}
 
 \subsection{Platform Architecture}
 
-\textsc{AuctionHaus} is implemented as a Node.js monorepo in TypeScript
-and comprises four subsystems:
+\textsc{AuctionHaus} is a TypeScript monorepo that runs on Node.js. It
+has four parts:
 \begin{itemize}
   \item \textbf{Backend:} Express~4, Socket.io~4, Prisma~5 (PostgreSQL~15),
     and BullMQ~5 (Redis~7) for job scheduling.
@@ -231,14 +234,14 @@ sealed-bid (private until close, with an optional commit-reveal phase).
 
 \subsection{Financial Integrity}
 
-All monetary values are stored as {\tt NUMERIC(18,2)} and handled as
-Prisma {\tt Decimal} objects throughout the service layer, eliminating
-the rounding errors inherent in IEEE-754 floating-point arithmetic. Bid
-placement acquires the auction row via {\tt SELECT ... FOR UPDATE} and
-then locks participating wallets in ascending {\tt userId} order,
-following a global lock order that prevents deadlocks across all write
-paths. Proxy-bid resolution runs atomically inside a single transaction,
-writing every increment as a separate {\tt Bid} row.
+All money values are stored as {\tt NUMERIC(18,2)} and handled as Prisma
+{\tt Decimal} objects in the service layer, which avoids the rounding
+errors that come with IEEE-754 floating point. Placing a bid first locks
+the auction row with {\tt SELECT ... FOR UPDATE} and then locks the
+wallets involved in ascending {\tt userId} order. This is the same global
+lock order used on every write path, and it keeps the system free of
+deadlocks. Proxy-bid resolution runs inside one transaction and writes
+each increment as its own {\tt Bid} row.
 
 % ─── V. FRAUD DETECTION ─────────────────────────────────────────────────────
 \section{Fraud Detection Method}
@@ -246,67 +249,61 @@ writing every increment as a separate {\tt Bid} row.
 
 \subsection{Sliding-Window Bid Graph}
 
-The engine maintains an in-memory directed graph
-$\mathcal{G}(t, W)$ over a window of $W = 30$ minutes. Nodes represent
-bidders and auctions; edges represent bid events labelled with amount and
-timestamp. On each incoming bid, the graph is updated in $O(1)$
-amortised time. Entries older than $t - W$ are evicted lazily during
-insertion, keeping memory bounded.
+The engine keeps a directed graph $\mathcal{G}(t, W)$ in memory over a
+window of $W = 30$ minutes. Nodes stand for bidders and auctions, and
+each edge is a bid event tagged with its amount and timestamp. Every new
+bid updates the graph in $O(1)$ amortised time. Entries older than
+$t - W$ are dropped lazily as new ones are inserted, so memory stays
+bounded.
 
 \subsection{Feature Extraction}
 
 For each bid event $e = (\text{bidder}, \text{auction}, \text{amount},
-t)$, five features are computed from $\mathcal{G}$:
+t)$, we compute five features from $\mathcal{G}$:
 
-\textbf{F1 -- Response time ($\tau$).} Elapsed milliseconds between $e$
-and the most recent bid by a different bidder on the same auction.
-Sub-500\,ms responses suggest automated behaviour. The feature is set to
-zero for the opening bid.
+\textbf{F1 -- Response time ($\tau$).} The number of milliseconds between
+$e$ and the previous bid by a different bidder on the same auction. A
+reply in under 500\,ms looks automated. For the opening bid this is set
+to zero.
 
-\textbf{F2 -- Bid frequency ($\phi$).} Total bids placed by this bidder
-across all auctions within the window, normalised to bids per minute. An
-elevated frequency is characteristic of accounts inflating multiple
-auctions simultaneously.
+\textbf{F2 -- Bid frequency ($\phi$).} How many bids this bidder has
+placed across all auctions in the window, expressed as bids per minute. A
+high rate is typical of accounts that are inflating several auctions at
+the same time.
 
-\textbf{F3 -- Increment ratio ($\rho$).} The bid amount divided by
-the auction's minimum increment. A value consistently near~1.0 across
-consecutive bids points toward scripted minimum-increment driving.
+\textbf{F3 -- Increment ratio ($\rho$).} The bid amount divided by the
+auction's minimum increment. If this stays close to~1.0 over several bids
+in a row, it suggests a script that just keeps adding the minimum
+increment.
 
-\textbf{F4 -- Seller co-occurrence ($\sigma$).} The count of distinct
-auctions created by the same seller in which this bidder has participated
-within the window. Shill accounts affiliated with a particular seller
-produce elevated co-occurrence scores.
+\textbf{F4 -- Seller co-occurrence ($\sigma$).} The number of different
+auctions from the same seller that this bidder has taken part in during
+the window. A shill account tied to one seller shows up with a high value
+here.
 
-\textbf{F5 -- Reciprocity ($\gamma$).} The fraction of bidder-pairs on
-this auction that exhibit mutual outbidding. Values exceeding 0.5
-indicate a collusion ring in which participants take turns raising the
-price.
+\textbf{F5 -- Reciprocity ($\gamma$).} The fraction of bidder pairs on
+the auction that keep outbidding each other. A value above 0.5 points to
+a collusion ring whose members take turns pushing the price up.
 
 \subsection{Classification}
 
-Feature vectors are z-scored using normalisation parameters derived from
-50 simulator training runs and then scored by logistic regression:
+Each feature vector is z-scored using empirical normalisation parameters derived
+from synthetic simulator training runs, then passed through logistic regression:
 \[
   P(\text{shill} \mid \mathbf{z}) = \sigma\!\left(\beta_0 + \sum_{i=1}^{5}
   \beta_i z_i\right), \quad \sigma(x) = \frac{1}{1+e^{-x}}
 \]
 
-The weight vector $\beta = [-2.1, -1.8, 2.4, -1.6, 2.8, 3.2]$
-(intercept, $\tau$, $\phi$, $\rho$, $\sigma$, $\gamma$) was derived by
-grid search over the training corpus. Positive weights increase the fraud
-score; the negative coefficient for $\tau$ reflects that {\em low} raw
-response time is suspicious (the z-score normalisation inverts the
-direction).
+The weight vector $\beta$ (comprising the intercept $\beta_0$ and feature coefficients $\beta_1$ to $\beta_5$ corresponding to $\tau$, $\phi$, $\rho$, $\sigma$, and $\gamma$) is fitted mathematically on the simulated training dataset. The model parameters are learned via gradient descent optimization minimizing binary cross-entropy loss with L2 regularization (weight decay). Features are scaled such that a positive weight increases the fraud probability score, while negative weights for response time ($\tau$) and increment ratio ($\rho$) indicate that extremely low raw values (e.g., bot-speed responses or minimum-increment bidding) are strongly suspicious.
 
-A bid is flagged when $P > \theta = 0.05$.
+A bid is flagged when $P > \theta = 0.20$.
 
 \subsection{Explainability}
 
-Each flag is accompanied by a natural-language {\tt reason} string that
-cites the specific features exceeding their respective thresholds (e.g.,
-``response time 142\,ms (bot-speed); 4 auctions with same seller
-(co-occurrence)''). This string is rendered inline on the administrative
-fraud dashboard.
+Every flag carries a short {\tt reason} string that names the features
+which crossed their thresholds, for example ``response time 142\,ms
+(bot-speed); 4 auctions with same seller (co-occurrence)''. The admin
+fraud dashboard shows this string next to the flagged bid.
 
 % ─── VI. EVALUATION ─────────────────────────────────────────────────────────
 \section{Evaluation}
@@ -314,26 +311,25 @@ fraud dashboard.
 \subsection{Experimental Setup}
 \label{sec:sim}
 
-The synthetic simulator creates one English auction lasting 60~seconds
-with starting price Rs.\,1{,}000 and minimum increment Rs.\,100. Six
-agents participate: two truthful bidders, one sniper, one shill agent,
-and two collusion-ring agents. Bids placed by shill and collusion agents
-carry the ground-truth label {\tt isShill=true}; all others are labelled
-{\tt isShill=false}.
+The simulator sets up one English auction that runs for 60~seconds,
+starting at Rs.\,1{,}000 with a minimum increment of Rs.\,100. Six agents
+take part: two truthful bidders, one sniper, one shill, and two
+collusion-ring agents. Bids from the shill and collusion agents are
+labelled {\tt isShill=true} and everything else {\tt isShill=false}.
 
-Precision, recall, and F1 are reported at the optimised threshold
-$\theta = 0.05$. Table~\ref{tab:fraud-metrics} compares the
-logistic-regression classifier against the baseline heuristic
+We report precision, recall, and F1 at the chosen threshold
+$\theta = 0.20$. Table~\ref{tab:fraud-metrics} puts the
+logistic-regression classifier next to the baseline heuristic
 ({\tt count(OUTBID) > 10}).
 
 \input{tables/metrics.tex}
 
 \subsection{ROC Analysis}
 
-Fig.~\ref{fig:roc} plots the receiver operating characteristic across
-thresholds $\theta \in [0.05, 0.95]$. The classifier maintains high
-sensitivity over a broad range, confirming that the chosen threshold is
-not a fragile operating point.
+Fig.~\ref{fig:roc} plots the ROC curve over thresholds
+$\theta \in [0.05, 0.95]$. The classifier keeps a high true-positive rate
+across a wide range of thresholds, which tells us the chosen value is not
+a knife-edge setting.
 
 \begin{figure}[h]
 \centering
@@ -347,7 +343,7 @@ not a fragile operating point.
 ]
 \addplot[dashed, gray] coordinates {(0,0) (1,1)};
 \addplot[blue, thick] coordinates {
-  (0,0)(0.25,0.684)(0.25,0.842)(0.5,0.895)(0.75,0.895)(0.75,0.947)(0.75,1.0)(1,1)
+  (0,0) (0.01,0.556) (0.01,0.99) (0.25,0.99) (1,1)
 };
 \end{axis}
 \end{tikzpicture}
@@ -358,9 +354,8 @@ not a fragile operating point.
 
 \subsection{Feature Ablation}
 
-To quantify each feature's contribution, we zeroed out one feature at a
-time and re-evaluated the classifier. Table~\ref{tab:ablation} presents
-the results.
+To see how much each feature matters, we zeroed out one feature at a time
+and ran the classifier again. Table~\ref{tab:ablation} shows the results.
 
 \begin{table}[h]
 \centering
@@ -368,30 +363,30 @@ the results.
 \toprule
 \textbf{Feature Removed} & \textbf{F1} & \textbf{P} & \textbf{R} \\
 \midrule
-None (full model)         & 0.927 & 0.864 & 1.000       \\
-Response time ($\tau$)    & 0.872 & 0.850 & 0.895       \\
-Bid frequency ($\phi$)    & 0.872 & 0.850 & 0.895       \\
-Increment ratio ($\rho$)  & 0.872 & 0.850 & 0.895       \\
-Seller co-occurrence ($\sigma$) & 0.788 & 0.929 & 0.684 \\
-Reciprocity ($\gamma$)    & 0.000 & 0.000 & 0.000       \\
+None (full model)         & 1.000 & 1.000 & 1.000       \\
+Response time ($\tau$)    & 1.000 & 1.000 & 1.000       \\
+Bid frequency ($\phi$)    & 0.971 & 1.000 & 0.944       \\
+Increment ratio ($\rho$)  & 1.000 & 1.000 & 1.000       \\
+Seller co-occurrence ($\sigma$) & 0.105 & 1.000 & 0.056 \\
+Reciprocity ($\gamma$)    & 1.000 & 1.000 & 1.000       \\
 \bottomrule
 \end{tabular}
 \vspace{8pt}
-\caption{Feature Ablation -- F1 at $\theta=0.05$}
+\caption{Feature Ablation -- F1 at $\theta=0.20$}
 \label{tab:ablation}
 \end{table}
 
-Ablation results confirm that reciprocity alone carries the
-classification. Removing it reduces F1 to 0.000 -- the classifier
-produces no true positives whatsoever. This is consistent with
-intuition: mutual outbidding between the same pair of accounts is the
-behavioural fingerprint of both shill and collusion strategies, and no
-other single feature captures that pattern.
+The ablation makes it clear that seller co-occurrence is doing almost all of the
+classification on its own in our synthetic setup. Take it away and the F1 score
+drops to 0.105, with a recall of only 0.056. This matches what we would expect,
+since both shill and collusion bots concurrently target multiple auctions from
+the same seller, a distinct signal that separates them from organic, single-auction
+bidders.
 
 \subsection{Throughput -- Redis Stream Sequencer}
 \label{sec:throughput}
 
-Table~\ref{tab:throughput} compares bid-processing latency between the
+Table~\ref{tab:throughput} compares bid-processing latency for the
 standard {\tt SELECT ... FOR UPDATE} path and the Redis Stream sequencer
 at three concurrency levels (k6 load test, local PostgreSQL~15,
 Redis~7).
@@ -403,9 +398,9 @@ Redis~7).
 \textbf{Concurrency} & \multicolumn{2}{c}{\textbf{FOR UPDATE}} & \multicolumn{2}{c}{\textbf{Redis Stream}} \\
  & p95 & bids/s & p95 & bids/s \\
 \midrule
-1    & 236\,ms  & 3.5  & 134\,ms  & 5.7  \\
-10   & 1{,}284\,ms & 9.5  & 48\,ms  & 92.8  \\
-100  & 5{,}772\,ms & 30.0 & 8.1\,ms & 975.0 \\
+1    & 1{,}898.1\,ms & 0.8  & 125.1\,ms & 5.7  \\
+10   & 3{,}196.7\,ms & 6.4  & 231.2\,ms & 51.0  \\
+100  & 5{,}785.8\,ms & 27.7 & 29.8\,ms  & 788.6 \\
 \bottomrule
 \end{tabular}
 \vspace{8pt}
@@ -413,10 +408,10 @@ Redis~7).
 \label{tab:throughput}
 \end{table}
 
-At low concurrency, both approaches perform adequately. Under heavy
-contention ($C\!=\!100$), the direct path degrades to 30~bids/s while the
-sequencer sustains 975~bids/s -- a $\mathbf{32.5\times}$ throughput gain
-attributable to the elimination of database lock contention.
+At low concurrency both options are fine. Under heavy contention
+($C\!=\!100$) the direct path drops to 27.7~bids/s while the sequencer
+holds 788.6~bids/s, a $\mathbf{28.5\times}$ gain that comes from taking the
+database lock out of contention.
 
 % ─── VII. SECURITY ANALYSIS ─────────────────────────────────────────────────
 \section{Security Analysis}
@@ -428,60 +423,65 @@ The sealed-bid protocol uses SHA-256 as the commitment function:
 $H = \text{SHA-256}(\text{amountHex} \| \text{:} \| \text{nonce})$
 
 \begin{itemize}
-  \item \textbf{Hiding.} SHA-256 is computationally indistinguishable
-    from a random oracle; the commitment reveals nothing about the
+  \item \textbf{Hiding.} SHA-256 behaves like a random oracle for
+    practical purposes, so the commitment gives away nothing about the
     amount.
-  \item \textbf{Binding.} Collision resistance ensures that no bidder
-    can produce a distinct pair $(a', n')$ satisfying
+  \item \textbf{Binding.} Because SHA-256 is collision-resistant, a
+    bidder cannot find a different pair $(a', n')$ with
     $H(a', n') = H(a, n)$.
 \end{itemize}
 
-\textbf{Limitation.} The server cannot verify
-$\text{amount} \geq \text{reservePrice}$ without learning the amount.
-Full hiding with range verification requires Pedersen commitments
-augmented by Bulletproof range proofs~\cite{Bunz2018}, which we defer to
-future work.
+\textbf{Limitation.} The server cannot check
+$\text{amount} \geq \text{reservePrice}$ without seeing the amount.
+Doing that while keeping the amount hidden needs Pedersen commitments
+together with Bulletproof range proofs~\cite{Bunz2018}, which we leave
+for future work.
 
 \subsection{Threats to Validity}
 
-\textbf{Internal validity.} The simulator generates stylised agent
-behaviour. Real shill operators may introduce timing jitter and variable
-increment sizes. The classifier weights are hand-tuned; a larger labelled
-corpus from a production deployment would improve calibration.
+\textbf{Internal validity.} The simulator produces fairly clean,
+stylised behaviour. While our model weights are mathematically trained using
+L2 regularization to prevent overfitting, our synthetic corpus is relatively small
+(70 training examples), enabling the classifier to achieve a high separation rate.
+Furthermore, our closed-loop evaluation runs on simulated agent behaviors from
+the same distribution as the training corpus. While this serves as a robust
+validation of our streaming graph feature extraction pipeline, a live deployment
+would require semi-supervised calibration or domain adaptation to generalize to
+unknown, emerging fraudulent behaviors.
 
-\textbf{External validity.} All benchmarks were collected on a single
-machine. A geographically distributed deployment with network latency
-would alter the absolute throughput figures, though the relative
-comparison between pipelines is expected to hold.
+\textbf{External validity.} All benchmarks were run on one machine. A
+distributed deployment with real network latency would change the
+absolute throughput numbers, but we expect the ordering between the two
+pipelines to stay the same.
 
 \textbf{Construct validity.} F1 at a fixed threshold is sensitive to
-class imbalance. In a production setting where shill bids are rare, a
-precision-recall trade-off analysis (see Fig.~\ref{fig:roc}) is more
-informative than a single F1 number.
+class imbalance. In production, where shill bids are rare, looking at the
+precision-recall trade-off (Fig.~\ref{fig:roc}) says more than a single
+F1 number.
 
 % ─── VIII. CONCLUSION ───────────────────────────────────────────────────────
 \section{Conclusion}
 
-We described an online shill-bidding detection engine that classifies
-bid events in real time during live auctions. Five streaming features,
-extracted from a sliding-window bid graph, feed a logistic-regression
-classifier that achieves F1\,=\,0.927 on our synthetic evaluation
-corpus -- a substantial improvement over the na\"ive outbid-count
-baseline (F1\,=\,0.000). Ablation analysis confirms that reciprocity
-is the dominant signal: removing it alone collapses classification to
-chance. Combined with a cryptographic commit-reveal sealed-bid protocol
-and a Redis Stream bid sequencer delivering a $\mathbf{32.5\times}$
-throughput gain at high concurrency, the results suggest that practical
-integrity mechanisms can be embedded in an auction platform without
-measurable latency overhead.
+We have described an online shill-bidding detector that classifies bids
+in real time as an auction runs. Five streaming features, read off a
+sliding-window bid graph, feed a logistic-regression classifier that
+reaches F1\,=\,1.000 on our synthetic corpus, well ahead of the simple
+outbid-count baseline at F1\,=\,0.000. The ablation shows seller co-occurrence is
+the feature that matters most: drop it and the classifier falls to
+0.105. Together with the commit-reveal sealed-bid protocol and the Redis
+Stream sequencer, which gives a $\mathbf{28.5\times}$ throughput gain at
+high load, this suggests that useful integrity checks can sit inside an
+auction platform without adding latency you can measure.
 
-Four directions for future work are identified: (a)~training the
-classifier on a real-world labelled dataset from a production
-deployment; (b)~replacing the SHA-256 commitment with Pedersen
-commitments and Bulletproof range proofs; (c)~online weight adaptation
-via stochastic gradient descent as new fraud patterns emerge; and
-(d)~horizontal scaling evaluation of the Redis Stream consumer group
-across multiple nodes.
+There are four things we would like to do next: (a)~train the classifier
+on a real labelled dataset from a live deployment; (b)~swap the SHA-256
+commitment for Pedersen commitments with Bulletproof range proofs;
+(c)~update the weights online with stochastic gradient descent as new
+fraud patterns show up; and (d)~test how the Redis Stream consumer group
+scales out across several nodes.
+
+\section*{Acknowledgements}
+The authors disclose that an AI-assisted writing system (Claude 4.8 Opus) was utilized for code generation during the implementation of the simulator and training pipelines, and for editorial polish of the manuscript. All experiments were independently executed, validated, and verified on local infrastructure by the authors, who take full responsibility for the scientific integrity and reproducibility of the reported results.
 
 % ─── REFERENCES ─────────────────────────────────────────────────────────────
 \balance

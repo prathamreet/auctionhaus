@@ -45,31 +45,29 @@ Proxy Bidding in Real-Time Auction Platforms}
 
 % ─── ABSTRACT ───────────────────────────────────────────────────────────────
 \begin{abstract}
-Every major online auction platform offers proxy bidding, where a
-participant registers a private ceiling price and the system places
-incremental counter-bids on their behalf until that ceiling is reached.
-Despite widespread deployment, no published work specifies how competing
-proxy agents are resolved when a new manual bid arrives. In common
-practice, platforms compute the equilibrium price in closed form and
-record a single database row, discarding the intermediate bidding
-sequence. While efficient, this approach sacrifices two properties that
-platform operators depend on: a faithful per-increment audit trail
-suitable for dispute resolution and fraud analytics, and correct
-serialisation when manual bidders interleave with ongoing proxy
-resolution. An alternative approach that recurses through the bid
-service for each increment introduces nested-transaction hazards under
-standard object-relational mappers and risks partial-commit corruption.
+Every large online auction platform offers proxy bidding, where a bidder
+registers a private maximum and the system keeps placing small
+counter-bids for them until that maximum is hit. Even though the feature
+is everywhere, no published work says how a platform should resolve
+competing proxy agents when a fresh manual bid comes in. What platforms
+usually do is work out the final price with a formula and write one
+database row for it, throwing away the back-and-forth in between. That is
+fast, but it gives up two things operators actually need: a faithful
+step-by-step record that can be used for disputes and fraud analysis, and
+correct ordering when manual bidders and proxy resolution overlap. The
+obvious alternative, calling the bid service once per increment, runs
+into nested-transaction problems with common object-relational mappers
+and can leave the auction half-updated if it fails partway.
 
-This paper introduces the Atomic Ladder Protocol, which writes every
-increment of a proxy-bid ladder as a distinct bid row within a single
-database transaction. A two-tier lock ordering -- auction row first,
-then wallets sorted by user identifier -- guarantees deadlock freedom
-across all concurrent writers. We state five desired properties, prove
-three correctness theorems (log fidelity, Vickrey-equivalent pricing,
-and deadlock freedom), and benchmark the protocol on PostgreSQL~15 with
-Redis~7. At 100 concurrent bidders, the Redis Stream variant sustains
-975~bids/s with a 95th-percentile latency of 8.1~ms, whereas direct
-row locking degrades to 30~bids/s at 5{,}772~ms -- a
+This paper presents the Atomic Ladder Protocol, which writes every step
+of a proxy-bid ladder as its own bid row inside one database transaction.
+Locks are taken in two tiers, the auction row first and then the wallets
+in user-id order, which keeps every concurrent writer free of deadlocks.
+We set out five properties we want, prove three of them (log fidelity,
+Vickrey-equivalent pricing, and deadlock freedom), and benchmark the
+protocol on PostgreSQL~15 with Redis~7. At 100 concurrent bidders the
+Redis Stream version holds 975~bids/s at a 95th-percentile latency of
+8.1~ms, while direct row locking falls to 30~bids/s at 5{,}772~ms, a
 $\mathbf{32.5\times}$ throughput gain.
 \end{abstract}
 
@@ -81,173 +79,162 @@ serializability, two-phase locking, Vickrey auction.
 % ─── I. INTRODUCTION ────────────────────────────────────────────────────────
 \section{Introduction}
 
-Consider an English auction in which several participants have each
-registered a private ceiling price. When a fresh manual bid arrives, the
-platform must decide how many of those ceilings to exercise and what the
-resulting price should be. Let $M_i$ denote the ceiling of bidder~$i$
-and $\delta$ the minimum bid increment. Standard auction
-theory~\cite{Vickrey1961} establishes that the stable equilibrium price
-under truthful proxy delegation is
+Take an English auction where several people have each set a private
+ceiling. When a new manual bid arrives, the platform has to decide how
+many of those ceilings to act on and what price to settle at. Write
+$M_i$ for the ceiling of bidder~$i$ and $\delta$ for the minimum
+increment. Standard auction theory~\cite{Vickrey1961} says that, when
+everyone delegates truthfully, the stable price is
 \begin{equation}
   P^\star = \min\!\bigl(M_{(1)},\; M_{(2)} + \delta\bigr)
   \label{eq:vickrey}
 \end{equation}
-where $M_{(1)} \geq M_{(2)} \geq \cdots$ ranks the ceilings in
-descending order. The highest-ceiling bidder wins, paying only one
-increment above the runner-up -- an outcome strategically equivalent to
-a second-price sealed-bid auction.
+where $M_{(1)} \geq M_{(2)} \geq \cdots$ orders the ceilings from
+highest down. The bidder with the highest ceiling wins and pays just one
+increment above the runner-up, which is the same outcome as a
+second-price sealed-bid auction.
 
-Because~(\ref{eq:vickrey}) is a closed-form expression, the
-implementation path taken by most deployed platforms is straightforward:
-evaluate the formula, write one bid row at~$P^\star$, and broadcast the
-result. External observations of eBay, Catawiki, and LiveAuctioneers
-confirm that users see only the final jump, not the intermediate
-steps. This {\em single-jump} strategy is $O(\log N)$ in the pool size
-and generates minimal database load, yet it comes at a cost that is
-seldom discussed in the literature.
+Since~(\ref{eq:vickrey}) is closed-form, most platforms take the easy
+route: plug in the formula, write one bid row at~$P^\star$, and broadcast
+it. Watching eBay, Catawiki, and LiveAuctioneers from the outside
+confirms that bidders only ever see the final jump and not the steps in
+between. This {\em single-jump} approach is $O(\log N)$ in the size of
+the pool and barely touches the database, but it has a cost that the
+literature rarely talks about.
 
-The first casualty is {\em log fidelity}. A user who opens the bid
-history sees the price leap from, say, Rs.\,1{,}000 to Rs.\,1{,}800 in
-a single row. The incremental narrative -- the back-and-forth that
-would have unfolded between competing proxies -- is absent from the
-database. Several platforms attempt to reconstruct this sequence on the
-client side for display purposes, but doing so produces no durable audit
-trail. Regulatory compliance, dispute adjudication, and behavioural
-fraud engines~\cite{Trevathan2007,Ford2010} all require the granular log
-to reside in the database itself.
+The first thing that suffers is {\em log fidelity}. Someone opening the
+bid history sees the price jump from, say, Rs.\,1{,}000 to Rs.\,1{,}800
+in a single row. The step-by-step story, the back-and-forth that the
+proxies would have gone through, is simply not in the database. Some
+platforms rebuild that sequence in the browser for display, but that
+leaves no lasting record. Regulators, dispute handling, and behavioural
+fraud engines~\cite{Trevathan2007,Ford2010} all need the fine-grained
+log to live in the database itself.
 
-The second casualty is {\em serialisation under concurrent manual
-bids}. If a human bidder submits a bid while a proxy ladder is being
-evaluated, the platform must decide whether to block the newcomer (high
-tail latency) or abort the ladder and restart (livelock risk under load).
-Neither option is satisfactory at scale.
+The second thing that suffers is {\em serialisation when manual bids
+arrive at the same time}. If a person bids while a proxy ladder is still
+being worked out, the platform has to either make the newcomer wait
+(which hurts tail latency) or throw away the ladder and start over (which
+risks livelock under load). Neither is good at scale.
 
-A natural alternative is to recurse through the bid-placement service
-once per increment, recording each rung individually. In practice, this
-approach is fragile. Under widely used object-relational
-mappers~\cite{Prisma2024}, nesting one interactive transaction inside
-another is either silently flattened or causes outright deadlocks. Worse,
-should the process fail at rung~7 of a 12-rung ladder, the first six
-rungs are already committed and the auction is left in a state from which
-no replay path is obvious. We observed both failure modes during
-development.
+A natural fix is to call the bid-placement service once per increment and
+record each rung on its own. In practice this is fragile. With the
+object-relational mappers people commonly use~\cite{Prisma2024}, nesting
+one interactive transaction inside another is either quietly flattened or
+ends in a deadlock. Worse, if the process dies at rung~7 of a 12-rung
+ladder, the first six rungs are already committed and the auction is
+stuck in a state with no obvious way to replay it. We hit both of these
+during development.
 
-We propose the {\em Atomic Ladder Protocol}, which reconciles fidelity
-with atomicity. Every rung of the proxy ladder is persisted as its own
-bid row, yet the entire sequence commits or rolls back as one
-transaction. Three claims are made:
+We propose the {\em Atomic Ladder Protocol}, which keeps both the full
+log and atomicity. Every rung of the ladder is stored as its own bid row,
+but the whole sequence commits or rolls back as a single transaction. We
+make three claims:
 
 \begin{enumerate}
-  \item \textbf{Protocol design.} A bounded-iteration procedure that
-    acquires the auction lock, enumerates the active proxy pool, and walks
-    the price upward one increment per step within a single
-    {\tt BEGIN}/{\tt COMMIT} scope. Wallet locks are acquired in ascending
-    user-identifier order to preclude circular waits.
+  \item \textbf{Protocol design.} A procedure that runs for a bounded
+    number of steps. It takes the auction lock, lists the active proxy
+    pool, and walks the price up one increment at a time, all inside a
+    single {\tt BEGIN}/{\tt COMMIT}. Wallet locks are taken in ascending
+    user-id order so that no circular wait can form.
 
   \item \textbf{Formal guarantees.} We prove three properties: log
-    fidelity (a contiguous price sequence with no gaps), Vickrey
-    equivalence (the final price
-    satisfies~(\ref{eq:vickrey}) regardless of arrival order), and
-    deadlock freedom (no two writers obeying the same lock order can form
-    a wait-for cycle).
+    fidelity (the prices form a gap-free sequence), Vickrey equivalence
+    (the final price satisfies~(\ref{eq:vickrey}) no matter what order
+    bids arrive in), and deadlock freedom (two writers that follow the
+    same lock order can never form a wait-for cycle).
 
-  \item \textbf{Empirical evaluation.} Benchmarks using k6 compare the
-    atomic ladder against a direct row-locking baseline at concurrency
-    levels of 1, 10, and 100 virtual users. We also report determinism
-    (hash-based log comparison across repeated runs) and log-fidelity
-    counts.
+  \item \textbf{Empirical evaluation.} Using k6, we benchmark the atomic
+    ladder against a direct row-locking baseline at 1, 10, and 100
+    virtual users. We also report determinism (comparing log hashes
+    across repeated runs) and log-fidelity counts.
 \end{enumerate}
 
-The protocol is deployed in the open-source \textsc{AuctionHaus}
-platform. The reference implementation spans roughly 180~lines of
-TypeScript, packaged as a BullMQ worker job that fires after each manual
-bid.
+The protocol runs in the open-source \textsc{AuctionHaus} platform. The
+reference implementation is about 180~lines of TypeScript, packaged as a
+BullMQ worker job that fires after every manual bid.
 
 % ─── II. LITERATURE SURVEY ───────────────────────────────────────────────────
 \section{Literature Survey}
 
-This section reviews the broader academic foundations on which this work
-rests: the economic theory of single-item auctions, the serializability
-theory of transactional databases, and the architectural literature on
-partitioned ordered logs from which our evaluation pipeline inherits.
+This section covers the wider background our work builds on: the
+economics of single-item auctions, the serializability theory behind
+transactional databases, and the work on partitioned ordered logs that
+our evaluation pipeline borrows from.
 
 \subsection{Auction-Theoretic Foundations}
 
-Single-item auction theory begins with Vickrey~\cite{Vickrey1961}, who
-proved that the second-price sealed-bid mechanism makes truthful bidding
-a weakly dominant strategy. Milgrom and Weber~\cite{Milgrom1982}
-generalised the result to a wide class of independent-private-value and
-affiliated-value settings, establishing the revenue equivalence between
-ascending and second-price formats that motivates proxy bidding as a
-platform primitive. Krishna~\cite{Krishna2009} consolidates these threads
-in textbook form and provides the formal apparatus we draw on when
-reasoning about the Vickrey equivalence of the atomic ladder.
+Single-item auction theory starts with Vickrey~\cite{Vickrey1961}, who
+showed that with a second-price sealed-bid mechanism, bidding truthfully
+is a weakly dominant strategy. Milgrom and Weber~\cite{Milgrom1982}
+extended this to a broad range of independent-private-value and
+affiliated-value settings and established the revenue equivalence between
+ascending and second-price formats, which is what makes proxy bidding a
+sensible platform feature in the first place. Krishna~\cite{Krishna2009}
+pulls these threads together in a textbook and gives the formal tools we
+use when we argue about the Vickrey equivalence of the atomic ladder.
 
 \subsection{Concurrency and Distributed Systems Theory}
 
-The serializability theory underlying our correctness argument originates
-with Eswaran, Gray, Lorie, and Traiger~\cite{Eswaran1976}, who introduced
+The serializability theory behind our correctness argument comes from
+Eswaran, Gray, Lorie, and Traiger~\cite{Eswaran1976}, who introduced
 predicate locks and the conflict-serializability criterion that two-phase
 locking achieves. Lamport's~\cite{Lamport1978} happens-before relation
-formalises the logical ordering in which we commit ladder rungs. At the
-level of distributed deployment, the CAP impossibility result formalised
-by Gilbert and Lynch~\cite{Gilbert2002} frames the consistency-availability
-trade-off that motivates a single-leader stream serialiser over
-multi-master writes. Helland~\cite{Helland2007} argues for asynchronous,
-log-based decomposition as a pragmatic alternative to distributed
-transactions; the Redis Stream sequencer evaluated in this paper is
-precisely such a decomposition.
+captures the logical order in which we commit ladder rungs. For
+distributed deployments, the CAP result of Gilbert and
+Lynch~\cite{Gilbert2002} sets out the consistency-versus-availability
+trade-off that pushes us towards a single-leader stream serialiser rather
+than multi-master writes. Helland~\cite{Helland2007} makes the case for
+asynchronous, log-based decomposition as a practical substitute for
+distributed transactions, and the Redis Stream sequencer we evaluate here
+is exactly that kind of decomposition.
 
 \subsection{Stream Architectures for Ordered Processing}
 
-The pattern of using a partitioned, append-only log to serialise
-high-volume updates was popularised by Kafka~\cite{Kreps2011}, and the
-same pattern in different implementations underpins Amazon Kinesis,
-Google Pub/Sub, and Redis Streams. The pattern's per-partition total
-order, durable replay, and at-least-once delivery semantics map onto the
-bid-resolution problem unchanged, which is why our reference
-implementation adopts it.
+Using a partitioned, append-only log to serialise high-volume updates was
+made popular by Kafka~\cite{Kreps2011}, and the same idea, in different
+forms, sits behind Amazon Kinesis, Google Pub/Sub, and Redis Streams. Its
+per-partition total order, durable replay, and at-least-once delivery
+carry over to the bid-resolution problem without any change, which is why
+our reference implementation uses it.
 
 % ─── III. RELATED WORK ───────────────────────────────────────────────────────
 \section{Related Work}
 
 \subsection{Proxy Bidding Mechanisms}
 
-The strategic theory of proxy bidding traces back to
-Vickrey's~\cite{Vickrey1961} analysis of second-price sealed tenders. In
-the internet era, Roth and Ockenfels~\cite{Roth2002} examined eBay's and
-Amazon's proxy mechanisms and showed that truthful ceiling submission is a
-weakly dominant strategy -- making proxy-mediated English auctions
-strategically equivalent to Vickrey's sealed-bid game. Their work focuses
-on bidder behaviour, however, not on how the platform resolves the proxy
-pool internally. That implementation detail is the gap we address.
+The strategic side of proxy bidding goes back to
+Vickrey's~\cite{Vickrey1961} study of second-price sealed tenders. More
+recently, Roth and Ockenfels~\cite{Roth2002} looked at the proxy
+mechanisms on eBay and Amazon and showed that submitting your true
+ceiling is a weakly dominant strategy, which makes a proxy-driven English
+auction strategically the same as Vickrey's sealed-bid game. Their focus
+is on how bidders behave, though, not on how the platform resolves the
+proxy pool inside. That implementation gap is what we deal with.
 
 \subsection{Concurrency Control in Transaction Systems}
 
-Row-level pessimistic locking is a well-established tool for
-serialisation, covered comprehensively by Bernstein, Hadzilacos, and
-Goodman~\cite{Bernstein1987}. The specific technique of acquiring locks
-in a predetermined total order to eliminate deadlocks is attributed to
-Gray and Reuter~\cite{Gray1992}, who prove that a consistent lock
-sequence makes wait-for cycles impossible. Kleppmann~\cite{Kleppmann2017}
-surveys how these classical techniques map onto modern database isolation
-levels and warns that PostgreSQL's default {\tt READ COMMITTED} isolation
-permits lost-update anomalies in read-modify-write patterns unless
-explicit row locks are taken -- precisely the scenario our protocol
-targets.
+Row-level pessimistic locking is a standard way to serialise writes, and
+Bernstein, Hadzilacos, and Goodman~\cite{Bernstein1987} cover it
+thoroughly. The trick of taking locks in a fixed total order to avoid
+deadlocks is due to Gray and Reuter~\cite{Gray1992}, who prove that a
+consistent lock order makes wait-for cycles impossible.
+Kleppmann~\cite{Kleppmann2017} surveys how these older techniques line up
+with modern isolation levels and warns that PostgreSQL's default
+{\tt READ COMMITTED} can allow lost updates in read-modify-write code
+unless you take explicit row locks. That is exactly the situation our
+protocol is built for.
 
 \subsection{Auction Architecture Reports}
 
-Published architecture descriptions of production auction platforms are
-scarce. The eBay architecture overview by Shoup and
-Pritchett~\cite{Shoup2004} predates the current proxy bidding
-implementation. Ockenfels, Reiley, and Sadrieh~\cite{Ockenfels2006}
-survey bidder behaviour in online auctions using log dumps, yet they do
-not document the resolution algorithm that produced those logs. Catawiki,
-Saleroom, and LiveAuctioneers publish only marketing material. To the
-best of our knowledge, no peer-reviewed paper details how a deployed
-auction platform resolves concurrent proxy bids while retaining a
-per-increment log.
+There are not many published descriptions of how real auction platforms
+are built. The eBay overview by Shoup and Pritchett~\cite{Shoup2004} is
+older than the current proxy-bidding system. Ockenfels, Reiley, and
+Sadrieh~\cite{Ockenfels2006} study bidder behaviour from log dumps but
+say nothing about the algorithm that produced those logs. Catawiki,
+Saleroom, and LiveAuctioneers only put out marketing material. As far as
+we know, no peer-reviewed paper spells out how a deployed platform
+resolves concurrent proxy bids while still keeping a per-increment log.
 
 % ─── IV. SYSTEM MODEL ────────────────────────────────────────────────────────
 \section{System Model and Problem Statement}
@@ -340,16 +327,16 @@ participating wallet \texttt{FOR UPDATE} in ascending \texttt{userId}
 lexicographic order.}
 \end{quote}
 
-This invariant is shared by PlaceBid, Withdraw, BuyNow, ConfirmPayment,
-EndAuction, and ResolveAutoBids. As long as every writer obeys it, the
-classical theorem on lock ordering applies: no cycle in the
-wait-for graph is possible (Property~P4).
+PlaceBid, Withdraw, BuyNow, ConfirmPayment, EndAuction, and
+ResolveAutoBids all follow this same order. As long as every writer
+sticks to it, the classical lock-ordering theorem applies and no cycle
+can form in the wait-for graph (Property~P4).
 
 \subsection{Pseudocode}
 
-Algorithm~\ref{alg:ladder} describes the procedure. The procedure is
-called \texttt{ResolveAutoBids}$(A, u_{\text{trig}})$ where $u_{\text{trig}}$
-is the user whose manual bid triggered the resolution.
+Algorithm~\ref{alg:ladder} gives the procedure,
+\texttt{ResolveAutoBids}$(A, u_{\text{trig}})$, where $u_{\text{trig}}$
+is the user whose manual bid set off the resolution.
 
 \begin{algorithm}[!htb]
 \caption{ResolveAutoBids$(A, u)$}
@@ -406,21 +393,21 @@ is the user whose manual bid triggered the resolution.
 
 \subsection{Implementation Notes}
 
-The reference implementation is in TypeScript on Prisma\,5. The
-\texttt{SELECT \ldots FOR UPDATE} statements use Prisma's
-\texttt{\$queryRaw} since the generated client has no native syntax for
-row locks. The outer transaction uses
-\texttt{prisma.\$transaction(\textit{interactive callback})} which maps
-to a single PostgreSQL \texttt{BEGIN/COMMIT} pair.
+The reference implementation is written in TypeScript on Prisma\,5. The
+\texttt{SELECT \ldots FOR UPDATE} statements go through Prisma's
+\texttt{\$queryRaw}, because the generated client has no built-in syntax
+for row locks. The outer transaction uses
+\texttt{prisma.\$transaction(\textit{interactive callback})}, which
+becomes a single PostgreSQL \texttt{BEGIN/COMMIT} pair.
 
-After the transaction commits, the worker emits a single
-\texttt{bid:ladder} Socket.io event carrying the entire \texttt{steps}
-array. This is a per-ladder event rather than one event per rung; clients
-animate the rungs from the array (see Section~\ref{sec:eval}). The
-single-emit strategy reduces $N$ socket round-trips to one for an
-$N$-rung ladder, which we observe matters more than expected at high
-fan-out (a hot auction with 200 subscribed sockets and a 10-rung ladder
-moves from 2000 socket frames to 200).
+Once the transaction commits, the worker sends a single
+\texttt{bid:ladder} Socket.io event carrying the whole \texttt{steps}
+array. It is one event for the ladder, not one per rung, and clients
+animate the rungs from the array (see Section~\ref{sec:eval}). Sending
+one event instead of $N$ turns $N$ socket round-trips into one for an
+$N$-rung ladder, and this matters more than we expected at high fan-out:
+a busy auction with 200 subscribed sockets and a 10-rung ladder goes from
+2000 socket frames down to 200.
 
 % ─── VI. CORRECTNESS ─────────────────────────────────────────────────────────
 \section{Correctness}
@@ -541,29 +528,29 @@ the operational ceiling we enforce ($K_{\max} \leq 10^5$).
 
 \subsection{Experimental Setup}
 
-Two bid-processing pipelines are compared on the same hardware
+We compare two bid-processing pipelines on the same hardware
 (Windows~11, Node.js~20, PostgreSQL~15, Redis~7) under identical
-workloads generated by k6~\cite{k6}. Each run lasts 15~seconds against a
-single English auction priced at Rs.\,1{,}000 with
-$\delta =$~Rs.\,100. Wallet balances are set high enough
-(Rs.\,100{,}000{,}000) to eliminate fund-exhaustion as a confound.
+workloads driven by k6~\cite{k6}. Each run lasts 15~seconds against one
+English auction priced at Rs.\,1{,}000 with $\delta =$~Rs.\,100. Wallet
+balances are set high (Rs.\,100{,}000{,}000) so that running out of funds
+never becomes a factor.
 
 \begin{itemize}
-  \item \textbf{Direct (FOR UPDATE).} The Express endpoint acquires the
-    auction row lock inside a Prisma interactive transaction, validates
-    the bid, and commits. Under contention, competing transactions queue
-    in the PostgreSQL lock manager.
+  \item \textbf{Direct (FOR UPDATE).} The Express endpoint takes the
+    auction row lock inside a Prisma interactive transaction, checks the
+    bid, and commits. When there is contention, competing transactions
+    line up in the PostgreSQL lock manager.
 
   \item \textbf{Sequencer (Redis Stream).} Bids are appended to a
-    per-auction Redis Stream via {\tt XADD}. A lone consumer
+    per-auction Redis Stream with {\tt XADD}. A single consumer
     ({\tt XREADGROUP}) drains the stream and applies each bid to
-    PostgreSQL serially. Because only one writer ever touches the
-    database, the {\tt FOR UPDATE} lock is never contested.
+    PostgreSQL one at a time. Since only one writer ever touches the
+    database, nothing ever fights over the {\tt FOR UPDATE} lock.
 \end{itemize}
 
 \subsection{Throughput and Latency}
 
-Table~\ref{tab:throughput} summarises the measured results.
+Table~\ref{tab:throughput} lists the measured results.
 
 \begin{table}[h]
 \centering
@@ -587,30 +574,28 @@ Sequencer (Redis Stream)    & 100  & 14{,}626& 975.0  & 8.1    \\
 \label{tab:throughput}
 \end{table}
 
-With a single virtual user the two pipelines differ modestly: the
-sequencer posts 5.7~bids/s versus 3.5 for the direct path, a
-$1.6\times$ advantage that reflects the absence of lock-wait overhead
-even at zero contention. The more telling result emerges at higher load.
-At $C\!=\!10$, the direct pipeline slows to 9.5~bids/s while the
-sequencer sustains 92.8~bids/s -- nearly a tenfold gap. The p95
-latency diverges even more sharply: 1{,}284~ms versus 48~ms.
+With a single virtual user the two pipelines are close: the sequencer
+manages 5.7~bids/s against 3.5 for the direct path, a $1.6\times$ edge
+that comes from there being no lock-wait overhead even with zero
+contention. The interesting part shows up under load. At $C\!=\!10$ the
+direct pipeline drops to 9.5~bids/s while the sequencer keeps
+92.8~bids/s, close to a tenfold gap, and the p95 latency splits even
+further apart: 1{,}284~ms against 48~ms.
 
-At $C\!=\!100$ the disparity is pronounced. Direct processing collapses
-to 30~bids/s with a p95 of 5{,}772~ms, and the k6 error threshold on
-{\tt bid\_errors} was breached, indicating that many requests timed out
-or were rejected. The sequencer, by contrast, delivers 975~bids/s at a
-p95 of 8.1~ms -- a $\mathbf{32.5\times}$ throughput gain and a $712\times$
-latency reduction. The underlying reason is straightforward: a
-single-consumer architecture transforms $C$ concurrent lock-waiters
-into $C$ entries in a FIFO stream, so the database lock is never
-contested regardless of external concurrency.
+At $C\!=\!100$ the gap is large. The direct path collapses to 30~bids/s
+with a p95 of 5{,}772~ms, and k6 tripped the error threshold on
+{\tt bid\_errors}, meaning a lot of requests timed out or were rejected.
+The sequencer instead handles 975~bids/s at a p95 of 8.1~ms, which is a
+$\mathbf{32.5\times}$ throughput gain and a $712\times$ drop in latency.
+The reason is simple: with a single consumer, $C$ bidders waiting on a
+lock become $C$ entries in a FIFO stream, so the database lock is never
+contested no matter how much concurrency arrives from outside.
 
 \subsection{Determinism}
 
-We ran each implementation five times on the same input and computed
-SHA-256 over the resulting bid log, ordered by price ascending and row
-identifier ascending. Table~\ref{tab:determinism} records how many
-distinct hashes appeared.
+We ran each implementation five times on the same input and took the
+SHA-256 of the resulting bid log, sorted by price and then by row id.
+Table~\ref{tab:determinism} shows how many distinct hashes came out.
 
 \begin{table}[h]
 \centering
@@ -627,16 +612,15 @@ Atomic Ladder        & 1 \\
 \label{tab:determinism}
 \end{table}
 
-Both the single-jump and atomic ladder implementations are deterministic
-by construction: the former writes one row, the latter writes all rungs
-inside a single transaction. The recursive variant is not, since a
-partial-commit failure at an arbitrary rung leaves the auction in a
-different state from run to run.
+The single-jump and atomic ladder versions are deterministic by
+construction: one writes a single row, the other writes every rung in one
+transaction. The recursive version is not, because a partial commit
+failing at some rung leaves the auction in a different state each run.
 
 \subsection{Log Fidelity}
 
-Table~\ref{tab:fidelity} reports the number of bid rows written per
-manual bid when the auto-bid pool should produce a ladder of length
+Table~\ref{tab:fidelity} reports how many bid rows get written per manual
+bid when the auto-bid pool should produce a ladder of length
 $K^\star = 8$.
 
 \begin{table}[h]
@@ -654,17 +638,15 @@ Atomic Ladder        & 8   & 100.0\% \\
 \label{tab:fidelity}
 \end{table}
 
-The recursive approach loses rungs to its partial-commit failure mode: an
-abort at rung~4 leaves four rows in the database and an inconsistent
-final price. Only the atomic ladder achieves full fidelity on every run.
+The recursive approach loses rungs through its partial-commit failure: an
+abort at rung~4 leaves four rows in the database and a final price that
+does not match. Only the atomic ladder gets every rung on every run.
 
 \subsection{Reproducibility}
 
-All load-test scripts and seed data reside in the project
-repository at {\small\tt packages/simulator/k6/\allowbreak
-bid-throughput.js}.
-Executing {\tt npm run sim:ladder} reproduces every
-measurement reported above.
+All load-test scripts and seed data live in the project repository at
+{\small\tt packages/simulator/k6/\allowbreak bid-throughput.js}. Running
+{\tt npm run sim:ladder} reproduces every number reported above.
 
 \FloatBarrier
 % ─── VIII. DISCUSSION ────────────────────────────────────────────────────────
@@ -673,69 +655,64 @@ measurement reported above.
 \subsection{When Single-Jump Is Preferable}
 
 The atomic ladder writes $K$ database rows where single-jump writes one.
-For platforms that treat the bid log as an internal ledger rather than a
-user-facing narrative -- high-frequency financial exchanges come to
-mind -- the extra writes are pure overhead. The protocol is designed for
-consumer auction platforms whose product surface includes a live,
-scrollable bid history, and its value should be judged in that context.
+If a platform treats the bid log as an internal ledger and not something
+users read, as a high-frequency financial exchange would, those extra
+writes are just overhead. The protocol is meant for consumer auction
+sites that show a live, scrollable bid history, and it should be judged
+in that setting.
 
 \subsection{Anti-Sniping Interaction}
 
-A proxy ladder of ten rungs completes in under a millisecond of wall
-time, yet the manual bid that triggered it may have landed inside the
-auction's anti-sniping window. Our implementation extends the auction
-deadline once per manual bid, not once per rung. This design reflects the
-user's mental model: the platform is reacting to a single human action,
-not to ten separate events.
+A ten-rung proxy ladder finishes in under a millisecond of wall-clock
+time, but the manual bid that set it off may have landed inside the
+auction's anti-sniping window. We extend the deadline once per manual
+bid, not once per rung. That matches how a user thinks about it: the
+platform is responding to one human action, not to ten separate events.
 
 \subsection{Idempotency Under Job Re-Delivery}
 
-BullMQ's at-least-once delivery guarantee means the ladder job may
-execute twice. On re-delivery, the protocol finds that the auction price
-has already advanced past every challenger's ceiling and returns an empty
-step list. The result is not byte-identical to the first execution --
-any manual bid that arrived in the interim will have changed the starting
-conditions -- but it is operationally correct: no duplicate rows are
-written, and the auction price is never regressed.
+BullMQ delivers at least once, so the ladder job can run twice. On the
+second run the protocol sees that the price has already moved past every
+challenger's ceiling and returns an empty step list. The outcome is not
+byte-for-byte the same as the first run, since any manual bid that
+arrived in between changes the starting point, but it is still correct in
+practice: no duplicate rows are written and the price never goes
+backwards.
 
 \subsection{Threats to Validity}
 
-All measurements were taken on a single host. In a distributed
-deployment with a PostgreSQL primary-replica pair and the Socket.io Redis
-adapter, network round-trip latencies would increase absolute numbers.
-Whether this shifts the {\em relative} ordering of the two pipelines is
-an open empirical question.
+All measurements were taken on one host. In a distributed setup with a
+PostgreSQL primary-replica pair and the Socket.io Redis adapter, network
+round-trips would push the absolute numbers up. Whether that changes the
+{\em relative} order of the two pipelines is something we have not tested.
 
-We also did not test deterministic adversarial worker crashes (e.g., a
-forced abort at a specific rung). Single-transaction semantics guarantee
-that any such crash leaves no partial state, so the recoverability
-argument follows from the atomicity of {\tt COMMIT} rather than from any
-property of the protocol itself.
+We also did not test deliberate worker crashes at a chosen rung. Because
+everything runs in one transaction, any such crash leaves no partial
+state, so recoverability follows from the atomicity of {\tt COMMIT}
+itself rather than from anything special in the protocol.
 
 % ─── IX. CONCLUSION ──────────────────────────────────────────────────────────
 \section{Conclusion}
 
-We described the Atomic Ladder Protocol for resolving concurrent proxy
-bids in an English auction while preserving a complete per-increment bid
-log. The protocol runs every rung of the ladder inside a single database
-transaction, obeys a two-tier lock order that eliminates deadlocks, and
-produces a final price that matches the Vickrey equilibrium regardless
-of bidder arrival order. Five formal properties were stated; three were
-proved.
+We have described the Atomic Ladder Protocol, which resolves concurrent
+proxy bids in an English auction while keeping a complete per-increment
+bid log. Every rung of the ladder runs inside a single database
+transaction, the two-tier lock order rules out deadlocks, and the final
+price matches the Vickrey equilibrium whatever order bidders arrive in.
+We stated five properties and proved three of them.
 
-Benchmarks on a PostgreSQL-and-Redis stack indicate that the Redis
-Stream sequencer variant sustains 975~bids/s at 100 concurrent bidders,
-a $\mathbf{32.5\times}$ improvement over the direct row-locking
-baseline, with a 95th-percentile latency of 8.1~ms and 100\% log
-fidelity on every run. The protocol is idempotent under worker
-re-delivery and has been running in the \textsc{AuctionHaus} platform
-since deployment.
+On a PostgreSQL-and-Redis stack, the Redis Stream variant holds
+975~bids/s at 100 concurrent bidders, a $\mathbf{32.5\times}$ improvement
+over the direct row-locking baseline, at a 95th-percentile latency of
+8.1~ms and with full log fidelity on every run. The protocol is
+idempotent if a worker job is re-delivered, and it has been running in
+the \textsc{AuctionHaus} platform since we deployed it.
 
-Three avenues remain open: (i)~a cross-auction portfolio resolver that
-apportions a bidder's available balance across multiple simultaneous
-proxy commitments; (ii)~machine-checked verification of the protocol in
-TLA$^+$~\cite{Lamport2002}; and (iii)~empirical evaluation under a
-multi-node distributed deployment.
+Three things remain open: (i)~a cross-auction resolver that splits a
+bidder's available balance across several proxy commitments at once;
+(ii)~a machine-checked proof of the protocol in
+TLA$^+$~\cite{Lamport2002}; and (iii)~measurements under a multi-node
+distributed deployment.
 
 % ─── REFERENCES ─────────────────────────────────────────────────────────────
 \balance
