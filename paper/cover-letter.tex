@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{charter} % Premium, readable serif font
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+\begin{document}
+
+\begin{flushright}
+    \textbf{Date:} June 1, 2026 \\
+    \textbf{Location:} Bengaluru, India
+\end{flushright}
+
+\vspace{0.5em}
+
+\begin{flushleft}
+    \textbf{To:} \\
+    The Editorial Board and Editor-in-Chief \\
+    IEEE Transactions on Services Computing \\
+\end{flushleft}
+
+\vspace{0.8em}
+
+\noindent \textbf{Subject: Submission of Research Manuscript for Peer Review}
+
+\vspace{0.8em}
+
+\noindent Dear Editor-in-Chief and Members of the Editorial Board,
+
+\vspace{0.5em}
+
+\noindent We submit our research manuscript titled \textbf{``Real-Time Shill-Bidding Detection via Online Bid-Graph Analytics in Live Auction Platforms''} for consideration for publication in your journal.
+
+\vspace{0.5em}
+
+\noindent This work addresses shill bidding and collusion in live auctions. While prior literature focuses on offline, post-hoc batch analytics operating after an auction closes, this paper introduces an in-process sliding-window directed outbid graph permitting sub-millisecond streaming feature extraction and logistic regression classification during active bidding. The platform extracts five streaming metrics -- including bid frequency, response latency, price increment ratio, seller co-occurrence, and outbid reciprocity -- to feed a lightweight machine learning engine. Additionally, the system incorporates cryptographic sealed-bid commitments via a SHA-256 commit-reveal protocol and resolves critical database lock contention. By integrating an asynchronous Redis Stream sequencer, transactional throughput scales substantially, preserving server performance during high-concurrency event loops.
+
+\vspace{0.5em}
+
+\noindent In connection with this submission, we declare the following:
+\begin{enumerate}
+    \item \textbf{Originality:} This manuscript represents original research. It has not been published previously and is not under consideration for publication elsewhere.
+    \item \textbf{AI Disclosure:} The use of AI assistance in refining code and drafting sections is disclosed in the Acknowledgements section of the manuscript.
+    \item \textbf{Author Approval:} All authors (Asha Joseph, Pratham Reet, Nitin A. Rane, Reeshav Sinha, and Om Ji Rao) have read and approved the manuscript for submission.
+\end{enumerate}
+
+\vspace{0.8em}
+
+\noindent Thank you for your time and consideration of our manuscript.
+
+\vspace{1.2em}
+
+\begin{flushleft}
+    Sincerely, \\
+    \vspace{1.5em}
+    \textbf{Pratham Reet} \\
+    Corresponding Author \\
+    Department of Computer Science and Engineering \\
+    New Horizon College of Engineering \\
+    Bengaluru, India \\
+    Email: \href{mailto:prathamreet@gmail.com}{prathamreet@gmail.com}
+\end{flushleft}
+
+\end{document}
