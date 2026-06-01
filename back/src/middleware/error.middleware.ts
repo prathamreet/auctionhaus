@@ -12,8 +12,12 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', err);
+  const appErr = err as AppError;
+  const statusCode = appErr.statusCode || (err instanceof ZodError ? 422 : 500);
+  const message = appErr.message || 'Internal Server Error';
+
+  if (process.env.NODE_ENV === 'development' && statusCode >= 500) {
+    console.error('Server Error:', err);
   }
 
   // Handle Zod validation errors — return structured per-field errors
@@ -29,10 +33,6 @@ export const errorHandler = (
     });
     return;
   }
-
-  const appErr = err as AppError;
-  const statusCode = appErr.statusCode || 500;
-  const message = appErr.message || 'Internal Server Error';
 
   res.status(statusCode).json({
     message,
