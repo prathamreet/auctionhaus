@@ -1,10 +1,19 @@
 "use client";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "next/navigation";
-import { getSocket } from "@/lib/socket";
+import { useSocketListener } from "@/lib/useSocketListener";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  PageHeader,
+  PageShell,
+  Skeleton,
+} from "@/components/ui";
 
 interface Notification {
   id: string;
@@ -16,15 +25,26 @@ interface Notification {
   data?: Record<string, string>;
 }
 
-const TYPE_META: Record<string, { icon: string; color: string }> = {
-  OUTBID:           { icon: "⚡", color: "#ef4444" },
-  AUCTION_WON:      { icon: "🏆", color: "#22c55e" },
-  AUCTION_LOST:     { icon: "😔", color: "#6b7280" },
-  AUCTION_STARTED:  { icon: "🟢", color: "#22c55e" },
-  AUCTION_ENDED:    { icon: "🔔", color: "#f59e0b" },
-  AUTO_BID_PLACED:  { icon: "🤖", color: "#6366f1" },
-  PAYMENT_RECEIVED: { icon: "💰", color: "#22c55e" },
-  GENERAL:          { icon: "ℹ️",  color: "#6b7280" } };
+const TYPE_TONE: Record<
+  string,
+  | "neutral"
+  | "accent"
+  | "success"
+  | "danger"
+  | "warning"
+  | "dutch"
+  | "sealed"
+  | "english"
+> = {
+  OUTBID: "danger",
+  AUCTION_WON: "success",
+  AUCTION_LOST: "neutral",
+  AUCTION_STARTED: "success",
+  AUCTION_ENDED: "warning",
+  AUTO_BID_PLACED: "accent",
+  PAYMENT_RECEIVED: "success",
+  GENERAL: "neutral",
+};
 
 export default function NotificationsPage() {
   const { user, token } = useAuthStore();
@@ -43,34 +63,29 @@ export default function NotificationsPage() {
         .then((r) => r.data)
         .catch(() => ({ notifications: [], unreadCount: 0, total: 0 })),
     enabled: !!user,
-    // No polling — socket event 'notification:new' invalidates this query in real-time (see useEffect below)
-    staleTime: 60000 });
+    staleTime: 60000,
+  });
 
-  // Real-time: invalidate on new notification
-  useEffect(() => {
-    if (!user) return;
-    const sock = getSocket();
-    const onNew = () => qc.refetchQueries({ queryKey: ["notifications"] });
-    sock.on("notification:new", onNew);
-    return () => { sock.off("notification:new", onNew); };
-  }, [user, qc]);
+  useSocketListener(
+    "notification:new",
+    () => qc.refetchQueries({ queryKey: ["notifications"] }),
+    !!user
+  );
 
   const markAllRead = async () => {
     await api.put("/notifications/read-all").catch(() => {});
     qc.invalidateQueries({ queryKey: ["notifications"] });
   };
-
   const markRead = async (id: string) => {
     await api.put(`/notifications/${id}/read`).catch(() => {});
     qc.invalidateQueries({ queryKey: ["notifications"] });
   };
-
   const deleteN = async (id: string) => {
     await api.delete(`/notifications/${id}`).catch(() => {});
     qc.invalidateQueries({ queryKey: ["notifications"] });
   };
-
   const deleteAll = async () => {
+    if (!confirm("Delete all notifications? This cannot be undone.")) return;
     await api.delete("/notifications/all").catch(() => {});
     qc.invalidateQueries({ queryKey: ["notifications"] });
   };
@@ -79,163 +94,82 @@ export default function NotificationsPage() {
   const unreadCount: number = data?.unreadCount ?? 0;
 
   return (
-    <div style={{ maxWidth: "100%", margin: "0", padding: "4rem 4vw" }}>
-      {/* ── Header ── */}
-      <div
-        style={{
-          padding: "2rem",
-          borderBottom: "none",
-          background: "var(--surface)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1.5rem" }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: "var(--font-xs)",
-              fontWeight: 700,
-
-
-              color: "var(--muted)",
-              marginBottom: "0.3rem" }}
-          >
-            Your account
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <h1
-              style={{
-                fontSize: "var(--font-2xl)",
-                fontWeight: 600,
-
-                lineHeight: 1 }}
-            >
-              Notifications
-            </h1>
+    <PageShell>
+      <PageHeader
+        eyebrow="Account"
+        title={
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+            Notifications
             {unreadCount > 0 && (
-              <span
-                style={{
-                  background: "var(--accent)",
-                  color: "#fff",
-                  fontSize: "var(--font-xs)",
-                  fontWeight: 600,
-                  padding: "0.2rem 0.55rem" }}
-              >
-                {unreadCount} unread
-              </span>
+              <Badge tone="accent">{unreadCount} unread</Badge>
+            )}
+          </span>
+        }
+        right={
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={markAllRead}>
+                Mark all read
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button variant="danger" size="sm" onClick={deleteAll}>
+                Delete all
+              </Button>
             )}
           </div>
-        </div>
+        }
+      />
 
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          {unreadCount > 0 && (
-            <button
-              onClick={markAllRead}
-              style={{
-                background: "none",
-                color: "var(--text)",
-                padding: "0.75rem 1.25rem",
-                fontSize: "var(--font-xs)",
-                fontWeight: 500,
-
-
-                cursor: "pointer",
-                transition: "all 0.12s" }}
-            >
-              MARK ALL READ
-            </button>
-          )}
-          {notifications.length > 0 && (
-            <button
-              onClick={deleteAll}
-              style={{
-                background: "none",
-                border: "1.5px solid var(--accent)",
-                color: "var(--accent)",
-                padding: "0.75rem 1.25rem",
-                fontSize: "var(--font-xs)",
-                fontWeight: 500,
-
-
-                cursor: "pointer",
-                transition: "all 0.12s" }}
-            >
-              DELETE ALL
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── Content ── */}
       {isLoading ? (
-        <div
-          style={{
-            padding: "4rem",
-            textAlign: "center",
-            color: "var(--muted)",
-            fontSize: "var(--font-sm)" }}
-        >
-          Loading...
-        </div>
+        <Card padding="none">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={i}
+              style={{
+                padding: "1.25rem 1.5rem",
+                borderBottom: "1px solid var(--border)",
+              }}
+            >
+              <Skeleton width={80} height={14} />
+              <div style={{ height: 6 }} />
+              <Skeleton width="40%" height={16} />
+              <div style={{ height: 6 }} />
+              <Skeleton width="75%" height={12} />
+            </div>
+          ))}
+        </Card>
       ) : notifications.length === 0 ? (
-        <div
-          style={{
-            padding: "5rem 2rem",
-            textAlign: "center",
-            color: "var(--muted)" }}
-        >
-          <div
-            style={{
-              fontSize: "var(--font-sm)",
-              fontWeight: 500 }}
-          >
-            [EMPTY] No notifications yet
-          </div>
-          <div
-            style={{
-              fontSize: "var(--font-xs)",
-              marginTop: "0.4rem",
-              color: "var(--muted)" }}
-          >
-            Activity from your bids and auctions will appear here.
-          </div>
-        </div>
+        <EmptyState
+          title="No notifications"
+          hint="Activity from your bids and auctions will show up here."
+        />
       ) : (
-        <div style={{ border: "1px solid var(--border)", marginTop: "2rem", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)" }}>
+        <Card padding="none">
           {notifications.map((n, i) => {
-            const meta = TYPE_META[n.type] ?? TYPE_META.GENERAL;
+            const tone = TYPE_TONE[n.type] ?? "neutral";
             return (
               <div
                 key={n.id}
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr auto",
-                  gap: "1.5rem",
+                  gap: "1rem",
                   alignItems: "center",
-                  padding: "1.5rem 2rem",
-                  borderBottom: i < notifications.length - 1 ? "1.5px solid var(--border-hard)" : "none",
-                  background: n.isRead
-                    ? "var(--surface)"
-                    : "var(--surface-2)",
+                  padding: "1.25rem 1.5rem",
+                  borderBottom:
+                    i < notifications.length - 1
+                      ? "1px solid var(--border)"
+                      : "none",
+                  background: n.isRead ? "var(--surface)" : "var(--surface-2)",
                   borderLeft: n.isRead
-                    ? "4px solid transparent"
-                    : "4px solid var(--accent)",
-                  transition: "background 0.2s" }}
+                    ? "3px solid transparent"
+                    : "3px solid var(--accent)",
+                }}
               >
-                {/* Content */}
                 <div>
-                  <div
-                    style={{
-                      fontSize: "var(--font-xs)",
-                      fontWeight: 700,
-
-
-                      color: meta.color,
-                      marginBottom: "0.2rem" }}
-                  >
-                    {n.type.replace(/_/g, " ")}
+                  <div style={{ marginBottom: "0.35rem" }}>
+                    <Badge tone={tone}>{n.type.replace(/_/g, " ")}</Badge>
                   </div>
                   {n.title && (
                     <div
@@ -243,7 +177,7 @@ export default function NotificationsPage() {
                         fontWeight: 700,
                         fontSize: "var(--font-sm)",
                         marginBottom: "0.15rem",
-                        color: "var(--text)" }}
+                      }}
                     >
                       {n.title}
                     </div>
@@ -252,7 +186,8 @@ export default function NotificationsPage() {
                     style={{
                       fontSize: "var(--font-sm)",
                       color: "var(--text-soft)",
-                      lineHeight: 1.5 }}
+                      lineHeight: 1.5,
+                    }}
                   >
                     {n.message}
                   </div>
@@ -260,54 +195,38 @@ export default function NotificationsPage() {
                     style={{
                       fontSize: "var(--font-xs)",
                       color: "var(--muted)",
-                      marginTop: "0.4rem" }}
+                      marginTop: "0.4rem",
+                    }}
                   >
                     {new Date(n.createdAt).toLocaleString([], {
                       dateStyle: "medium",
-                      timeStyle: "short" })}
+                      timeStyle: "short",
+                    })}
                   </div>
                 </div>
-
-                {/* Actions */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    paddingTop: "0.15rem" }}
-                >
+                <div style={{ display: "flex", gap: "0.4rem" }}>
                   {!n.isRead && (
-                    <button
+                    <Button
+                      variant="subtle"
+                      size="sm"
                       onClick={() => markRead(n.id)}
-                      title="Mark as read"
-                      style={actionBtn}
                     >
-                      READ
-                    </button>
+                      Read
+                    </Button>
                   )}
-                  <button
+                  <Button
+                    variant="danger"
+                    size="sm"
                     onClick={() => deleteN(n.id)}
-                    title="Delete"
-                    style={{ ...actionBtn, color: "var(--accent)" }}
                   >
-                    DELETE
-                  </button>
+                    Delete
+                  </Button>
                 </div>
               </div>
             );
           })}
-        </div>
+        </Card>
       )}
-    </div>
+    </PageShell>
   );
 }
-
-const actionBtn: React.CSSProperties = {
-  background: "none",
-  color: "var(--muted)",
-  padding: "0.4rem 0.75rem",
-  fontSize: "var(--font-xs)",
-  cursor: "pointer",
-  fontWeight: 500,
-
-  lineHeight: 1,
-  transition: "all 0.12s" };

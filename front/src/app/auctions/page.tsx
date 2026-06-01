@@ -1,10 +1,25 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { getSocket } from "@/lib/socket";
+import { useSocketListener } from "@/lib/useSocketListener";
+import {
+  AuctionTypeBadge,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  Money,
+  PageHeader,
+  PageShell,
+  Select,
+  SkeletonGrid,
+  Toolbar,
+  formatRemaining,
+} from "@/components/ui";
 
 interface Auction {
   id: string;
@@ -27,14 +42,9 @@ export default function AuctionsPage() {
   const { user } = useAuthStore();
   const qc = useQueryClient();
 
-  useEffect(() => {
-    const sock = getSocket();
-    const handleSync = () => {
-      qc.refetchQueries({ queryKey: ["auctions"] });
-    };
-    sock.on("auction:state-sync", handleSync);
-    return () => { sock.off("auction:state-sync", handleSync); };
-  }, [qc]);
+  useSocketListener("auction:state-sync", () => {
+    qc.refetchQueries({ queryKey: ["auctions"] });
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["auctions", search, type, statusFilter, page],
@@ -46,10 +56,12 @@ export default function AuctionsPage() {
             type: type || undefined,
             status: statusFilter === "ALL" ? undefined : statusFilter,
             page,
-            limit: 12 } })
-        .then((r) => r.data) });
+            limit: 12,
+          },
+        })
+        .then((r) => r.data),
+  });
 
-  // Fetch user's watchlist so cards know their status
   const { data: watchlistData } = useQuery({
     queryKey: ["watchlist"],
     queryFn: () =>
@@ -57,7 +69,8 @@ export default function AuctionsPage() {
         .get("/watchlist")
         .then((r) => r.data.watchlist ?? [])
         .catch(() => []),
-    enabled: !!user });
+    enabled: !!user,
+  });
 
   const watchedIds = new Set<string>(
     ((watchlistData ?? []) as { auctionId: string }[]).map((w) => w.auctionId)
@@ -77,165 +90,88 @@ export default function AuctionsPage() {
   const auctions: Auction[] = data?.auctions ?? [];
 
   return (
-    <div style={{ width: "100%", margin: "0", padding: "0 4vw 4vw", minHeight: "100vh" }}>
-      {/* ── Page Header ── */}
-      <div
-        style={{
-          padding: "3rem 0 2rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          gap: "1rem",
-          flexWrap: "wrap" }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: "var(--font-xs)",
-              fontWeight: 700,
-
-
-              color: "var(--accent)",
-              marginBottom: "0.4rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem" }}
+    <PageShell>
+      <PageHeader
+        eyebrow={
+          <span
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
           >
-            <span className="live-dot" />
-            &nbsp;Live Auctions
-          </div>
-          <h1
-            style={{
-              fontSize: "var(--font-2xl)",
-              fontWeight: 600,
+            <span className="live-dot" /> Live catalogue
+          </span>
+        }
+        title="Auction catalogue"
+        right={
+          user ? (
+            <Link href="/auctions/create" style={{ textDecoration: "none" }}>
+              <Button size="md">+ New listing</Button>
+            </Link>
+          ) : null
+        }
+      />
 
-              lineHeight: 1,
-              color: "var(--text)" }}
-          >
-            Auction Catalogue
-          </h1>
-        </div>
-
-        {user && (
-          <Link
-            href="/auctions/create"
-            style={{
-              background: "var(--accent)",
-              color: "#fff",
-              padding: "0.6rem 1.5rem",
-              fontWeight: 700,
-              fontSize: "var(--font-sm)",
-
-
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem" }}
-          >
-            + New Listing
-          </Link>
-        )}
-      </div>
-
-      {/* ── Filter Bar ── */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0",
-          padding: "0 0 2rem",
-          alignItems: "stretch" }}
-      >
-        <input
+      <Toolbar>
+        <Input
           placeholder="Search auctions..."
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          style={{
-            maxWidth: 280,
-            borderRight: "none" }}
+          style={{ maxWidth: 320 }}
         />
-        <select
+        <Select
           value={type}
           onChange={(e) => {
             setType(e.target.value);
             setPage(1);
           }}
-          style={{
-            maxWidth: 160,
-            borderRight: "none" }}
+          style={{ maxWidth: 160 }}
         >
-          <option value="">All Types</option>
+          <option value="">All types</option>
           <option value="ENGLISH">English</option>
           <option value="DUTCH">Dutch</option>
-          <option value="SEALED_BID">Sealed Bid</option>
-        </select>
-
-        <select
+          <option value="SEALED_BID">Sealed bid</option>
+        </Select>
+        <Select
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          style={{
-            maxWidth: 160,
-            borderRadius: "var(--radius)" }}
+          style={{ maxWidth: 160 }}
         >
           <option value="ACTIVE">Active</option>
-          <option value="ENDED">Past (Ended)</option>
-          <option value="ALL">All Status</option>
-        </select>
-
-        {/* Result count */}
+          <option value="ENDED">Ended</option>
+          <option value="ALL">All status</option>
+        </Select>
         <div
           style={{
             marginLeft: "auto",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            fontSize: "var(--font-sm)",
-            color: "var(--muted)" }}
+            fontSize: "var(--font-xs)",
+            color: "var(--muted)",
+            fontWeight: 600,
+          }}
         >
           {isLoading
-            ? "Loading..."
+            ? "Loading…"
             : `${auctions.length} lot${auctions.length !== 1 ? "s" : ""}`}
         </div>
-      </div>
+      </Toolbar>
 
-      {/* ── Catalogue Grid ── */}
       {isLoading ? (
-        <div style={{ padding: "4rem 0", textAlign: "center", color: "var(--muted)" }}>
-          <div style={{ fontSize: "var(--font-lg)", fontWeight: 700, marginBottom: "0.5rem" }}>
-            Loading catalogue...
-          </div>
-        </div>
+        <SkeletonGrid count={6} minWidth={320} />
       ) : auctions.length === 0 ? (
-        <div
-          style={{
-            padding: "5rem 0",
-            textAlign: "center",
-            borderBottom: "1px solid var(--border)" }}
-        >
-          <div
-            style={{
-              fontSize: "3rem",
-              fontWeight: 600,
-
-              color: "var(--border)",
-              marginBottom: "0.5rem" }}
-          >
-            0 Lots
-          </div>
-          <p style={{ color: "var(--muted)", fontSize: "var(--font-base)" }}>
-            No auctions match your filters.
-          </p>
-        </div>
+        <EmptyState
+          title="No auctions match these filters"
+          hint="Try changing the type, status, or clearing the search."
+        />
       ) : (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-            gap: "1.5rem" }}
+            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+            gap: "1.25rem",
+          }}
         >
           {auctions.map((a, i) => (
             <AuctionCard
@@ -251,41 +187,29 @@ export default function AuctionsPage() {
         </div>
       )}
 
-      {/* ── Pagination ── */}
       {data && data.totalPages > 1 && (
         <div
           style={{
             display: "flex",
-            marginTop: "3rem",
-            borderRight: "1px solid var(--border)",
-            width: "fit-content" }}
+            marginTop: "2.5rem",
+            gap: 4,
+            flexWrap: "wrap",
+          }}
         >
           {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((p) => (
-            <button
+            <Button
               key={p}
+              size="sm"
+              variant={p === page ? "primary" : "ghost"}
               onClick={() => setPage(p)}
-              style={{
-                padding: "0.65rem 1.25rem",
-                borderRight: "none",
-                background: p === page ? "var(--text)" : "var(--surface)",
-                color: p === page ? "var(--bg)" : "var(--text)",
-                fontSize: "var(--font-sm)",
-                fontWeight: 500,
-                cursor: "pointer" }}
             >
               {p}
-            </button>
+            </Button>
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   );
-}
-
-
-// ── Lot number helper ──
-function lotNumber(i: number) {
-  return String(i + 1).padStart(3, "0");
 }
 
 function AuctionCard({
@@ -294,7 +218,8 @@ function AuctionCard({
   isWatched,
   showWatchlist,
   isOwner,
-  onToggleWatchlist }: {
+  onToggleWatchlist,
+}: {
   auction: Auction;
   index: number;
   isWatched: boolean;
@@ -302,193 +227,175 @@ function AuctionCard({
   isOwner: boolean;
   onToggleWatchlist: (e: React.MouseEvent) => void;
 }) {
-  const typeLabel: Record<string, string> = {
-    ENGLISH: "English",
-    DUTCH: "Dutch",
-    SEALED_BID: "Sealed Bid" };
-  const typeBadgeClass: Record<string, string> = {
-    ENGLISH: "badge badge-english",
-    DUTCH: "badge badge-dutch",
-    SEALED_BID: "badge badge-sealed" };
-
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const diff = new Date(auction.endTime).getTime() - now;
-  const timeText = diff <= 0
-    ? "Ended"
-    : Math.floor(diff / 3600000) > 0
-      ? `${Math.floor(diff / 3600000)}h ${Math.floor((diff % 3600000) / 60000)}m`
-      : `${Math.floor((diff % 3600000) / 60000)}m ${Math.floor((diff % 60000) / 1000)}s`;
+  const diff = new Date(auction.endTime).getTime() - Date.now();
   const urgent = diff > 0 && diff < 3600000;
+  const ended = auction.status === "ENDED";
 
   return (
     <Link
       href={`/auctions/${auction.id}`}
-      className="auction-card"
-      style={{
-        padding: isOwner ? "0" : "2rem",
-        display: "block",
-        background: "var(--surface)",
-        position: "relative" }}
+      style={{ textDecoration: "none", color: "inherit", display: "block" }}
     >
-      {/* Your Listing banner */}
-      {isOwner && (
-        <div
-          style={{
-            background: "var(--surface-2)",
-            borderBottom: "1px solid var(--border)",
-            padding: "0.5rem 2rem",
-            fontSize: "0.65rem",
-            fontWeight: 500,
-
-
-            color: "var(--text)",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.35rem" }}
-        >
-          YOUR LISTING
-        </div>
-      )}
-      <div style={{ padding: isOwner ? "2rem" : "0" }}>
-      {/* Watchlist button */}
-      {showWatchlist && (
-        <button
-          onClick={onToggleWatchlist}
-          title={isWatched ? "Remove from watchlist" : "Add to watchlist"}
-          style={{
-            position: "absolute",
-            top: "1.5rem",
-            right: "1.5rem",
-            background: "var(--surface)",
-            border: `1.5px solid ${isWatched ? "var(--text)" : "var(--border-hard)"}`,
-            color: isWatched ? "var(--text)" : "var(--muted)",
-            padding: "0.3rem 0.6rem",
-            fontSize: "0.65rem",
-            fontWeight: 500,
-            cursor: "pointer",
-            transition: "all 0.15s",
-            zIndex: 2 }}
-        >
-          {isWatched ? "WATCHED" : "WATCH"}
-        </button>
-      )}
-
-      {/* Lot number + type */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: "1rem",
-          paddingRight: showWatchlist ? "2rem" : "0" }}
-      >
-        <span
-          style={{
-            fontSize: "var(--font-xs)",
-            fontWeight: 700,
-            color: "var(--muted)" }}
-        >
-          Lot {lotNumber(index)}
-        </span>
-        <span className={typeBadgeClass[auction.type]} style={{ fontSize: "0.6rem" }}>
-          {typeLabel[auction.type]}
-        </span>
-        {auction.status === "ENDED" && (
-          <span style={{
-            fontSize: "0.6rem", 
-            fontWeight: 500,
-            padding: "0.15rem 0.4rem", 
-            background: auction.winnerId ? "rgba(26,127,60,0.1)" : "rgba(100,100,100,0.1)", 
-            color: auction.winnerId ? "var(--success)" : "var(--muted)", 
-            border: `1px solid ${auction.winnerId ? "var(--success)" : "var(--muted)"}`,
-            marginLeft: "0.5rem" }}>
-            {auction.winnerId ? "Won" : "Unsold"}
-          </span>
+      <Card padding="none" style={{ overflow: "hidden", position: "relative" }}>
+        {isOwner && (
+          <div
+            style={{
+              background: "var(--surface-2)",
+              borderBottom: "1px solid var(--border)",
+              padding: "0.4rem 1.25rem",
+              fontSize: "var(--font-xs)",
+              fontWeight: 700,
+              color: "var(--text)",
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+            }}
+          >
+            Your listing
+          </div>
         )}
-      </div>
+        <div style={{ padding: "1.5rem" }}>
+          {showWatchlist && (
+            <button
+              onClick={onToggleWatchlist}
+              title={isWatched ? "Remove from watchlist" : "Add to watchlist"}
+              style={{
+                position: "absolute",
+                top: "1.1rem",
+                right: "1.1rem",
+                background: isWatched
+                  ? "var(--text)"
+                  : "var(--surface)",
+                color: isWatched ? "var(--bg)" : "var(--text-soft)",
+                border: `1px solid ${isWatched ? "var(--text)" : "var(--border-hard)"}`,
+                padding: "0.25rem 0.55rem",
+                fontSize: "var(--font-xs)",
+                fontWeight: 700,
+                borderRadius: 999,
+                letterSpacing: "0.04em",
+              }}
+            >
+              {isWatched ? "Watching" : "Watch"}
+            </button>
+          )}
 
-      {/* Title */}
-      <h3
-        style={{
-          fontWeight: 700,
-          fontSize: "var(--font-base)",
-          lineHeight: 1.35,
-          marginBottom: "1.25rem",
-          color: "var(--text)",
-          overflow: "hidden",
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical" }}
-      >
-        {auction.title}
-      </h3>
-
-      {/* Price & timer row */}
-      <div
-        style={{
-          borderTop: "1px solid var(--border)",
-          paddingTop: "0.85rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end" }}
-      >
-        <div>
-          <div className="price-label" style={{ marginBottom: "0.2rem" }}>
-            Current Bid
-          </div>
           <div
             style={{
-              fontSize: "1.4rem",
-              fontWeight: 600,
-
-              color: "var(--accent)",
-              lineHeight: 1 }}
+              display: "flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              marginBottom: "0.85rem",
+              paddingRight: showWatchlist ? 80 : 0,
+            }}
           >
-            ₹{auction.currentPrice?.toLocaleString()}
+            <span
+              style={{
+                fontSize: "var(--font-xs)",
+                fontWeight: 700,
+                color: "var(--muted)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Lot {String(index + 1).padStart(3, "0")}
+            </span>
+            <AuctionTypeBadge type={auction.type} />
+            {ended && (
+              <Badge tone={auction.winnerId ? "success" : "neutral"}>
+                {auction.winnerId ? "Won" : "Unsold"}
+              </Badge>
+            )}
+          </div>
+
+          <h3
+            style={{
+              fontWeight: 700,
+              fontSize: "var(--font-md)",
+              lineHeight: 1.3,
+              marginBottom: "1.25rem",
+              color: "var(--text)",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              minHeight: "2.6em",
+            }}
+          >
+            {auction.title}
+          </h3>
+
+          <div
+            style={{
+              borderTop: "1px solid var(--border)",
+              paddingTop: "0.85rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "var(--font-xs)",
+                  fontWeight: 700,
+                  color: "var(--muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  marginBottom: 4,
+                }}
+              >
+                {ended ? "Final price" : "Current bid"}
+              </div>
+              <Money
+                value={auction.currentPrice}
+                size="md"
+                color={ended ? "var(--text)" : "var(--accent)"}
+              />
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div
+                style={{
+                  fontSize: "var(--font-xs)",
+                  fontWeight: 700,
+                  color: urgent ? "var(--danger)" : "var(--muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  marginBottom: 4,
+                }}
+              >
+                {ended ? "Ended" : "Time left"}
+              </div>
+              {ended ? (
+                <span style={{ fontWeight: 600, fontSize: "var(--font-sm)", color: "var(--muted)" }}>
+                  {new Date(auction.endTime).toLocaleDateString([], { dateStyle: "medium" })}
+                </span>
+              ) : (
+                <span
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "var(--font-sm)",
+                    color: urgent ? "var(--danger)" : "var(--text)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {formatRemaining(diff)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginTop: "0.65rem",
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "var(--font-xs)",
+              color: "var(--muted)",
+            }}
+          >
+            <span>by {auction.seller?.name}</span>
+            <span>{auction._count?.bids ?? 0} bids</span>
           </div>
         </div>
-
-        <div style={{ textAlign: "right" }}>
-          <div
-            className="price-label"
-            style={{
-              marginBottom: "0.2rem",
-              color: urgent ? "var(--accent)" : "var(--muted)" }}
-          >
-            Time Left
-          </div>
-          <div
-            style={{
-              fontSize: "0.9rem",
-              fontWeight: 500,
-
-              color: urgent ? "var(--accent)" : "var(--text)",
-              fontVariantNumeric: "tabular-nums" }}
-          >
-            {timeText}
-          </div>
-        </div>
-      </div>
-
-      {/* Seller + bids */}
-      <div
-        style={{
-          marginTop: "0.65rem",
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: "var(--font-xs)",
-          color: "var(--muted)" }}
-      >
-        <span>by {auction.seller?.name}</span>
-        <span>{auction._count?.bids ?? 0} bids</span>
-      </div>
-      </div>
+      </Card>
     </Link>
   );
 }

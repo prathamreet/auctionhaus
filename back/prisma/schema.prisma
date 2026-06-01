@@ -24,10 +24,10 @@ enum AuctionType {
 }
 
 enum AuctionStatus {
-  PENDING    // not started yet
-  ACTIVE     // accepting bids
-  ENDED      // ended naturally or manually
-  CANCELLED  // cancelled by seller or admin
+  PENDING // not started yet
+  ACTIVE // accepting bids
+  ENDED // ended naturally or manually
+  CANCELLED // cancelled by seller or admin
 }
 
 enum BidStatus {
@@ -64,43 +64,55 @@ enum NotificationType {
   GENERAL
 }
 
+// Phase A5: how a settlement's money moved. DIRECT_SALE = buyNow (buyer
+// balance -> seller balance). WON_AUCTION = confirmWinnerPayment (winner
+// heldAmount -> seller balance; the balance was already debited at bid time).
+enum SettlementKind {
+  DIRECT_SALE
+  WON_AUCTION
+}
+
 // ─── MODELS ──────────────────────────────────────────────────────────────────
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password      String?  // null if OAuth
-  name          String
-  avatar        String?
-  role          Role     @default(USER)
-  rating        Float    @default(0)
-  ratingCount   Int      @default(0)
-  isSuspended   Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String? // null if OAuth
+  name        String
+  avatar      String?
+  role        Role     @default(USER)
+  rating      Float    @default(0)
+  ratingCount Int      @default(0)
+  isSuspended Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  wallet        Wallet?
-  auctions      Auction[]         @relation("SellerAuctions")
-  wonAuctions   Auction[]         @relation("WinnerAuctions")
-  bids          Bid[]
-  autoBids      AutoBid[]
-  notifications Notification[]
-  watchlist     WatchlistItem[]
-  transactions  Transaction[]
-  sentRatings   Rating[]          @relation("RaterRatings")
+  wallet          Wallet?
+  auctions        Auction[]       @relation("SellerAuctions")
+  wonAuctions     Auction[]       @relation("WinnerAuctions")
+  bids            Bid[]
+  autoBids        AutoBid[]
+  notifications   Notification[]
+  watchlist       WatchlistItem[]
+  transactions    Transaction[]
+  sentRatings     Rating[]        @relation("RaterRatings")
   receivedRatings Rating[]        @relation("RateeRatings")
+  fraudFlags      FraudFlag[]
+  bidCommitments  BidCommitment[]
 
   @@map("users")
 }
 
 model Wallet {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  balance   Float    @default(0)
-  heldAmount Float   @default(0) // locked for active bids
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  // Phase A1: money is exact -- NUMERIC(18,2) in Postgres, Prisma.Decimal in JS.
+  // Float would lose precision under repeated holds / releases.
+  balance    Decimal  @default(0) @db.Decimal(18, 2)
+  heldAmount Decimal  @default(0) @db.Decimal(18, 2) // locked for active bids
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -113,60 +125,75 @@ model Transaction {
   walletId    String
   userId      String
   type        TransactionType
-  amount      Float
+  // Phase A1: signed amount (negative for debits like WITHDRAWAL, PAYMENT_OUT).
+  amount      Decimal           @db.Decimal(18, 2)
   status      TransactionStatus @default(COMPLETED)
   description String?
-  referenceId String?           // auctionId or bidId
+  referenceId String? // auctionId or bidId
   createdAt   DateTime          @default(now())
 
   wallet Wallet @relation(fields: [walletId], references: [id])
   user   User   @relation(fields: [userId], references: [id])
 
+  // Phase A3: wallet history page. The DESC ordering on createdAt is enforced
+  // by the raw-SQL index in 20260528000001_perf_indexes; Prisma schema can't
+  // declare a per-column direction, so @@index without it is still correct
+  // (Postgres scans the B-tree backwards for DESC) -- the raw form just
+  // helps when the planner is uncertain.
+  @@index([userId, createdAt])
   @@map("transactions")
 }
 
 model Auction {
-  id              String        @id @default(uuid())
-  sellerId        String
-  title           String
-  description     String
-  imageUrl        String?
-  type            AuctionType   @default(ENGLISH)
-  status          AuctionStatus @default(PENDING)
+  id          String        @id @default(uuid())
+  sellerId    String
+  title       String
+  description String
+  imageUrl    String?
+  type        AuctionType   @default(ENGLISH)
+  status      AuctionStatus @default(PENDING)
 
-  // Pricing
-  startingPrice   Float
-  reservePrice    Float?        // minimum to sell
-  currentPrice    Float
-  buyNowPrice     Float?        // instant buy option
+  // Pricing (Phase A1: Decimal for exact arithmetic)
+  startingPrice Decimal  @db.Decimal(18, 2)
+  reservePrice  Decimal? @db.Decimal(18, 2) // minimum to sell
+  currentPrice  Decimal  @db.Decimal(18, 2)
+  buyNowPrice   Decimal? @db.Decimal(18, 2) // instant buy option
 
   // Dutch auction specific
-  dutchPriceStep  Float?        // price drops by this per interval
-  dutchInterval   Int?          // seconds between price drops
+  dutchPriceStep Decimal? @db.Decimal(18, 2) // price drops by this per interval
+  dutchInterval  Int? // seconds between price drops
 
   // Bidding rules
-  minIncrement    Float         @default(1)
-  antiSnipingMins Int           @default(5) // extend by X mins if bid in last X mins
+  minIncrement    Decimal @default(1) @db.Decimal(18, 2)
+  antiSnipingMins Int     @default(5) // extend by X mins if bid in last X mins
 
   // Timing
-  startTime       DateTime
-  endTime         DateTime
-  actualEndTime   DateTime?     // if extended due to anti-sniping
+  startTime     DateTime
+  endTime       DateTime
+  actualEndTime DateTime? // if extended due to anti-sniping
 
   // Winner
-  winnerId        String?
-  winnerBidId     String?
+  winnerId    String?
+  winnerBidId String?
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  seller     User           @relation("SellerAuctions", fields: [sellerId], references: [id])
-  winner     User?          @relation("WinnerAuctions", fields: [winnerId], references: [id])
-  bids       Bid[]
-  autoBids   AutoBid[]
-  watchlist  WatchlistItem[]
+  seller         User            @relation("SellerAuctions", fields: [sellerId], references: [id])
+  winner         User?           @relation("WinnerAuctions", fields: [winnerId], references: [id])
+  bids           Bid[]
+  autoBids       AutoBid[]
+  watchlist      WatchlistItem[]
+  fraudFlags     FraudFlag[]
+  bidCommitments BidCommitment[]
 
+  // Phase A3: catalog read paths. The GIN tsvector(title + description) FTS
+  // index is in raw SQL only -- Prisma cannot express it -- see the migration
+  // 20260528000001_perf_indexes/migration.sql.
+  @@index([status])
+  @@index([endTime])
+  @@index([type, status])
   @@map("auctions")
 }
 
@@ -174,14 +201,32 @@ model Bid {
   id        String    @id @default(uuid())
   auctionId String
   bidderId  String
-  amount    Float
+  amount    Decimal   @db.Decimal(18, 2)
   status    BidStatus @default(ACTIVE)
   isAutoBid Boolean   @default(false)
   createdAt DateTime  @default(now())
 
+  // Phase E7: idempotency marker for sealed-bid end-of-auction refunds. The
+  // status flip and the wallet refunds used to live in SEPARATE transactions,
+  // so a worker that crashed between them left losers permanently unrefunded
+  // (the retry would see status=ENDED and bail). Now: the refund block filters
+  // on `refundedAt IS NULL`, sets it as part of the same tx, and a retry
+  // resumes from wherever the previous run left off without ever
+  // double-refunding. Nullable on purpose so existing rows from before the
+  // migration carry NULL and are never touched (no auction can transition
+  // back to ACTIVE).
+  refundedAt DateTime?
+
   auction Auction @relation(fields: [auctionId], references: [id])
   bidder  User    @relation(fields: [bidderId], references: [id])
 
+  // Phase A3: getAuctionBids + placeBid previous-winner lookup + bid history.
+  // Phase E5: bid history page paginates by createdAt DESC for a given auction;
+  // the index also covers the ladder load (which is small enough that the
+  // planner picks it for the auction-scoped scan).
+  @@index([auctionId, status])
+  @@index([bidderId])
+  @@index([auctionId, createdAt(sort: Desc)])
   @@map("bids")
 }
 
@@ -189,8 +234,8 @@ model AutoBid {
   id         String   @id @default(uuid())
   auctionId  String
   bidderId   String
-  maxAmount  Float    // max they're willing to bid
-  currentBid Float    @default(0)
+  maxAmount  Decimal  @db.Decimal(18, 2) // max they're willing to bid
+  currentBid Decimal  @default(0) @db.Decimal(18, 2)
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -198,7 +243,14 @@ model AutoBid {
   auction Auction @relation(fields: [auctionId], references: [id])
   bidder  User    @relation(fields: [bidderId], references: [id])
 
+  // Phase E5: processAutoBidLadder runs
+  //   WHERE auctionId=? AND isActive=true AND bidderId<>?
+  //   ORDER BY maxAmount DESC, createdAt ASC
+  // on every manual bid. This composite index is index-only friendly for the
+  // first three columns and the `maxAmount DESC` lets Postgres skip the sort
+  // for the typical small ladder pool.
   @@unique([auctionId, bidderId])
+  @@index([auctionId, isActive, maxAmount(sort: Desc)])
   @@map("auto_bids")
 }
 
@@ -222,26 +274,93 @@ model Notification {
   title     String
   message   String
   isRead    Boolean          @default(false)
-  data      Json?            // extra payload (auctionId, amount, etc.)
+  data      Json? // extra payload (auctionId, amount, etc.)
   createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Phase A3: notifications inbox query.
+  @@index([userId, isRead])
   @@map("notifications")
 }
 
 model Rating {
-  id         String   @id @default(uuid())
-  raterId    String
-  rateeId    String
-  auctionId  String
-  score      Int      // 1-5
-  comment    String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  raterId   String
+  rateeId   String
+  auctionId String
+  score     Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
 
   rater User @relation("RaterRatings", fields: [raterId], references: [id])
   ratee User @relation("RateeRatings", fields: [rateeId], references: [id])
 
   @@unique([raterId, rateeId, auctionId])
   @@map("ratings")
+}
+
+// Phase C2/C3: persisted fraud flag row. One row per flagged bid event.
+// score is stored as Float (0-1) — approximate ML output, no financial
+// arithmetic, so Float precision is fine here.
+model FraudFlag {
+  id        String   @id @default(uuid())
+  bidderId  String
+  auctionId String
+  bidId     String
+  score     Float
+  features  Json
+  reason    String
+  dismissed Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  bidder  User    @relation(fields: [bidderId], references: [id])
+  auction Auction @relation(fields: [auctionId], references: [id])
+
+  @@index([bidderId])
+  @@index([auctionId])
+  @@index([dismissed, createdAt])
+  @@map("fraud_flags")
+}
+
+// Phase C6: cryptographic sealed-bid commitment. Two-phase sealed bid:
+// client commits H = SHA-256(amount || nonce) during bidding; reveals
+// (amount, nonce) after close. Server stores commit then verifies reveal.
+model BidCommitment {
+  id             String    @id @default(uuid())
+  auctionId      String
+  bidderId       String
+  commitHash     String
+  nonce          String?
+  createdAt      DateTime  @default(now())
+  revealedAt     DateTime?
+  revealedAmount Decimal?  @db.Decimal(18, 2)
+  revealedNonce  String?
+  isValid        Boolean?
+
+  auction Auction @relation(fields: [auctionId], references: [id])
+  bidder  User    @relation(fields: [bidderId], references: [id])
+
+  @@unique([auctionId, bidderId])
+  @@map("bid_commitments")
+}
+
+// Phase A5: single source of truth that an auction's money has settled. One
+// row per auction (auctionId @unique) is the idempotency guard shared by
+// buyNow (DIRECT_SALE) and confirmWinnerPayment (WON_AUCTION) -- whichever
+// path runs first inserts the row inside its locked tx; a concurrent or
+// retried second call sees the row and no-ops instead of moving money twice.
+// Scalar-only by design: this is an append-only audit/guard table we never
+// navigate from in code, so no Prisma relations (keeps the migration to one
+// table + one unique index, matching the hand-written SQL exactly).
+model Settlement {
+  id        String         @id @default(uuid())
+  auctionId String         @unique
+  sellerId  String
+  partyId   String // buyer (DIRECT_SALE) or winner (WON_AUCTION)
+  amount    Decimal        @db.Decimal(18, 2)
+  kind      SettlementKind
+  createdAt DateTime       @default(now())
+
+  @@map("settlements")
 }

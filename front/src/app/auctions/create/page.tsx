@@ -1,13 +1,23 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
+import api, { parseApiError } from "@/lib/api";
+import {
+  Alert,
+  Button,
+  Card,
+  Field,
+  Input,
+  PageHeader,
+  PageShell,
+  Select,
+  Textarea,
+} from "@/components/ui";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type FormState = {
   title: string;
   description: string;
-  type: string;
+  type: "ENGLISH" | "DUTCH" | "SEALED_BID";
   startingPrice: string;
   reservePrice: string;
   buyNowPrice: string;
@@ -19,65 +29,65 @@ type FormState = {
   dutchInterval: string;
 };
 
-type FieldErrors = Record<string, string>;
+type FieldErrors = Partial<Record<keyof FormState, string>>;
 
-// ─── Client-side validation ───────────────────────────────────────────────────
 function validate(form: FormState): FieldErrors {
-  const errs: FieldErrors = {};
+  const e: FieldErrors = {};
+  if (!form.title.trim()) e.title = "Title is required.";
+  else if (form.title.trim().length < 3) e.title = "Title must be at least 3 characters.";
+  else if (form.title.trim().length > 200) e.title = "Title must be 200 characters or fewer.";
 
-  if (!form.title.trim()) errs.title = "Title is required.";
-  else if (form.title.trim().length < 3) errs.title = "Title must be at least 3 characters.";
-  else if (form.title.trim().length > 200) errs.title = "Title must be 200 characters or fewer.";
-
-  if (form.description.trim().length > 0 && form.description.trim().length < 10)
-    errs.description = "Description must be at least 10 characters (or leave it empty).";
+  const descLen = form.description.trim().length;
+  if (descLen > 0 && descLen < 10)
+    e.description = "Description must be at least 10 characters (or leave it empty).";
 
   const price = parseFloat(form.startingPrice);
   if (!form.startingPrice || isNaN(price) || price <= 0)
-    errs.startingPrice = "Starting price must be a positive number.";
+    e.startingPrice = "Starting price must be a positive number.";
 
-  const reserve = parseFloat(form.reservePrice);
-  if (form.reservePrice && (isNaN(reserve) || reserve < 0))
-    errs.reservePrice = "Reserve price must be a non-negative number.";
+  if (form.reservePrice) {
+    const reserve = parseFloat(form.reservePrice);
+    if (isNaN(reserve) || reserve < 0)
+      e.reservePrice = "Reserve price must be a non-negative number.";
+  }
 
   if (form.type !== "DUTCH") {
-    // minIncrement only relevant for English / Sealed
     const inc = parseFloat(form.minIncrement);
     if (!form.minIncrement || isNaN(inc) || inc <= 0)
-      errs.minIncrement = "Minimum increment must be a positive number.";
+      e.minIncrement = "Minimum increment must be a positive number.";
 
-    const buyNow = parseFloat(form.buyNowPrice);
-    if (form.buyNowPrice && (isNaN(buyNow) || buyNow <= 0))
-      errs.buyNowPrice = "Buy now price must be a positive number.";
+    if (form.buyNowPrice) {
+      const buyNow = parseFloat(form.buyNowPrice);
+      if (isNaN(buyNow) || buyNow <= 0)
+        e.buyNowPrice = "Buy now price must be a positive number.";
+    }
 
-    // endTime required for non-Dutch
     if (form.endTime) {
       const end = new Date(form.endTime);
-      if (isNaN(end.getTime())) errs.endTime = "Please enter a valid end time.";
-      else if (end <= new Date()) errs.endTime = "End time must be in the future.";
+      if (isNaN(end.getTime())) e.endTime = "Please enter a valid end time.";
+      else if (end <= new Date()) e.endTime = "End time must be in the future.";
       if (form.startTime) {
         const start = new Date(form.startTime);
         if (!isNaN(start.getTime()) && start >= end)
-          errs.endTime = "End time must be after the start time.";
+          e.endTime = "End time must be after the start time.";
       }
     } else {
-      errs.endTime = "End time is required.";
+      e.endTime = "End time is required.";
     }
   }
 
   if (form.type === "DUTCH") {
     const step = parseFloat(form.dutchPriceStep);
     if (!form.dutchPriceStep || isNaN(step) || step <= 0)
-      errs.dutchPriceStep = "Price drop step must be a positive number.";
+      e.dutchPriceStep = "Price drop step must be a positive number.";
     const interval = parseInt(form.dutchInterval);
     if (!form.dutchInterval || isNaN(interval) || interval < 60)
-      errs.dutchInterval = "Drop interval must be at least 60 seconds.";
+      e.dutchInterval = "Drop interval must be at least 60 seconds.";
   }
 
-  return errs;
+  return e;
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function CreateAuctionPage() {
   const router = useRouter();
   const [form, setForm] = useState<FormState>({
@@ -92,24 +102,22 @@ export default function CreateAuctionPage() {
     startTime: "",
     endTime: "",
     dutchPriceStep: "",
-    dutchInterval: "" });
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+    dutchInterval: "",
+  });
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [globalError, setGlobalError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const set = (k: keyof FormState, v: string) => {
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((p) => {
-      const next = { ...p, [k]: v };
-      // Clear irrelevant fields when auction type changes to prevent state bleed
+      const next: FormState = { ...p, [k]: v };
       if (k === "type") {
         if (v === "DUTCH") {
-          // Dutch doesn't use minIncrement, buyNowPrice, antiSnipingMins, endTime
           next.minIncrement = "";
           next.buyNowPrice = "";
           next.antiSnipingMins = "";
           next.endTime = "";
         } else {
-          // English/Sealed don't use dutchPriceStep, dutchInterval
           next.dutchPriceStep = "";
           next.dutchInterval = "";
           if (!next.minIncrement) next.minIncrement = "100";
@@ -118,332 +126,317 @@ export default function CreateAuctionPage() {
       }
       return next;
     });
-    // Clear the error for this field as the user types
-    if (fieldErrors[k]) setFieldErrors((p) => ({ ...p, [k]: "" }));
+    if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGlobalError("");
-
-    // Client-side validation first
-    const clientErrors = validate(form);
-    if (Object.keys(clientErrors).length > 0) {
-      setFieldErrors(clientErrors);
+    const fieldErrors = validate(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
       return;
     }
-    setFieldErrors({});
-
+    setErrors({});
     setLoading(true);
     try {
-      const toISO = (val: string) => (val ? new Date(val).toISOString() : undefined);
+      const toISO = (v: string) => (v ? new Date(v).toISOString() : undefined);
       const body: Record<string, unknown> = {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         type: form.type,
         startingPrice: parseFloat(form.startingPrice),
         reservePrice: parseFloat(form.reservePrice) || undefined,
-        startTime: toISO(form.startTime) ?? new Date().toISOString() };
+        startTime: toISO(form.startTime) ?? new Date().toISOString(),
+      };
       if (form.type !== "DUTCH") {
         body.endTime = toISO(form.endTime);
         body.minIncrement = parseFloat(form.minIncrement);
         body.antiSnipingMins = parseInt(form.antiSnipingMins);
         if (form.buyNowPrice) body.buyNowPrice = parseFloat(form.buyNowPrice);
-      }
-      if (form.type === "DUTCH") {
+      } else {
         body.dutchPriceStep = parseFloat(form.dutchPriceStep);
         body.dutchInterval = parseInt(form.dutchInterval);
       }
       const res = await api.post("/auctions", body);
       router.push(`/auctions/${res.data.id}`);
-    } catch (e: unknown) {
-      const err = e as {
-        response?: { data?: { message?: string; errors?: Record<string, string> } };
+    } catch (err: unknown) {
+      const e = err as {
+        response?: {
+          data?: { message?: string; errors?: Record<string, string> };
+        };
       };
-      const data = err.response?.data;
+      const data = e.response?.data;
       if (data?.errors && typeof data.errors === "object") {
-        // Server returned per-field validation errors
-        setFieldErrors(data.errors);
-        setGlobalError(data.message || "Please fix the errors below and try again.");
+        setErrors(data.errors as FieldErrors);
+        setGlobalError(data.message || "Please fix the errors below.");
       } else {
-        setGlobalError(data?.message || "Something went wrong. Please try again.");
+        setGlobalError(parseApiError(err, "Couldn’t create the auction."));
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const hasErrors = Object.values(fieldErrors).some(Boolean);
+  const hasErrors = Object.values(errors).some(Boolean);
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: "4rem 4vw" }}>
-      <h1 style={{ fontWeight: 600, fontSize: "2rem",  marginBottom: "0.5rem" }}>
-        Create Auction
-      </h1>
-      <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginBottom: "2rem" }}>
-        Fill in the details below to list your item for auction.
-      </p>
+    <PageShell maxWidth={840}>
+      <PageHeader
+        eyebrow="New listing"
+        title="Create auction"
+        subtitle="English, Dutch, or sealed-bid — pick a type and the form adapts."
+      />
 
-      {/* Global error banner */}
-      {(globalError || hasErrors) && (
-        <div style={bannerStyle}>
-          <span style={{ fontWeight: 500 }}>WARNING:</span>
-          <span>{globalError || "Please fix the highlighted fields below."}</span>
-        </div>
-      )}
+      <Card padding="lg">
+        {(globalError || hasErrors) && (
+          <Alert tone="error" style={{ marginBottom: "1rem" }}>
+            {globalError || "Please fix the highlighted fields below."}
+          </Alert>
+        )}
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }} noValidate>
-
-        <Field label="Title *" error={fieldErrors.title}>
-          <input
-            value={form.title}
-            onChange={(e) => set("title", e.target.value)}
-            placeholder="e.g. Vintage Rolex Submariner"
-            style={inputStyle(!!fieldErrors.title)}
-          />
-        </Field>
-
-        <Field label="Description" hint="Min 10 characters if provided" error={fieldErrors.description}>
-          <textarea
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
-            rows={3}
-            placeholder="Describe your item — condition, history, dimensions…"
-            style={{ ...inputStyle(!!fieldErrors.description), resize: "vertical" }}
-          />
-        </Field>
-
-        <Field label="Auction Type">
-          <select value={form.type} onChange={(e) => set("type", e.target.value)} style={inputStyle(false)}>
-            <option value="ENGLISH">English — price climbs up with bids</option>
-            <option value="DUTCH">Dutch — price drops until someone buys</option>
-            <option value="SEALED_BID">Sealed Bid — blind, highest bid wins</option>
-          </select>
-        </Field>
-
-        <div style={gridTwo}>
-          <Field label="Starting Price (₹) *" error={fieldErrors.startingPrice}>
-            <input
-              type="number"
-              value={form.startingPrice}
-              onChange={(e) => set("startingPrice", e.target.value)}
-              placeholder="e.g. 5000"
-              min="1"
-              style={inputStyle(!!fieldErrors.startingPrice)}
+        <form
+          onSubmit={onSubmit}
+          noValidate
+          style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}
+        >
+          <Field label="Title *" error={errors.title}>
+            <Input
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="e.g. Vintage Rolex Submariner"
+              invalid={!!errors.title}
             />
           </Field>
-          <Field label="Reserve Price (₹)" hint="Optional minimum to sell" error={fieldErrors.reservePrice}>
-            <input
-              type="number"
-              value={form.reservePrice}
-              onChange={(e) => set("reservePrice", e.target.value)}
-              placeholder="e.g. 8000"
-              min="0"
-              style={inputStyle(!!fieldErrors.reservePrice)}
+
+          <Field
+            label="Description"
+            hint="Min 10 characters if provided"
+            error={errors.description}
+          >
+            <Textarea
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
+              rows={3}
+              placeholder="Condition, history, dimensions…"
+              invalid={!!errors.description}
             />
           </Field>
-        </div>
 
-        {/* Min increment + buy now — not relevant for Dutch */}
-        {form.type !== "DUTCH" && (
-          <div style={gridTwo}>
-            <Field label="Min Bid Increment (₹) *" error={fieldErrors.minIncrement}>
-              <input
+          <Field label="Auction type">
+            <Select
+              value={form.type}
+              onChange={(e) =>
+                set(
+                  "type",
+                  e.target.value as "ENGLISH" | "DUTCH" | "SEALED_BID"
+                )
+              }
+            >
+              <option value="ENGLISH">English — ascending bids</option>
+              <option value="DUTCH">Dutch — price drops over time</option>
+              <option value="SEALED_BID">Sealed bid — blind, highest wins</option>
+            </Select>
+          </Field>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <Field label="Starting price (₹) *" error={errors.startingPrice}>
+              <Input
                 type="number"
-                value={form.minIncrement}
-                onChange={(e) => set("minIncrement", e.target.value)}
-                placeholder="e.g. 100"
                 min="1"
-                style={inputStyle(!!fieldErrors.minIncrement)}
+                value={form.startingPrice}
+                onChange={(e) => set("startingPrice", e.target.value)}
+                placeholder="e.g. 5000"
+                invalid={!!errors.startingPrice}
               />
             </Field>
-            <Field label="Buy Now Price (₹)" hint="Optional instant-buy price" error={fieldErrors.buyNowPrice}>
-              <input
+            <Field
+              label="Reserve price (₹)"
+              hint="Optional minimum to sell"
+              error={errors.reservePrice}
+            >
+              <Input
                 type="number"
-                value={form.buyNowPrice}
-                onChange={(e) => set("buyNowPrice", e.target.value)}
-                placeholder="e.g. 15000"
-                min="1"
-                style={inputStyle(!!fieldErrors.buyNowPrice)}
+                min="0"
+                value={form.reservePrice}
+                onChange={(e) => set("reservePrice", e.target.value)}
+                placeholder="e.g. 8000"
+                invalid={!!errors.reservePrice}
               />
             </Field>
           </div>
-        )}
 
-        {/* Dutch-specific fields */}
-        {form.type === "DUTCH" && (
-          <>
-            <div style={gridTwo}>
-              <Field label="Price Drop Step (₹) *" error={fieldErrors.dutchPriceStep}>
-                <input
+          {form.type !== "DUTCH" && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <Field label="Min bid increment (₹) *" error={errors.minIncrement}>
+                <Input
                   type="number"
-                  value={form.dutchPriceStep}
-                  onChange={(e) => set("dutchPriceStep", e.target.value)}
-                  placeholder="e.g. 200"
                   min="1"
-                  style={inputStyle(!!fieldErrors.dutchPriceStep)}
+                  value={form.minIncrement}
+                  onChange={(e) => set("minIncrement", e.target.value)}
+                  placeholder="e.g. 100"
+                  invalid={!!errors.minIncrement}
                 />
               </Field>
-              <Field label="Drop Interval (seconds) *" hint="Min 60 s" error={fieldErrors.dutchInterval}>
-                <input
+              <Field
+                label="Buy-now price (₹)"
+                hint="Optional instant-buy"
+                error={errors.buyNowPrice}
+              >
+                <Input
                   type="number"
-                  value={form.dutchInterval}
-                  onChange={(e) => set("dutchInterval", e.target.value)}
-                  placeholder="e.g. 300"
-                  min="60"
-                  style={inputStyle(!!fieldErrors.dutchInterval)}
+                  min="1"
+                  value={form.buyNowPrice}
+                  onChange={(e) => set("buyNowPrice", e.target.value)}
+                  placeholder="e.g. 15000"
+                  invalid={!!errors.buyNowPrice}
                 />
               </Field>
             </div>
-            {/* Show computed duration hint */}
-            {form.startingPrice && form.dutchPriceStep && form.dutchInterval && (() => {
-              const start = parseFloat(form.startingPrice);
-              const step = parseFloat(form.dutchPriceStep);
-              const interval = parseInt(form.dutchInterval);
-              const floor = parseFloat(form.reservePrice) || 0;
-              if (!isNaN(start) && !isNaN(step) && !isNaN(interval) && step > 0 && interval > 0) {
-                const drops = Math.ceil((start - floor) / step);
-                const totalSecs = drops * interval;
-                const h = Math.floor(totalSecs / 3600);
-                const m = Math.floor((totalSecs % 3600) / 60);
-                const s = totalSecs % 60;
-                const durText = h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`;
-                return (
-                  <div style={{ fontSize: "0.78rem", color: "var(--text)", fontWeight: 600, marginTop: "-0.75rem", padding: "1rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface-2)" }}>
-                    INFO: Auction will last approximately <strong>{durText}</strong> ({drops} drops × {interval}s)
-                    — end time is auto-computed.
-                  </div>
-                );
-              }
-              return null;
-            })()}
-          </>
-        )}
+          )}
 
-        {/* Anti-Sniping — not relevant for Dutch */}
-        {form.type !== "DUTCH" && (
-          <Field label="Anti-Sniping Window (minutes)" hint="Extends auction if bid placed near end (0–30)">
-            <input
-              type="number"
-              value={form.antiSnipingMins}
-              onChange={(e) => set("antiSnipingMins", e.target.value)}
-              min="0"
-              max="30"
-              style={inputStyle(false)}
-            />
-          </Field>
-        )}
+          {form.type === "DUTCH" && (
+            <>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "1rem",
+                }}
+              >
+                <Field
+                  label="Price drop step (₹) *"
+                  error={errors.dutchPriceStep}
+                >
+                  <Input
+                    type="number"
+                    min="1"
+                    value={form.dutchPriceStep}
+                    onChange={(e) => set("dutchPriceStep", e.target.value)}
+                    placeholder="e.g. 200"
+                    invalid={!!errors.dutchPriceStep}
+                  />
+                </Field>
+                <Field
+                  label="Drop interval (seconds) *"
+                  hint="Min 60 s"
+                  error={errors.dutchInterval}
+                >
+                  <Input
+                    type="number"
+                    min="60"
+                    value={form.dutchInterval}
+                    onChange={(e) => set("dutchInterval", e.target.value)}
+                    placeholder="e.g. 300"
+                    invalid={!!errors.dutchInterval}
+                  />
+                </Field>
+              </div>
+              <DutchDurationHint form={form} />
+            </>
+          )}
 
-        <div style={gridTwo}>
-          <Field label="Start Time" hint="Leave blank to start immediately" error={fieldErrors.startTime}>
-            <input
-              type="datetime-local"
-              value={form.startTime}
-              onChange={(e) => set("startTime", e.target.value)}
-              style={inputStyle(!!fieldErrors.startTime)}
-            />
-          </Field>
           {form.type !== "DUTCH" && (
-            <Field label="End Time *" error={fieldErrors.endTime}>
-              <input
-                type="datetime-local"
-                value={form.endTime}
-                onChange={(e) => set("endTime", e.target.value)}
-                required
-                style={inputStyle(!!fieldErrors.endTime)}
+            <Field
+              label="Anti-sniping window (minutes)"
+              hint="Extends auction if bid placed near end (0–30)"
+            >
+              <Input
+                type="number"
+                min="0"
+                max="30"
+                value={form.antiSnipingMins}
+                onChange={(e) => set("antiSnipingMins", e.target.value)}
               />
             </Field>
           )}
-        </div>
 
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <Field
+              label="Start time"
+              hint="Leave blank to start immediately"
+              error={errors.startTime}
+            >
+              <Input
+                type="datetime-local"
+                value={form.startTime}
+                onChange={(e) => set("startTime", e.target.value)}
+                invalid={!!errors.startTime}
+              />
+            </Field>
+            {form.type !== "DUTCH" && (
+              <Field label="End time *" error={errors.endTime}>
+                <Input
+                  type="datetime-local"
+                  value={form.endTime}
+                  onChange={(e) => set("endTime", e.target.value)}
+                  invalid={!!errors.endTime}
+                />
+              </Field>
+            )}
+          </div>
 
-        <button type="submit" disabled={loading} style={submitStyle(loading)}>
-          {loading ? "CREATING AUCTION…" : "CREATE AUCTION"}
-        </button>
-      </form>
-    </div>
+          <Button
+            type="submit"
+            size="lg"
+            fullWidth
+            loading={loading}
+            style={{ marginTop: "0.5rem" }}
+          >
+            {loading ? "Creating auction…" : "Create auction"}
+          </Button>
+        </form>
+      </Card>
+    </PageShell>
   );
 }
 
-// ─── Field wrapper ─────────────────────────────────────────────────────────────
-function Field({
-  label,
-  hint,
-  error,
-  children }: {
-  label: string;
-  hint?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
+function DutchDurationHint({ form }: { form: FormState }) {
+  const start = parseFloat(form.startingPrice);
+  const step = parseFloat(form.dutchPriceStep);
+  const interval = parseInt(form.dutchInterval);
+  const floor = parseFloat(form.reservePrice) || 0;
+  if (
+    !form.startingPrice ||
+    !form.dutchPriceStep ||
+    !form.dutchInterval ||
+    isNaN(start) ||
+    isNaN(step) ||
+    isNaN(interval) ||
+    step <= 0 ||
+    interval <= 0
+  ) {
+    return null;
+  }
+  const drops = Math.ceil((start - floor) / step);
+  const totalSecs = drops * interval;
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = totalSecs % 60;
+  const durText =
+    h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`;
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.35rem" }}>
-        <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--muted)" }}>{label}</label>
-        {hint && !error && (
-          <span style={{ fontSize: "0.72rem", color: "var(--muted)", opacity: 0.7 }}>{hint}</span>
-        )}
-      </div>
-      {children}
-      {error && (
-        <p style={fieldErrStyle}>{error}</p>
-      )}
-    </div>
+    <Alert tone="info">
+      Auction will last approximately <strong>{durText}</strong> ({drops} drops ×{" "}
+      {interval}s) — end time is auto-computed.
+    </Alert>
   );
 }
-
-// ─── Styles ────────────────────────────────────────────────────────────────────
-const gridTwo: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "1rem" };
-
-const inputStyle = (hasError: boolean): React.CSSProperties => ({
-  width: "100%",
-  boxSizing: "border-box",
-  border: hasError ? "1.5px solid #ef4444" : "1.5px solid var(--border-hard)",
-  borderRadius: "var(--radius)",
-  padding: "0.85rem 1rem",
-  fontSize: "0.95rem",
-  fontWeight: 500,
-  background: "var(--surface)",
-  color: "var(--text)",
-  outline: "none",
-  transition: "border-color 0.15s" });
-
-const bannerStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.6rem",
-  background: "var(--surface)",
-  border: "1.5px solid #ef4444",
-  color: "#ef4444",
-  borderRadius: "var(--radius)",
-  padding: "1rem",
-  fontSize: "0.85rem",
-
-
-  marginBottom: "1rem" };
-
-const fieldErrStyle: React.CSSProperties = {
-  marginTop: "0.5rem",
-  fontSize: "0.75rem",
-  fontWeight: 700,
-  color: "#ef4444",
-  display: "flex",
-  alignItems: "center",
-  gap: "0.25rem" };
-
-const submitStyle = (loading: boolean): React.CSSProperties => ({
-  background: "var(--text)",
-  color: "var(--bg)",
-  border: "1.5px solid var(--text)",
-  borderRadius: "var(--radius)",
-  padding: "1rem",
-  fontWeight: 500,
-  fontSize: "0.95rem",
-
-  cursor: loading ? "not-allowed" : "pointer",
-  marginTop: "1rem",
-  transition: "opacity 0.2s",
-  opacity: loading ? 0.5 : 1 });

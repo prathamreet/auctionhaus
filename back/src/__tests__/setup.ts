@@ -16,11 +16,13 @@ jest.mock('ioredis', () => {
   });
 });
 
-// Mock BullMQ queues
+// Mock BullMQ queues. Queue.add() must return a Promise so services that
+// chain `.catch(...)` on the enqueue (e.g. Phase A6 autoBidQueue producer)
+// don't blow up in tests.
 jest.mock('bullmq', () => {
   return {
     Queue: jest.fn().mockImplementation(() => ({
-      add: jest.fn(),
+      add: jest.fn().mockResolvedValue(undefined),
       on: jest.fn(),
       close: jest.fn(),
     })),

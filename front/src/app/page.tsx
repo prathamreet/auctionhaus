@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 export default function Home() {
   return (
@@ -8,247 +9,225 @@ export default function Home() {
         background: "var(--bg)",
         display: "flex",
         flexDirection: "column",
-        fontFamily: "'Inter', system-ui, sans-serif" }}
+      }}
     >
-      {/* ── CORE GRID ── */}
-      <div
+      <section
         style={{
           flex: 1,
           display: "grid",
-          gridTemplateColumns: "1.25fr 0.75fr",
-          borderBottom: "1px solid var(--border)" }}
+          gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)",
+          borderBottom: "1px solid var(--border)",
+        }}
       >
-        {/* Left Segment: Hero */}
         <div
           style={{
-            padding: "var(--pad) 4rem 3rem 4rem",
+            padding: "clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem)",
             borderRight: "1px solid var(--border)",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between" }}
+            justifyContent: "space-between",
+            gap: "3rem",
+            background: "var(--surface)",
+          }}
         >
           <div>
-            {/* System Status */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.75rem",
-                marginBottom: "4rem" }}
+                gap: "0.6rem",
+                marginBottom: "3.5rem",
+                fontSize: "var(--font-xs)",
+                fontWeight: 700,
+                color: "var(--text-soft)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
             >
-              <div
-                style={{
-                  width: 10,
-                  height: 10,
-                  background: "var(--accent)" }}
-              />
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 500,
-
-
-                  color: "var(--text)" }}
-              >
-                Operational / Sync: Active
-              </span>
+              <span className="live-dot" />
+              Real-time auction protocol
             </div>
 
             <h1
               style={{
-                fontSize: "clamp(4.5rem, 12vw, 9rem)",
-                fontWeight: 600,
-
-                lineHeight: 0.82,
+                fontSize: "clamp(3rem, 10vw, 7.5rem)",
+                fontWeight: 700,
+                lineHeight: 0.92,
+                letterSpacing: "-0.04em",
                 color: "var(--text)",
-                marginBottom: "4rem" }}
+                marginBottom: "2.5rem",
+              }}
             >
               Bid.
               <br />
               Win.
               <br />
-              <span style={{ color: "var(--accent)" }}>Transact.</span>
+              <span style={{ color: "var(--accent)" }}>Settle.</span>
             </h1>
 
             <p
               style={{
-                fontSize: "1.15rem",
-                color: "var(--text)",
-                lineHeight: 1.35,
+                fontSize: "var(--font-md)",
+                color: "var(--text-soft)",
+                lineHeight: 1.55,
                 maxWidth: 440,
-                marginBottom: "4rem",
-                fontWeight: 500 }}
+                marginBottom: "2.5rem",
+                fontWeight: 500,
+              }}
             >
-              A high-frequency auction platform supporting multi-protocol bidding 
-              engines. Engineered for zero-lag synchronization and algorithmic 
-              auto-participation.
+              English, Dutch, and sealed-bid auctions on one streaming engine.
+              Atomic escrow, server-resolved auto-bids, and a transactional bid
+              ladder you can trust enough to defend in a viva.
             </p>
 
-            <div style={{ display: "flex", gap: "0" }}>
-              <Link
-                href="/auctions"
-                style={{
-                  background: "var(--text)",
-                  color: "var(--bg)",
-                  padding: "1.5rem 3rem",
-                  fontWeight: 500,
-                  fontSize: "12px",
-
-
-                  textDecoration: "none",
-                  border: "1px solid var(--text)" }}
-              >
-                Access Market
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <Link href="/auctions" style={{ textDecoration: "none" }}>
+                <Button size="lg">Browse the market →</Button>
               </Link>
-              <Link
-                href="/register"
-                style={{
-                  background: "transparent",
-                  color: "var(--text)",
-                  padding: "1.5rem 3rem",
-                  fontWeight: 500,
-                  fontSize: "12px",
-
-
-                  textDecoration: "none",
-                  border: "1px solid var(--text)",
-                  borderLeft: "none" }}
-              >
-                Open Account
+              <Link href="/register" style={{ textDecoration: "none" }}>
+                <Button size="lg" variant="ghost">
+                  Open an account
+                </Button>
               </Link>
             </div>
           </div>
 
-          {/* Logic Summary */}
           <div
             style={{
-              marginTop: "4rem",
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               borderTop: "1px solid var(--border)",
-              paddingTop: "2rem" }}
+              paddingTop: "2rem",
+              gap: "1rem",
+            }}
           >
             {[
-              { n: "01", label: "English Engine" },
-              { n: "02", label: "Dutch Drop" },
-              { n: "03", label: "Sealed Logic" },
+              { n: "01", label: "English Engine", hint: "Ascending bids, anti-snipe, buy-now" },
+              { n: "02", label: "Dutch Drop", hint: "Falling price ladder, first to accept wins" },
+              { n: "03", label: "Sealed Logic", hint: "Private bids until close, masked while live" },
             ].map((s) => (
               <div key={s.label}>
                 <div
                   style={{
-                    fontSize: "1.75rem",
-                    fontWeight: 600,
-                    color: "var(--text)" }}
+                    fontSize: "1.6rem",
+                    fontWeight: 700,
+                    color: "var(--text)",
+                    letterSpacing: "-0.02em",
+                  }}
                 >
                   {s.n}
                 </div>
                 <div
                   style={{
-                    fontSize: "10px",
-                    color: "var(--muted)",
-                    fontWeight: 500,
-
-
-                    marginTop: "0.3rem" }}
+                    fontSize: "var(--font-xs)",
+                    color: "var(--text)",
+                    fontWeight: 700,
+                    marginTop: "0.3rem",
+                    letterSpacing: "0.03em",
+                    textTransform: "uppercase",
+                  }}
                 >
                   {s.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "var(--font-xs)",
+                    color: "var(--muted)",
+                    marginTop: "0.2rem",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  {s.hint}
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Segment: Specs */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateRows: "repeat(3, 1fr)" }}
-        >
+        <div style={{ display: "grid", gridTemplateRows: "repeat(3, 1fr)" }}>
           {[
             {
-              title: "Synchronized Bidding",
-              desc: "Real-time state updates powered by the AH-Sync engine for zero-conflict transactions.",
-              ref: "REF_001" },
+              title: "Synchronized bidding",
+              desc: "Socket.io rooms with per-auction state sync; reconnects re-fetch via TanStack Query without losing place.",
+              ref: "REF_001",
+            },
             {
-              title: "Automated Escrow",
-              desc: "Atomic wallet logic ensuring all assets are backed and secured during active auctions.",
-              ref: "REF_002" },
+              title: "Atomic escrow",
+              desc: "Pessimistic FOR UPDATE row locks on auctions and wallets, decimal money end-to-end, and a single Settlement row guarding double-pays.",
+              ref: "REF_002",
+            },
             {
-              title: "Global Marketplace",
-              desc: "Cross-format support for high-stakes digital and physical asset liquidation.",
-              ref: "REF_003" },
+              title: "Server-resolved auto-bids",
+              desc: "Auto-bid ladder runs in one transaction — every increment shows in the bid log, no wall-clock simulation.",
+              ref: "REF_003",
+            },
           ].map((item, i) => (
             <div
               key={item.ref}
               style={{
-                padding: "3.5rem",
-                borderBottom: i < 2 ? "1px solid var(--text)" : "none",
+                padding: "2.5rem",
+                borderBottom: i < 2 ? "1px solid var(--border)" : "none",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                background: "var(--surface)" }}
+                background: i % 2 === 0 ? "var(--bg)" : "var(--surface-2)",
+              }}
             >
               <div
                 style={{
-
-                  fontSize: "11px",
-                  fontWeight: 500,
+                  fontSize: "var(--font-xs)",
+                  fontWeight: 700,
                   color: "var(--accent)",
-                  marginBottom: "1.5rem" }}
+                  marginBottom: "1rem",
+                  letterSpacing: "0.05em",
+                }}
               >
                 {item.ref}
               </div>
               <div
                 style={{
-                  fontSize: "1.75rem",
-                  fontWeight: 600,
-
-
+                  fontSize: "1.4rem",
+                  fontWeight: 700,
                   color: "var(--text)",
-                  marginBottom: "1rem",
-                  lineHeight: 1 }}
+                  marginBottom: "0.6rem",
+                  lineHeight: 1.15,
+                  letterSpacing: "-0.02em",
+                }}
               >
                 {item.title}
               </div>
               <div
                 style={{
-                  fontSize: "0.95rem",
+                  fontSize: "var(--font-sm)",
                   color: "var(--text-soft)",
-                  lineHeight: 1.5,
-                  maxWidth: "280px",
-                  fontWeight: 500 }}
+                  lineHeight: 1.55,
+                  maxWidth: 320,
+                }}
               >
                 {item.desc}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ── DATA FOOTER ── */}
       <div
         style={{
-          padding: "1.5rem 4rem",
+          padding: "1.25rem clamp(1.5rem, 5vw, 4rem)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           background: "var(--text)",
-          color: "var(--bg)" }}
+          color: "var(--bg)",
+          fontSize: "var(--font-xs)",
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+        }}
       >
-        <span
-          style={{
-            fontSize: "10px",
-            fontWeight: 500 }}
-        >
-          AuctionHaus / Protocol 1.0.4
-        </span>
-        <div style={{ display: "flex", gap: "2rem" }}>
-          <span style={{ fontSize: "10px", fontWeight: 500,   opacity: 0.6 }}>
-            LATENCY: 14MS
-          </span>
-          <span style={{ fontSize: "10px", fontWeight: 500,   opacity: 0.6 }}>
-            UPTIME: 99.9%
-          </span>
+        <span>AuctionHaus / Protocol 1.0.4</span>
+        <div style={{ display: "flex", gap: "2rem", opacity: 0.65 }}>
+          <span>LATENCY: 14MS</span>
+          <span>UPTIME: 99.9%</span>
         </div>
       </div>
     </div>

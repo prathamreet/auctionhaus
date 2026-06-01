@@ -1,23 +1,21 @@
 :root {
-  /* Modern Premium Auction Palette */
-  --bg: #f9fafb;
+  --bg: #f7f7f8;
   --surface: #ffffff;
-  --surface-2: #f3f4f6;
+  --surface-2: #f1f2f4;
   --border: #e5e7eb;
   --border-hard: #d1d5db;
-  --accent: #3b82f6;
-  --accent-dark: #2563eb;
-  --accent-hover: #60a5fa;
-  --text: #111827;
-  --text-soft: #4b5563;
-  --muted: #9ca3af;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --accent: #2563eb;
+  --accent-dark: #1d4ed8;
+  --accent-hover: #3b82f6;
+  --text: #0f172a;
+  --text-soft: #334155;
+  --muted: #64748b;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #d97706;
   --dutch: #0284c7;
   --sealed: #7c3aed;
 
-  /* Systematic Typography Scale (Modular) */
   --font-xs: 11px;
   --font-sm: 12px;
   --font-base: 14px;
@@ -25,12 +23,57 @@
   --font-lg: 18px;
   --font-xl: 24px;
   --font-2xl: 32px;
-  --font-3xl: 64px;
+  --font-3xl: 56px;
 
-  /* Geometry & Spacing */
   --radius: 8px;
   --navbar-h: 60px;
   --pad: 2rem;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0d12;
+  --surface: #11151c;
+  --surface-2: #181d26;
+  --border: #232a36;
+  --border-hard: #303a4a;
+  --accent: #60a5fa;
+  --accent-dark: #3b82f6;
+  --accent-hover: #93c5fd;
+  --text: #e7ecf3;
+  --text-soft: #c5cdda;
+  --muted: #8b95a6;
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --dutch: #38bdf8;
+  --sealed: #a78bfa;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0b0d12;
+    --surface: #11151c;
+    --surface-2: #181d26;
+    --border: #232a36;
+    --border-hard: #303a4a;
+    --accent: #60a5fa;
+    --accent-dark: #3b82f6;
+    --accent-hover: #93c5fd;
+    --text: #e7ecf3;
+    --text-soft: #c5cdda;
+    --muted: #8b95a6;
+    --success: #34d399;
+    --danger: #f87171;
+    --warning: #fbbf24;
+    --dutch: #38bdf8;
+    --sealed: #a78bfa;
+
+    color-scheme: dark;
+  }
 }
 
 * {
@@ -44,156 +87,199 @@ html, body {
   color: var(--text);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-a { color: inherit; text-decoration: none; transition: opacity 0.1s; }
-a:hover { opacity: 0.7; }
+a { color: inherit; text-decoration: none; transition: opacity 0.15s; }
+a:hover { opacity: 0.78; }
 
-/* ── Form Elements ── */
 input, textarea, select {
-  background: var(--surface);
-  border: 1px solid var(--border-hard);
-  color: var(--text);
-  border-radius: var(--radius);
-  padding: 0.75rem 1rem;
-  font-size: var(--font-base);
   font-family: inherit;
-  font-weight: 500;
   outline: none;
-  transition: all 0.1s;
-  width: 100%;
-  appearance: none;
 }
+
 input:focus, textarea:focus, select:focus {
-  background: var(--surface);
   box-shadow: 0 0 0 2px var(--accent-hover);
   border-color: var(--accent);
 }
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23000' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 2.5rem;
-}
 
-label {
-  font-size: var(--font-xs);
-  font-weight: 600;
-  color: var(--text);
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-button {
-  cursor: pointer;
-  font-family: inherit;
-  border-radius: var(--radius);
-  transition: all 0.1s ease-in-out;
-}
-
-/* ── Components ── */
-.btn-primary {
-  background: var(--accent);
-  color: var(--surface);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 1rem 2rem;
-  font-size: 14px;
-  font-weight: 600;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.btn-primary:disabled { background: var(--border); border-color: var(--border); cursor: not-allowed; }
-
-.btn-ghost {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem 2rem;
-  font-size: 14px;
-  font-weight: 600;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-.btn-ghost:hover { background: var(--surface-2); border-color: var(--border-hard); }
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  border: none;
-  background-color: var(--surface-2);
-  border-radius: 4px;
-}
-.badge-english { color: var(--accent); }
-.badge-dutch    { color: var(--dutch); }
-.badge-sealed   { color: var(--sealed); }
-.badge-active   { color: var(--success); }
-.badge-ended    { color: var(--muted); }
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border-radius: var(--radius);
-}
-
-.price-tag {
-  font-size: var(--font-3xl);
-  font-weight: 700;
-  color: var(--text);
-  line-height: 0.9;
-  font-variant-numeric: tabular-nums;
-}
-
-.price-label {
-  font-size: var(--font-xs);
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.timer-display {
-  font-size: var(--font-xl);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-}
-.timer-display.urgent { color: var(--accent); }
-
-/* ── Layout Utilities ── */
-.section-rule {
-  border: none;
-  border-top: 1px solid var(--border);
-}
+button { cursor: pointer; font-family: inherit; }
 
 .text-muted { color: var(--muted); }
-.uppercase { text-transform: uppercase; }
-.mono { font-family: "JetBrains Mono", "Courier New", monospace; font-variant-numeric: tabular-nums; }
+.mono { font-family: "JetBrains Mono", ui-monospace, "Courier New", monospace; font-variant-numeric: tabular-nums; }
+.tabular { font-variant-numeric: tabular-nums; }
+.section-rule { border: none; border-top: 1px solid var(--border); }
 
-/* ── Live Indicator (Static/Modern) ── */
+/* live dot */
 .live-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
-  background: var(--accent);
+  background: var(--success);
+  border-radius: 50%;
   position: relative;
 }
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: var(--success);
+  opacity: 0.35;
+  animation: ah-pulse 1.6s ease-out infinite;
+}
 
-/* ── Animations ── */
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes ah-pulse {
+  0%   { transform: scale(0.6); opacity: 0.5; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes ah-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@keyframes ah-slidein {
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-slide { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.ah-slidein { animation: ah-slidein 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; }
+@keyframes ah-flash {
+  0%   { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  100% { background: transparent; }
+}
+.ah-flash { animation: ah-flash 1.4s ease-out; }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Phase F (real-time UI). Animations introduced for the live-bidding pass.
+ * Each is gated by prefers-reduced-motion at the bottom of this file.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* Toast / LiveTicker slide-in from the right. Eased cubic so the entrance
+ * feels controlled, not snappy.
+ */
+@keyframes ah-toast-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.ah-toast-in { animation: ah-toast-in 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes ah-toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(32px); }
+}
+.ah-toast-out { animation: ah-toast-out 0.22s ease-in forwards; }
+
+/* Countdown urgency states. Warning (under 2 min) is a steady amber colour
+ * applied via inline style; this animation is only for the under-30s state.
+ */
+@keyframes ah-pulse-urgent {
+  0%, 100% { transform: scale(1);   color: var(--danger); }
+  50%      { transform: scale(1.04); color: color-mix(in srgb, var(--danger) 80%, white); }
+}
+.ah-pulse-urgent {
+  animation: ah-pulse-urgent 0.9s ease-in-out infinite;
+  transform-origin: left center;
+  font-weight: 800;
+}
+
+/* Ladder cascade. Each rung in the bid history briefly highlights then
+ * settles, staggered by --i index variable set inline (--i: 0, 1, 2, ...).
+ */
+@keyframes ah-ladder-cascade {
+  0%   { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+  100% { background: transparent; }
+}
+.ah-ladder-cascade {
+  animation: ah-ladder-cascade 1.6s ease-out;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  animation-fill-mode: backwards;
+}
+
+/* Banner that drops from the top of the bid history when a ladder resolves. */
+@keyframes ah-banner-drop {
+  from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0);   max-height: 80px; }
+}
+.ah-banner-drop {
+  animation: ah-banner-drop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Auto-dismiss fade for the ladder banner after a few seconds. */
+@keyframes ah-banner-fade {
+  from { opacity: 1; max-height: 80px; }
+  to   { opacity: 0; max-height: 0; }
+}
+.ah-banner-fade {
+  animation: ah-banner-fade 0.4s ease-in forwards;
+  animation-delay: 3s;
+}
+
+/* Connection-status dot pulse (used by both connected + reconnecting states
+ * with different colours via inline style).
+ */
+@keyframes ah-conn-pulse {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.85); }
+}
+.ah-conn-pulse { animation: ah-conn-pulse 1.4s ease-in-out infinite; }
+
+/* Shake for backpressure banner — subtle, single iteration. */
+@keyframes ah-banner-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-2px); }
+  40%, 80% { transform: translateX(2px); }
+}
+.ah-banner-shake { animation: ah-banner-shake 0.4s ease-in-out; }
+
+/* Reduced motion: kill every Phase F animation. The user gets the same UI
+ * states (toast appears, count changes) but without the kinetic flourishes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ah-toast-in,
+  .ah-toast-out,
+  .ah-pulse-urgent,
+  .ah-ladder-cascade,
+  .ah-banner-drop,
+  .ah-banner-fade,
+  .ah-conn-pulse,
+  .ah-banner-shake,
+  .ah-slidein,
+  .ah-flash {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); }
-::-webkit-scrollbar-thumb:hover { background: var(--border-hard); }
+::-webkit-scrollbar-thumb { background: var(--border-hard); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Responsive grid utility ── */
+.grid-main-sidebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .grid-main-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* auth / landing two-col */
+@media (max-width: 680px) {
+  .auth-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .auth-grid > :first-child {
+    display: none;
+  }
+}

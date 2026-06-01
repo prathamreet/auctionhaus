@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { setAutoBid, cancelAutoBid, processAutoBids, getMyAutoBid as _getMyAutoBid } from './auto-bid.service';
+import { setAutoBid, cancelAutoBid, getMyAutoBid as _getMyAutoBid } from './auto-bid.service';
 import { prismaMock } from '../../__mocks__/prisma';
-import { placeBid } from '../bidding/bid.service';
-import { notifyUser } from '../notifications/notification.service';
+import { m } from '../../__mocks__/money';
 import { AuctionStatus, AuctionType } from '@prisma/client';
 
-jest.mock('../bidding/bid.service', () => ({
-  placeBid: jest.fn(),
-}));
-
-jest.mock('../notifications/notification.service', () => ({
-  notifyUser: jest.fn(),
-}));
+// Phase A6: the old `processAutoBids` recursion was deleted. The ladder
+// logic now lives in `back/src/workers/index.ts::processAutoBidLadder` and
+// has its own test file (workers/index.test.ts). This file covers only the
+// CRUD surface of auto-bid (setAutoBid / cancelAutoBid / getMyAutoBid).
 
 describe('AutoBid Service', () => {
   beforeEach(() => {
@@ -37,6 +33,19 @@ describe('AutoBid Service', () => {
     it('should throw if user is the seller', async () => {
       prismaMock.auction.findUnique.mockResolvedValue({ ...defaultAuction, sellerId: 'u1' });
       await expect(setAutoBid({ auctionId: 'a1', bidderId: 'u1', maxAmount: 200 })).rejects.toThrow("Can't auto-bid on your own auction");
+    });
+
+    it('rejects auto-bid on sealed auctions outright (Phase A4 follow-up)', async () => {
+      // Auto-bid math depends on a moving currentPrice + minIncrement
+      // ladder. Phase A4 fixed placeBid to keep currentPrice constant for
+      // sealed auctions (to plug the privacy leak), so an auto-bid set on
+      // a sealed auction would either no-op or misfire. We block it at
+      // the validation layer instead.
+      const sealedAuction = { ...defaultAuction, type: AuctionType.SEALED_BID };
+      prismaMock.auction.findUnique.mockResolvedValue(sealedAuction);
+      await expect(
+        setAutoBid({ auctionId: 'a1', bidderId: 'u1', maxAmount: 500 })
+      ).rejects.toThrow('Auto-bid is not supported on sealed-bid auctions');
     });
 
     it('should validate maxAmount for English auctions', async () => {
@@ -69,8 +78,8 @@ describe('AutoBid Service', () => {
 
       expect(prismaMock.autoBid.upsert).toHaveBeenCalledWith({
         where: { auctionId_bidderId: { auctionId: 'a1', bidderId: 'u1' } },
-        update: { maxAmount: 500, isActive: true },
-        create: { auctionId: 'a1', bidderId: 'u1', maxAmount: 500 },
+        update: { maxAmount: m(500), isActive: true },
+        create: { auctionId: 'a1', bidderId: 'u1', maxAmount: m(500) },
       });
       expect(res.id).toBe('ab1');
     });
@@ -85,98 +94,6 @@ describe('AutoBid Service', () => {
         data: { isActive: false },
       });
       expect(res.message).toBe('Auto-bid cancelled');
-    });
-  });
-
-  describe('processAutoBids', () => {
-    it('should do nothing if no active auto-bids', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
-      prismaMock.autoBid.findMany.mockResolvedValue([]);
-      
-      await processAutoBids('a1', 'u_winner', 100);
-      expect(placeBid).not.toHaveBeenCalled();
-    });
-
-    it('should deactivate auto-bids if maxAmount is lower than next minimum bid', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue(defaultAuction); // next min bid = 110
-      prismaMock.autoBid.findMany.mockResolvedValue([{ maxAmount: 105 }] as any);
-      
-      await processAutoBids('a1', 'u_winner', 100);
-      
-      expect(prismaMock.autoBid.updateMany).toHaveBeenCalledWith(expect.objectContaining({
-        data: { isActive: false },
-      }));
-      expect(placeBid).not.toHaveBeenCalled();
-    });
-
-    it('should place bid with minimum required increment if only one auto-bidder', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue(defaultAuction); // next min bid = 110
-      const topAutoBid = { id: 'ab1', bidderId: 'u_auto', maxAmount: 500 };
-      prismaMock.autoBid.findMany.mockResolvedValueOnce([topAutoBid] as any).mockResolvedValueOnce([]);
-      
-      (placeBid as jest.Mock).mockResolvedValue({ id: 'bid1', amount: 110, bidderId: 'u_auto', createdAt: new Date() });
-
-      await processAutoBids('a1', 'u_winner', 100);
-      
-      expect(placeBid).toHaveBeenCalledWith({
-        auctionId: 'a1',
-        bidderId: 'u_auto',
-        amount: 110,
-        isAutoBid: true,
-      });
-      expect(prismaMock.autoBid.update).toHaveBeenCalledWith({
-        where: { id: 'ab1' },
-        data: { currentBid: 110 }
-      });
-      expect(notifyUser).toHaveBeenCalledWith('u_auto', expect.objectContaining({ type: 'AUTO_BID_PLACED' }));
-    });
-
-    it('should calculate competitive bid when multiple auto-bidders exist', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
-      const topAutoBid = { id: 'ab1', bidderId: 'u_top', maxAmount: 500 };
-      const secondAutoBid = { id: 'ab2', bidderId: 'u_second', maxAmount: 300 };
-      prismaMock.autoBid.findMany.mockResolvedValueOnce([topAutoBid, secondAutoBid] as any).mockResolvedValueOnce([]);
-      
-      (placeBid as jest.Mock).mockResolvedValue({ id: 'bid1', amount: 310 }); // should beat 300 by 1 increment (10)
-
-      await processAutoBids('a1', 'u_winner', 100);
-      
-      expect(placeBid).toHaveBeenCalledWith(expect.objectContaining({
-        amount: 310
-      }));
-    });
-
-    it('should cap competitive bid to top bidder max amount', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue(defaultAuction); // increment 10
-      const topAutoBid = { id: 'ab1', bidderId: 'u_top', maxAmount: 305 };
-      const secondAutoBid = { id: 'ab2', bidderId: 'u_second', maxAmount: 300 };
-      prismaMock.autoBid.findMany.mockResolvedValueOnce([topAutoBid, secondAutoBid] as any).mockResolvedValueOnce([]);
-      
-      (placeBid as jest.Mock).mockResolvedValue({ id: 'bid1', amount: 305 }); // 300 + 10 = 310 > 305, cap at 305
-
-      await processAutoBids('a1', 'u_winner', 100);
-      
-      expect(placeBid).toHaveBeenCalledWith(expect.objectContaining({
-        amount: 305
-      }));
-    });
-
-    it('should deactivate auto-bid if placeBid throws insufficient balance', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
-      const topAutoBid = { id: 'ab1', bidderId: 'u_top', maxAmount: 500 };
-      prismaMock.autoBid.findMany.mockResolvedValueOnce([topAutoBid] as any).mockResolvedValueOnce([]);
-      
-      (placeBid as jest.Mock).mockRejectedValue({
-        statusCode: 400,
-        message: 'Insufficient available balance',
-      });
-
-      await processAutoBids('a1', 'u_winner', 100);
-      
-      expect(prismaMock.autoBid.update).toHaveBeenCalledWith({
-        where: { id: 'ab1' },
-        data: { isActive: false }
-      });
     });
   });
 });

@@ -1,8 +1,19 @@
 "use client";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import api from "@/lib/api";
+import {
+  AuctionStatusBadge,
+  Card,
+  EmptyState,
+  Money,
+  PageHeader,
+  PageShell,
+  Skeleton,
+  Stat,
+  StatGrid,
+} from "@/components/ui";
 
 interface PublicProfile {
   id: string;
@@ -25,7 +36,8 @@ export default function PublicProfilePage() {
         .get(`/users/${id}`)
         .then((r) => r.data as PublicProfile)
         .catch(() => null),
-    enabled: !!id });
+    enabled: !!id,
+  });
 
   const { data: auctionsData } = useQuery({
     queryKey: ["user-auctions", id],
@@ -34,32 +46,27 @@ export default function PublicProfilePage() {
         .get(`/auctions?sellerId=${id}&limit=10`)
         .then((r) => r.data.auctions ?? [])
         .catch(() => []),
-    enabled: !!id });
+    enabled: !!id,
+  });
 
   if (isLoading) {
     return (
-      <div
-        style={{
-          padding: "4rem",
-          textAlign: "center",
-          color: "var(--muted)",
-          fontSize: "var(--font-sm)" }}
-      >
-        Loading profile...
-      </div>
+      <PageShell>
+        <PageHeader eyebrow="Public profile" title={<Skeleton width={220} height={32} />} />
+        <Card padding="lg">
+          <Skeleton width={140} height={14} />
+          <div style={{ height: 14 }} />
+          <Skeleton width="60%" height={14} />
+        </Card>
+      </PageShell>
     );
   }
 
   if (!profile) {
     return (
-      <div
-        style={{
-          padding: "4rem",
-          textAlign: "center",
-          color: "var(--muted)" }}
-      >
-        User not found.
-      </div>
+      <PageShell>
+        <EmptyState title="User not found" hint="The profile you’re looking for doesn’t exist." />
+      </PageShell>
     );
   }
 
@@ -72,264 +79,115 @@ export default function PublicProfilePage() {
 
   const memberSince = new Date(profile.createdAt).toLocaleDateString([], {
     month: "long",
-    year: "numeric" });
+    year: "numeric",
+  });
 
   const starRating = profile.ratingCount > 0 ? profile.rating.toFixed(1) : null;
 
   return (
-    <div style={{ maxWidth: "100%", margin: "0", padding: "4rem 4vw", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))", gap: "4vw", alignItems: "start" }}>
-      <div>
-      {/* ── Profile Header ── */}
-      <div
-        style={{
-          padding: "2.5rem 2rem",
-          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          borderBottom: "none",
-          background: "var(--surface)",
-          display: "flex",
-          gap: "1.5rem",
-          alignItems: "flex-start",
-          flexWrap: "wrap" }}
-      >
-        {/* Avatar */}
+    <PageShell>
+      <PageHeader eyebrow="Public profile" title={profile.name} subtitle={`Member since ${memberSince}`} />
+
+      <Card padding="lg" style={{ display: "flex", gap: "1.25rem", alignItems: "center", marginBottom: "1.5rem" }}>
         <div
           style={{
             width: 72,
             height: 72,
             background: "var(--text)",
+            color: "var(--bg)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: "1.5rem",
-            color: "#fff",
-            flexShrink: 0 }}
+            borderRadius: 999,
+            flexShrink: 0,
+          }}
         >
           {initials}
         </div>
-
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              fontSize: "var(--font-xs)",
-              fontWeight: 700,
-
-
-              color: "var(--muted)",
-              marginBottom: "0.25rem" }}
-          >
-            Public Profile
-          </div>
-          <h1
-            style={{
-              fontSize: "var(--font-2xl)",
-              fontWeight: 600,
-
-              lineHeight: 1,
-              marginBottom: "0.5rem" }}
-          >
-            {profile.name}
-          </h1>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "1rem",
-              flexWrap: "wrap",
-              alignItems: "center",
-              fontSize: "var(--font-sm)",
-              color: "var(--muted)" }}
-          >
-            {starRating && (
-              <span
-                style={{
-                  color: "var(--warning)",
-                  fontWeight: 500,
-                  fontSize: "var(--font-sm)" }}
-              >
-                [RATE] {starRating}
-                <span
-                  style={{
-                    color: "var(--muted)",
-                    fontWeight: 400,
-                    marginLeft: "0.3rem" }}
-                >
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+          <div style={{ fontWeight: 700, fontSize: "var(--font-lg)" }}>{profile.name}</div>
+          <div style={{ fontSize: "var(--font-sm)", color: "var(--muted)" }}>
+            {starRating ? (
+              <span style={{ color: "var(--warning)", fontWeight: 700 }}>
+                ★ {starRating}
+                <span style={{ color: "var(--muted)", fontWeight: 400, marginLeft: 6 }}>
                   ({profile.ratingCount} review{profile.ratingCount !== 1 ? "s" : ""})
                 </span>
               </span>
+            ) : (
+              <span>No ratings yet</span>
             )}
-            <span>Member since {memberSince}</span>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* ── Stats ── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          borderBottom: "none" }}
-      >
-        {[
-          { label: "Auctions Listed", value: profile._count.auctions, color: "var(--accent)" },
-          { label: "Total Bids Placed", value: profile._count.bids, color: "var(--text)" },
-          {
-            label: "Rating",
-            value: starRating ? starRating : "—",
-            color: "var(--warning)" },
-        ].map((s, i) => (
-          <div
-            key={s.label}
-            style={{
-              padding: "1.5rem 2rem",
-              borderRight: i < 2 ? "1.5px solid var(--border-hard)" : undefined,
-              background: "var(--surface)" }}
-          >
-            <div
-              style={{
-                fontSize: "var(--font-xs)",
-                fontWeight: 700,
+      <StatGrid minWidth={220}>
+        <Stat label="Auctions listed" value={profile._count.auctions} color="var(--accent)" />
+        <Stat label="Bids placed" value={profile._count.bids} />
+        <Stat label="Rating" value={starRating ?? "—"} color="var(--warning)" />
+      </StatGrid>
 
-
-                color: "var(--muted)",
-                marginBottom: "0.5rem" }}
-            >
-              {s.label}
-            </div>
-            <div
-              style={{
-                fontSize: "2rem",
-                fontWeight: 600,
-
-                color: s.color,
-                lineHeight: 1 }}
-            >
-              {s.value}
-            </div>
-          </div>
-        ))}
-      </div>
-      </div>
-
-      <div>
-      {/* ── Active Listings ── */}
-      <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", background: "var(--surface)" }}>
+      <div style={{ marginTop: "2rem" }}>
         <div
           style={{
-            padding: "0.85rem 2rem",
-            background: "var(--surface-2)",
-            borderBottom: "1px solid var(--border)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center" }}
-        >
-          <span
-            style={{
-              fontWeight: 700,
-              fontSize: "var(--font-sm)" }}
-          >
-            Active Listings
-          </span>
-          <Link
-            href={`/auctions?seller=${id}`}
-            style={{
-              fontSize: "var(--font-xs)",
-              color: "var(--accent)",
-              fontWeight: 700 }}
-          >
-            All listings →
-          </Link>
-        </div>
-
-        {/* Table header */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 120px 90px",
-            padding: "0.85rem 2rem",
-            background: "var(--surface-2)",
-            borderBottom: "1px solid var(--border)",
             fontSize: "var(--font-xs)",
-            fontWeight: 500,
-
-
-            color: "var(--muted)" }}
+            fontWeight: 700,
+            color: "var(--muted)",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            marginBottom: "0.75rem",
+          }}
         >
-          <span>Title</span>
-          <span style={{ textAlign: "right" }}>Price</span>
-          <span style={{ textAlign: "right" }}>Status</span>
+          Active listings
         </div>
-
         {!auctionsData || auctionsData.length === 0 ? (
-          <div
-            style={{
-              padding: "2.5rem 2rem",
-              color: "var(--muted)",
-              fontSize: "var(--font-sm)",
-              background: "var(--surface)" }}
-          >
-            No active listings.
-          </div>
+          <EmptyState title="No active listings" />
         ) : (
-          auctionsData.map(
-            (a: {
-              id: string;
-              title: string;
-              status: string;
-              currentPrice: number;
-            }) => (
-              <Link
-                key={a.id}
-                href={`/auctions/${a.id}`}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 120px 90px",
-                  padding: "1rem 2rem",
-                  borderBottom: "1px solid var(--border)",
-                  fontSize: "var(--font-base)",
-                  background: "var(--surface)",
-                  transition: "background 0.1s",
-                  alignItems: "center",
-                  gap: "1rem" }}
-              >
-                <span
+          <Card padding="none">
+            {auctionsData.map(
+              (a: { id: string; title: string; status: string; currentPrice: number }, i: number) => (
+                <Link
+                  key={a.id}
+                  href={`/auctions/${a.id}`}
                   style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap" }}
+                    display: "grid",
+                    gridTemplateColumns: "1fr 130px 110px",
+                    padding: "0.85rem 1.25rem",
+                    borderBottom:
+                      i < auctionsData.length - 1 ? "1px solid var(--border)" : "none",
+                    alignItems: "center",
+                    gap: "1rem",
+                    fontSize: "var(--font-sm)",
+                    color: "var(--text)",
+                  }}
                 >
-                  {a.title}
-                </span>
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: "var(--accent)",
-                    textAlign: "right",
-                    fontVariantNumeric: "tabular-nums" }}
-                >
-                  ₹{a.currentPrice?.toLocaleString()}
-                </span>
-                <span
-                  style={{
-                    fontSize: "var(--font-xs)",
-                    color:
-                      a.status === "ACTIVE"
-                        ? "var(--success)"
-                        : "var(--muted)",
-                    fontWeight: 700,
-
-
-                    textAlign: "right" }}
-                >
-                  {a.status}
-                </span>
-              </Link>
-            )
-          )
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {a.title}
+                  </span>
+                  <Money
+                    value={a.currentPrice}
+                    color="var(--accent)"
+                    size="sm"
+                    style={{ textAlign: "right" }}
+                  />
+                  <span style={{ textAlign: "right" }}>
+                    <AuctionStatusBadge status={a.status} />
+                  </span>
+                </Link>
+              )
+            )}
+          </Card>
         )}
       </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

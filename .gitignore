@@ -40,4 +40,6 @@ front/next-env.d.ts
 .vercel
 
 .agents
+
+# Graphify
 graphify-out/

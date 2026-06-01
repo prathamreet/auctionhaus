@@ -1,0 +1,120 @@
+\documentclass[a1paper, landscape]{tikzposter}
+
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\title{\textsc{AuctionHaus}: Real-Time Shill-Bidding Detection via Online Bid-Graph Analytics in Live Auction Platforms}
+\author{Asha Joseph \quad Pratham Reet \quad Nitin A. Rane \quad Reeshav Sinha \quad Om Ji Rao}
+\institute{Department of Computer Science and Engineering, New Horizon College of Engineering, Bengaluru, India}
+
+\usetheme{Default}
+\usecolorstyle{Default}
+
+\begin{document}
+
+\maketitle
+
+\begin{columns}
+
+\column{0.33}
+
+\block{Problem}{
+  Shill bidding inflates auction prices. Existing detectors operate
+  \textbf{post-hoc} on completed logs. We need real-time detection to intervene
+  \textbf{before} the auction closes.
+
+  \begin{tikzfigure}
+  \begin{tabular}{lc}
+  \toprule
+  Method & When? \\
+  \midrule
+  Trevathan \& Read (2007) & Post-auction \\
+  Ford et al. (2010) & Post-auction \\
+  Tsang et al. (2014) & Post-auction \\
+  \textbf{This work} & \textbf{Real-time} \\
+  \bottomrule
+  \end{tabular}
+  \end{tikzfigure}
+}
+
+\block{System Architecture}{
+  \begin{itemize}
+    \item Node.js (TypeScript) · Express · Socket.io · PostgreSQL · Redis
+    \item BullMQ workers (auto-bid ladder, notifications)
+    \item In-process fraud engine — no external ML service
+    \item Next.js frontend with live admin fraud dashboard
+  \end{itemize}
+}
+
+\column{0.34}
+
+\block{5-Feature Bid Graph}{
+  \begin{enumerate}
+    \item \textbf{Response time} ($\tau$) — sub-500ms = bot
+    \item \textbf{Bid frequency} ($\phi$) — bids/min in 30-min window
+    \item \textbf{Increment ratio} ($\rho$) — scripted min-increment pattern
+    \item \textbf{Seller co-occurrence} ($\sigma$) — same seller, many auctions
+    \item \textbf{Reciprocity} ($\gamma$) — mutual outbidding = collusion ring
+  \end{enumerate}
+
+  Sliding window graph updated on each bid event ($<1$ms overhead).
+  Features z-scored, scored by logistic regression:
+  \[
+    P(\text{shill}|\mathbf{z}) = \sigma(\beta_0 + \textstyle\sum_i \beta_i z_i)
+  \]
+}
+
+\block{Results}{
+  \begin{tabular}{lcc}
+  \toprule
+  & Baseline & \textbf{This work} \\
+  \midrule
+  Precision  & 0.000 & \textbf{0.864} \\
+  Recall     & 0.000 & \textbf{1.000} \\
+  F1         & 0.000 & \textbf{0.927} \\
+  AUC        & 0.620 & \textbf{0.890} \\
+  \bottomrule
+  \end{tabular}
+  \vspace{0.5em}
+
+  Evaluated on synthetic simulator runs (4 agent personas).
+}
+
+\column{0.33}
+
+\block{W1: Commit-Reveal Sealed Bids}{
+  Client commits $H = \text{SHA-256}(\text{amountHex} \| \text{:} \| \text{nonce})$
+  during live phase. Server stores hash only. Reveal after close.
+  \begin{itemize}
+    \item \textbf{Hiding}: server cannot learn amount during bidding
+    \item \textbf{Binding}: bidder cannot change amount after committing
+  \end{itemize}
+}
+
+\block{W2: Redis Stream Sequencer}{
+  \begin{tabular}{lccc}
+  \toprule
+  Concurrency & Baseline p95 & \textbf{Stream p95} \\
+  \midrule
+  10  & 1{,}284ms & \textbf{48ms}  \\
+  100 & 5{,}772ms & \textbf{8.1ms} \\
+  \bottomrule
+  \end{tabular}
+
+  \vspace{0.5em}
+  $32.5\times$ throughput scaling at 100 concurrent bidders.
+}
+
+\block{Conclusion}{
+  \textsc{AuctionHaus} is the first auction platform with \textbf{in-auction,
+  real-time} shill detection. F1 improves from 0.000 (outbid-count baseline)
+  to 0.927 (5-feature LR). Cryptographic sealed bids and Redis Stream sequencer
+  add production-grade hardening and research novelty beyond standard CRUD.
+
+  \vspace{0.5em}
+  \textbf{Code}: \url{https://github.com/prathamreet/auctionhaus}
+}
+
+\end{columns}
+
+\end{document}

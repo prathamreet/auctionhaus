@@ -5,7 +5,11 @@ import { useAuthStore } from "@/store/authStore";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
-import { getSocket, disconnectSocket } from "@/lib/socket";
+import { disconnectSocket } from "@/lib/socket";
+import { useSocketListener } from "@/lib/useSocketListener";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { Button } from "@/components/ui/Button";
+import { ConnectionStatus } from "@/components/ui/ConnectionStatus";
 
 export default function Navbar() {
   const { user, logout, isHydrated } = useAuthStore();
@@ -22,83 +26,77 @@ export default function Navbar() {
 
   const isAdmin = user?.role === "ADMIN";
 
-  // Fetch unread count ONCE when user logs in — socket keeps it live after that
+  // Fetch unread once on login; socket keeps it live
   useEffect(() => {
     if (!user) {
-      Promise.resolve().then(() => setUnread(0));
+      setUnread(0);
       return;
     }
     api
       .get("/notifications?limit=1")
       .then((r) => setUnread(r.data.unreadCount ?? 0))
       .catch(() => {});
-    // No polling interval — real-time updates come via socket below
-  }, [user, user?.id]); // only re-run when the logged-in user actually changes
+  }, [user, user?.id]);
 
-  // Listen for real-time notifications via socket → increment badge
-  // If user is already on /notifications, skip the increment — just re-fetch
-  useEffect(() => {
-    if (!user) return;
-    const sock = getSocket();
-    const onNew = () => {
+  // Live new-notification: bump badge (unless on /notifications)
+  useSocketListener(
+    "notification:new",
+    () => {
       if (pathname !== "/notifications") {
         setUnread((n) => n + 1);
       }
       qc.refetchQueries({ queryKey: ["notifications"] });
-    };
-    sock.on("notification:new", onNew);
-    return () => {
-      sock.off("notification:new", onNew);
-    };
-  }, [user, user?.id, qc, pathname]);
+    },
+    !!user
+  );
 
-  // Reset badge when visiting notifications page
+  // Reset badge when visiting /notifications
   useEffect(() => {
     if (pathname === "/notifications" && unread !== 0) {
-      Promise.resolve().then(() => setUnread(0));
+      setUnread(0);
     }
   }, [pathname, unread]);
-
 
   return (
     <nav
       style={{
         background: "var(--surface)",
         borderBottom: "1px solid var(--border)",
-        padding: "0 4rem",
+        padding: "0 clamp(1rem, 4vw, 4rem)",
         height: "var(--navbar-h)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         position: "sticky",
         top: 0,
-        zIndex: 100 }}
+        zIndex: 100,
+      }}
     >
-      {/* ── BRAND ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: "3.5rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "2.5rem" }}>
         <Link
           href="/"
           style={{
-            fontWeight: 600,
-            fontSize: "13px",
+            fontWeight: 700,
+            fontSize: "var(--font-base)",
             color: "var(--text)",
-
-
             display: "flex",
             alignItems: "center",
-            gap: "0.75rem" }}
+            gap: "0.6rem",
+            letterSpacing: "-0.01em",
+          }}
         >
-          <div
+          <span
             style={{
               width: 12,
               height: 12,
-              background: "var(--accent)" }}
+              background: "var(--accent)",
+              borderRadius: 2,
+            }}
           />
           AuctionHaus
         </Link>
 
-        {/* ── NAV LINKS ── */}
-        <div style={{ display: "flex", gap: "2rem" }}>
+        <div style={{ display: "flex", gap: "1.5rem" }}>
           <NavLink href="/auctions" active={pathname.startsWith("/auctions")}>
             Market
           </NavLink>
@@ -123,44 +121,54 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ── AUTH / SESSION ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {isHydrated && (
-          user ? (
+      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+        {/* Phase F2: socket connection indicator. Renders nothing when
+            healthy; pulses amber when reconnecting; red when offline.
+            Sits left of the auth/alerts cluster so the user catches it on
+            the path their eye is already tracking. Mounted for both
+            authed and anonymous users -- live bid pages work without auth
+            and still need the signal. */}
+        {isHydrated && <ConnectionStatus mode="full" />}
+        {isHydrated &&
+          (user ? (
             <>
-              {/* Notifications */}
               <Link
                 href="/notifications"
+                aria-label="Notifications"
                 style={{
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.5rem 1rem",
+                  gap: "0.4rem",
+                  padding: "0.4rem 0.75rem",
                   border: `1px solid ${unread > 0 ? "var(--accent)" : "var(--border)"}`,
-                  background: unread > 0 ? "rgba(225,45,45,0.05)" : "transparent",
-                  fontSize: "10px",
-                  fontWeight: 500,
-
-
-                  color: unread > 0 ? "var(--accent)" : "var(--muted)" }}
+                  borderRadius: "var(--radius)",
+                  background:
+                    unread > 0
+                      ? "color-mix(in srgb, var(--accent) 10%, transparent)"
+                      : "transparent",
+                  fontSize: "var(--font-xs)",
+                  fontWeight: 600,
+                  color: unread > 0 ? "var(--accent)" : "var(--text-soft)",
+                }}
               >
                 Alerts
                 {unread > 0 && (
-                  <span style={{ }}>
-                    [{unread > 99 ? "99+" : unread}]
+                  <span style={{ fontWeight: 700 }}>
+                    {unread > 99 ? "99+" : unread}
                   </span>
                 )}
               </Link>
 
+              <ThemeToggle />
+
               <Link
                 href="/profile"
                 style={{
-                  fontSize: "11px",
+                  fontSize: "var(--font-xs)",
                   color: "var(--text)",
-                  fontWeight: 500,
-
-
-                  padding: "0 0.5rem" }}
+                  fontWeight: 600,
+                  padding: "0 0.5rem",
+                }}
               >
                 {user.name}
               </Link>
@@ -168,45 +176,36 @@ export default function Navbar() {
               <button
                 onClick={handleLogout}
                 style={{
-                  fontSize: "10px",
+                  fontSize: "var(--font-xs)",
                   color: "var(--muted)",
                   background: "none",
                   border: "none",
-                  padding: "0.5rem 0",
-                  fontWeight: 500,
-
-
-                  cursor: "pointer" }}
+                  padding: "0.4rem 0",
+                  fontWeight: 600,
+                }}
               >
                 Logout
               </button>
             </>
           ) : (
             <>
+              <ThemeToggle />
               <Link
                 href="/login"
                 style={{
-                  fontSize: "11px",
+                  fontSize: "var(--font-xs)",
                   color: "var(--text)",
-                  fontWeight: 500,
-
-
-                  padding: "0.5rem 1rem" }}
+                  fontWeight: 600,
+                  padding: "0.4rem 0.85rem",
+                }}
               >
-                Access
+                Sign in
               </Link>
-              <Link
-                href="/register"
-                className="btn-primary"
-                style={{
-                  fontSize: "10px",
-                  padding: "0.5rem 1.25rem" }}
-              >
-                Join
+              <Link href="/register" style={{ textDecoration: "none" }}>
+                <Button size="sm">Join</Button>
               </Link>
             </>
-          )
-        )}
+          ))}
       </div>
     </nav>
   );
@@ -215,7 +214,8 @@ export default function Navbar() {
 function NavLink({
   href,
   children,
-  active }: {
+  active,
+}: {
   href: string;
   children: React.ReactNode;
   active: boolean;
@@ -224,14 +224,15 @@ function NavLink({
     <Link
       href={href}
       style={{
-        fontSize: "11px",
+        fontSize: "var(--font-xs)",
         color: active ? "var(--text)" : "var(--muted)",
-        fontWeight: 500,
-
-
-        paddingBottom: "4px",
-        borderBottom: active ? "2px solid var(--accent)" : "2px solid transparent",
-        transition: "all 0.1s" }}
+        fontWeight: 600,
+        paddingBottom: 3,
+        borderBottom: active
+          ? "2px solid var(--accent)"
+          : "2px solid transparent",
+        transition: "color 0.12s",
+      }}
     >
       {children}
     </Link>

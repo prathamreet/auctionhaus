@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { placeBid, getAuctionBids } from './bid.service';
 import { prismaMock } from '../../__mocks__/prisma';
+import { m } from '../../__mocks__/money';
 import { notifyUser } from '../notifications/notification.service';
-import { processAutoBids } from '../auto-bid/auto-bid.service';
+import { autoBidQueue } from '../../queues/auction.queue';
 import { AuctionStatus, AuctionType } from '@prisma/client';
-import { io } from '../../index';
 
 jest.mock('../notifications/notification.service', () => ({
   notifyUser: jest.fn(),
 }));
 
-jest.mock('../auto-bid/auto-bid.service', () => ({
-  processAutoBids: jest.fn().mockResolvedValue(true),
+// Phase A6: placeBid enqueues the ladder onto autoBidQueue after its tx
+// commits. Mock the queue so the test doesn't reach Redis.
+jest.mock('../../queues/auction.queue', () => ({
+  autoBidQueue: { add: jest.fn().mockResolvedValue(true) },
 }));
 
 jest.mock('../../index', () => ({
@@ -77,21 +79,22 @@ describe('Bid Service', () => {
 
       await placeBid({ auctionId: 'a1', bidderId: 'u1', amount: 120 });
 
-      // Check previous bid was outbid
+      // Check previous bid was outbid. Prev wallet refund uses the prev bid
+      // amount, which Prisma can store as number or Decimal -- match either.
       expect(prismaMock.bid.update).toHaveBeenCalledWith({ where: { id: 'b_prev' }, data: { status: 'OUTBID' } });
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { id: 'w3' },
-        data: { balance: { increment: 100 }, heldAmount: { decrement: 100 } }
+        data: { balance: { increment: m(100) }, heldAmount: { decrement: m(100) } }
       });
       expect(notifyUser).toHaveBeenCalledWith('u3', expect.objectContaining({ type: 'OUTBID' }));
 
-      // Check new bid held
+      // Check new bid held (Decimal-tolerant via m()).
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { balance: { decrement: 120 }, heldAmount: { increment: 120 } }
+        data: { balance: { decrement: m(120) }, heldAmount: { increment: m(120) } }
       });
       expect(prismaMock.bid.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ amount: 120, status: 'WINNING' })
+        data: expect.objectContaining({ amount: m(120), status: 'WINNING' })
       }));
     });
 
@@ -110,41 +113,63 @@ describe('Bid Service', () => {
       }));
     });
 
-    it('should trigger processAutoBids via setImmediate', async () => {
+    it('enqueues the auto-bid ladder job after the manual bid commits (Phase A6)', async () => {
       prismaMock.auction.findUnique.mockResolvedValue(defaultAuction);
       prismaMock.wallet.findUnique.mockResolvedValue({ id: 'w1', userId: 'u1', balance: 500, heldAmount: 0 } as any);
       prismaMock.wallet.update.mockResolvedValue({ id: 'w1' } as any);
       prismaMock.bid.findFirst.mockResolvedValue(null);
-      prismaMock.bid.create.mockResolvedValue({ id: 'b_new' } as any);
+      prismaMock.bid.create.mockResolvedValue({ id: 'b_new', amount: 120 } as any);
 
       await placeBid({ auctionId: 'a1', bidderId: 'u1', amount: 120 });
 
-      await new Promise(resolve => setImmediate(resolve)); // Execute setImmediate queue
-      
-      expect(processAutoBids).toHaveBeenCalledWith('a1', 'u1', 120, io);
+      // The producer side: enqueue onto the auto-bid queue with the trigger
+      // bidder so the worker knows whose auto-bid (if any) NOT to challenge.
+      expect(autoBidQueue.add).toHaveBeenCalledWith('process-ladder', {
+        auctionId: 'a1',
+        triggerBidderId: 'u1',
+      });
     });
   });
 
   describe('getAuctionBids', () => {
-    it('should hide names for active sealed bids', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue({ id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ACTIVE } as any);
-      prismaMock.bid.findMany.mockResolvedValue([{ id: 'b1', amount: 200 }] as any);
+    it('masks amount + identity for other bidders, reveals own bid, while sealed+ACTIVE', async () => {
+      prismaMock.auction.findUnique.mockResolvedValue({
+        id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ACTIVE,
+      } as any);
+      prismaMock.bid.findMany.mockResolvedValue([
+        { id: 'b1', auctionId: 'a1', bidderId: 'viewer', amount: 200, status: 'ACTIVE', isAutoBid: false, createdAt: new Date('2026-01-01') },
+        { id: 'b2', auctionId: 'a1', bidderId: 'other',  amount: 500, status: 'ACTIVE', isAutoBid: false, createdAt: new Date('2026-01-02') },
+      ] as any);
 
-      await getAuctionBids('a1');
+      const out = await getAuctionBids('a1', 'viewer');
 
+      // findMany must use createdAt order (not amount desc) and a select (not include)
+      // so no leaked field can sneak in.
       expect(prismaMock.bid.findMany).toHaveBeenCalledWith(expect.objectContaining({
-        include: { bidder: { select: { id: true, name: false } } }
+        orderBy: { createdAt: 'asc' },
       }));
+      const call = (prismaMock.bid.findMany as any).mock.calls[0][0];
+      expect(call.select).toBeDefined();
+      expect(call.include).toBeUndefined();
+
+      // Viewer sees their own bid amount; everyone else's amount + identity is null.
+      expect(out).toEqual([
+        expect.objectContaining({ id: 'b1', amount: 200, bidderId: 'viewer', bidder: { id: 'viewer' } }),
+        expect.objectContaining({ id: 'b2', amount: null,  bidderId: null,     bidder: null }),
+      ]);
     });
 
-    it('should show names for ended sealed bids', async () => {
-      prismaMock.auction.findUnique.mockResolvedValue({ id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ENDED } as any);
+    it('returns full bid data (name + avatar) once a sealed auction has ENDED', async () => {
+      prismaMock.auction.findUnique.mockResolvedValue({
+        id: 'a1', type: AuctionType.SEALED_BID, status: AuctionStatus.ENDED,
+      } as any);
       prismaMock.bid.findMany.mockResolvedValue([{ id: 'b1', amount: 200 }] as any);
 
-      await getAuctionBids('a1');
+      await getAuctionBids('a1', 'viewer');
 
       expect(prismaMock.bid.findMany).toHaveBeenCalledWith(expect.objectContaining({
-        include: { bidder: { select: { id: true, name: true, avatar: true } } }
+        orderBy: { amount: 'desc' },
+        include: { bidder: { select: { id: true, name: true, avatar: true } } },
       }));
     });
   });

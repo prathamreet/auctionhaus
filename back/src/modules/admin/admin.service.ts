@@ -1,6 +1,9 @@
 import { AuctionStatus, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
+import { redis } from '../../lib/redis';
 import { createError } from '../../middleware/error.middleware';
+import { serializeMoney, toNum } from '../../lib/decimal';
+import { invalidateUser } from '../../middleware/auth.middleware';
 
 export const getDashboardStats = async () => {
   const [
@@ -32,14 +35,15 @@ export const getDashboardStats = async () => {
     }),
   ]);
 
+  // Phase A1: aggregate _sum returns Decimal; convert at the boundary.
   return {
     totalUsers,
     totalAuctions,
     activeAuctions,
     totalBids,
-    totalRevenue: totalRevenue._sum.amount || 0,
+    totalRevenue: toNum(totalRevenue._sum.amount) ?? 0,
     recentUsers,
-    recentAuctions,
+    recentAuctions: serializeMoney(recentAuctions),
   };
 };
 
@@ -82,11 +86,25 @@ export const suspendUser = async (userId: string, suspend: boolean) => {
   if (!user) throw createError('User not found', 404);
   if (user.role === 'ADMIN') throw createError('Cannot suspend admin', 400);
 
-  return prisma.user.update({
+  const updated = await prisma.user.update({
     where: { id: userId },
     data: { isSuspended: suspend },
     select: { id: true, name: true, email: true, isSuspended: true },
   });
+
+  // Phase A9: evict this instance's auth-middleware cache immediately so the
+  // suspended user can't keep getting through on a TTL-cached entry for up to
+  // 30s.
+  invalidateUser(userId);
+
+  // Phase A9.x: fan the eviction out to every other instance over Redis
+  // pub/sub (see index.ts 'user:invalidate' subscriber). Fire-and-forget: a
+  // Redis hiccup must not block the suspension itself -- the local evict above
+  // already covers this node, and the 30s TTL bounds the worst case elsewhere.
+  // Promise.resolve() tolerates the ioredis test mock returning undefined.
+  void Promise.resolve(redis.publish('user:invalidate', userId)).catch(() => {});
+
+  return updated;
 };
 
 export const getAllAuctions = async (params: {
@@ -114,7 +132,7 @@ export const getAllAuctions = async (params: {
     prisma.auction.count({ where }),
   ]);
 
-  return { auctions, total, page, limit };
+  return { auctions: serializeMoney(auctions), total, page, limit };
 };
 
 export const moderateAuction = async (auctionId: string, action: 'cancel' | 'activate') => {
@@ -122,10 +140,11 @@ export const moderateAuction = async (auctionId: string, action: 'cancel' | 'act
   if (!auction) throw createError('Auction not found', 404);
 
   const status = action === 'cancel' ? AuctionStatus.CANCELLED : AuctionStatus.ACTIVE;
-  return prisma.auction.update({
+  const updated = await prisma.auction.update({
     where: { id: auctionId },
     data: { status },
   });
+  return serializeMoney(updated);
 };
 
 export const getFraudFlags = async () => {

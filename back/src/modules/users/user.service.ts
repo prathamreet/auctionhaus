@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
+import { serializeMoney } from '../../lib/decimal';
 
 export const getUserProfile = async (userId: string) => {
   const user = await prisma.user.findUnique({
@@ -55,7 +56,8 @@ export const getBidHistory = async (userId: string) => {
       },
     },
   });
-  return bids;
+  // Phase A1: bid.amount + auction.currentPrice are Decimal -> number.
+  return serializeMoney(bids);
 };
 
 export const getMyAuctions = async (userId: string) => {
@@ -66,7 +68,7 @@ export const getMyAuctions = async (userId: string) => {
       _count: { select: { bids: true } },
     },
   });
-  return auctions;
+  return serializeMoney(auctions);
 };
 
 export const getWonAuctions = async (userId: string) => {
@@ -82,7 +84,7 @@ export const getWonAuctions = async (userId: string) => {
       type: true,
     },
   });
-  return auctions;
+  return serializeMoney(auctions);
 };
 
 export const rateUser = async (data: {

@@ -1,7 +1,9 @@
-import { AuctionStatus, AuctionType, Prisma } from '@prisma/client';
+import { AuctionStatus, AuctionType, Prisma, SettlementKind } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
 import { auctionQueue } from '../../queues/auction.queue';
+import { D, serializeMoney } from '../../lib/decimal';
+import { settleWithinTx } from '../escrow/escrow.service';
 
 export const createAuction = async (
   sellerId: string,
@@ -51,7 +53,7 @@ export const createAuction = async (
     await auctionQueue.add('end-auction', { auctionId: auction.id }, { delay: endDelay });
   }
 
-  return auction;
+  return serializeMoney(auction);
 };
 
 export const getAuctions = async (params: {
@@ -68,10 +70,34 @@ export const getAuctions = async (params: {
   if (status) where.status = status;
   if (type) where.type = type;
   if (search) {
-    where.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-    ];
+    // Phase A3: full-text search via the GIN tsvector index created in
+    // 20260528000001_perf_indexes (to_tsvector('english', title || ' ' ||
+    // description)). The old ILIKE `contains` did a sequential scan and the
+    // GIN index couldn't help it. We tokenise the query, append the `:*`
+    // prefix operator to each term (so "rol" still matches "rolex") and AND
+    // them together. Only the FTS match runs in raw SQL; the status/type
+    // filters, pagination, includes and Decimal->number serialization stay in
+    // the Prisma query below by feeding the matched ids back through `where`.
+    const terms = search
+      .toLowerCase()
+      .split(/\s+/)
+      .map((t) => t.replace(/[^a-z0-9]/g, ''))
+      .filter(Boolean);
+
+    if (terms.length === 0) {
+      // Query was all punctuation/whitespace -- no usable tokens. Empty page.
+      return { auctions: [], total: 0, page, limit, totalPages: 0 };
+    }
+
+    // The tsquery string is built only from [a-z0-9] tokens we control, so it
+    // can't carry tsquery operators; it is also passed as a bound parameter
+    // (never string-concatenated into SQL), so there is no injection surface.
+    const tsquery = terms.map((t) => `${t}:*`).join(' & ');
+    const matches = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM auctions
+      WHERE to_tsvector('english', title || ' ' || description) @@ to_tsquery('english', ${tsquery})
+    `;
+    where.id = { in: matches.map((m) => m.id) };
   }
 
   const [auctions, total] = await Promise.all([
@@ -88,7 +114,13 @@ export const getAuctions = async (params: {
     prisma.auction.count({ where }),
   ]);
 
-  return { auctions, total, page, limit, totalPages: Math.ceil(total / limit) };
+  return {
+    auctions: serializeMoney(auctions),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 export const getAuctionById = async (auctionId: string, userId?: string) => {
@@ -110,6 +142,21 @@ export const getAuctionById = async (auctionId: string, userId?: string) => {
 
   if (!auction) throw createError('Auction not found', 404);
 
+  // Sealed-bid privacy: while live, strip the embedded bids array so the
+  // detail-page fetch can't be used as a back-door to learn ranking or
+  // bidder identities. The viewer's own bid is preserved so the UI can
+  // render "your sealed bid: ₹X". The full list is exposed only after the
+  // auction has ENDED. See bid.service.getAuctionBids for the matching
+  // contract used by the bid-history endpoint.
+  if (
+    auction.type === AuctionType.SEALED_BID &&
+    auction.status === AuctionStatus.ACTIVE
+  ) {
+    auction.bids = auction.bids
+      .filter((b) => b.bidderId === userId)
+      .map((b) => ({ ...b }));
+  }
+
   // Check if user has it in watchlist
   let isWatched = false;
   if (userId) {
@@ -128,7 +175,11 @@ export const getAuctionById = async (auctionId: string, userId?: string) => {
     });
   }
 
-  return { ...auction, isWatched, autoBid };
+  // Phase A1: serializeMoney recursively converts every Decimal
+  // (startingPrice, currentPrice, reservePrice, buyNowPrice, dutchPriceStep,
+  // minIncrement, embedded bids[].amount, autoBid.maxAmount) -> number so
+  // the frontend type contract stays `number`.
+  return serializeMoney({ ...auction, isWatched, autoBid });
 };
 
 export const updateAuction = async (
@@ -143,104 +194,144 @@ export const updateAuction = async (
     throw createError('Cannot edit an active or ended auction', 400);
   }
 
-  return prisma.auction.update({ where: { id: auctionId }, data });
+  const updated = await prisma.auction.update({ where: { id: auctionId }, data });
+  return serializeMoney(updated);
 };
 
 export const cancelAuction = async (auctionId: string, userId: string, isAdmin = false) => {
-  const auction = await prisma.auction.findUnique({ where: { id: auctionId } });
-  if (!auction) throw createError('Auction not found', 404);
+  const result = await prisma.$transaction(async (tx) => {
+    // ── 1. Lock auction row first ──
+    const lockedAuction = await tx.$queryRaw<{ id: string }[]>`
+      SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE
+    `;
+    if (lockedAuction.length === 0) throw createError('Auction not found', 404);
 
-  if (!isAdmin && auction.sellerId !== userId) throw createError('Not authorized', 403);
-  if (auction.status === AuctionStatus.ENDED) throw createError('Auction already ended', 400);
+    const auction = await tx.auction.findUnique({ where: { id: auctionId } });
+    if (!auction) throw createError('Auction not found', 404);
 
-  // Refund all held bids
-  const topBids = await prisma.bid.findMany({
-    where: { auctionId, status: 'WINNING' },
-    include: { bidder: { include: { wallet: true } } },
-  });
+    if (!isAdmin && auction.sellerId !== userId) throw createError('Not authorized', 403);
+    if (auction.status === AuctionStatus.ENDED) throw createError('Auction already ended', 400);
+    if (auction.status === AuctionStatus.CANCELLED) throw createError('Auction already cancelled', 400);
 
-  for (const bid of topBids) {
-    if (bid.bidder.wallet) {
-      await prisma.wallet.update({
-        where: { id: bid.bidder.wallet.id },
-        data: {
-          balance: { increment: bid.amount },
-          heldAmount: { decrement: bid.amount },
-        },
+    // Fetch winning bids to refund
+    const topBids = await tx.bid.findMany({
+      where: { auctionId, status: 'WINNING' },
+      include: { bidder: { include: { wallet: true } } },
+    });
+
+    if (topBids.length > 0) {
+      // Phase A1: Decimal-safe per-user refund aggregation.
+      // This handles sealed-bid auctions with multiple winning bids cleanly.
+      const refunds: Record<string, Prisma.Decimal> = {};
+      const userWallets: Record<string, any> = {};
+
+      for (const bid of topBids) {
+        if (bid.bidder.wallet) {
+          const prior = refunds[bid.bidderId] ?? D(0);
+          refunds[bid.bidderId] = prior.add(bid.amount);
+          userWallets[bid.bidderId] = bid.bidder.wallet;
+        }
+      }
+
+      // ── 2. Lock wallets in strict ascending order of userId to prevent deadlocks ──
+      const sortedUserIds = Object.keys(refunds).sort();
+      for (const uid of sortedUserIds) {
+        await tx.$queryRaw`SELECT id FROM wallets WHERE "userId" = ${uid} FOR UPDATE`;
+      }
+
+      // Execute wallet updates + ledger logs
+      for (const uid of sortedUserIds) {
+        const amount = refunds[uid];
+        const wallet = userWallets[uid];
+
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: { increment: amount },
+            heldAmount: { decrement: amount },
+          },
+        });
+
+        await tx.transaction.create({
+          data: {
+            walletId: wallet.id,
+            userId: uid,
+            type: 'BID_RELEASE',
+            amount,
+            description: `Auction cancelled: "${auction.title}"`,
+            referenceId: auctionId,
+          },
+        });
+      }
+
+      // Update bids status to OUTBID
+      const bidIds = topBids.map((b) => b.id);
+      await tx.bid.updateMany({
+        where: { id: { in: bidIds } },
+        data: { status: 'OUTBID' },
       });
     }
-  }
 
-  return prisma.auction.update({
-    where: { id: auctionId },
-    data: { status: AuctionStatus.CANCELLED },
+    const cancelled = await tx.auction.update({
+      where: { id: auctionId },
+      data: { status: AuctionStatus.CANCELLED },
+    });
+
+    return cancelled;
   });
+
+  return serializeMoney(result);
 };
 
 export const buyNow = async (auctionId: string, buyerId: string) => {
-  const auction = await prisma.auction.findUnique({
-    where: { id: auctionId },
-    include: { seller: true },
-  });
-
-  if (!auction) throw createError('Auction not found', 404);
-  if (auction.status !== AuctionStatus.ACTIVE) throw createError('Auction not active', 400);
-  if (!auction.buyNowPrice) throw createError('No buy-now price set', 400);
-  if (auction.sellerId === buyerId) throw createError("Can't buy your own auction", 403);
-
-  // Check wallet balance
-  const wallet = await prisma.wallet.findUnique({ where: { userId: buyerId } });
-  if (!wallet || wallet.balance < auction.buyNowPrice) {
-    throw createError('Insufficient wallet balance', 400);
-  }
-
+  // Phase A2: All checks happen inside the transaction with FOR UPDATE locks.
+  // Previously the status / wallet-balance checks happened outside the tx,
+  // so two simultaneous buyNow requests could both pass and both transfer
+  // funds before either committed -- a classic check-then-act race.
   return prisma.$transaction(async (tx) => {
-    // Deduct from buyer
-    await tx.wallet.update({
-      where: { userId: buyerId },
-      data: { balance: { decrement: auction.buyNowPrice! } },
+    // Lock auction row first.
+    const lockedAuction = await tx.$queryRaw<{ id: string }[]>`
+      SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE
+    `;
+    if (lockedAuction.length === 0) throw createError('Auction not found', 404);
+
+    const auction = await tx.auction.findUnique({ where: { id: auctionId } });
+    if (!auction) throw createError('Auction not found', 404);
+    if (auction.status !== AuctionStatus.ACTIVE) throw createError('Auction not active', 400);
+    if (!auction.buyNowPrice) throw createError('No buy-now price set', 400);
+    if (auction.sellerId === buyerId) throw createError("Can't buy your own auction", 403);
+
+    // Phase A5: the buyer->seller transfer, the balance check, the paired
+    // PAYMENT ledger rows and the idempotency guard all live in the shared
+    // escrow path now. buyNow is a DIRECT_SALE: money comes straight out of the
+    // buyer's spendable balance. settleWithinTx already holds the auction lock
+    // (taken above) and locks the two wallets in order.
+    const { alreadySettled } = await settleWithinTx(tx, {
+      auctionId,
+      auctionTitle: auction.title,
+      payerId: buyerId,
+      sellerId: auction.sellerId,
+      amount: auction.buyNowPrice,
+      kind: SettlementKind.DIRECT_SALE,
     });
 
-    // Credit to seller
-    await tx.wallet.update({
-      where: { userId: auction.sellerId },
-      data: { balance: { increment: auction.buyNowPrice! } },
-    });
+    // A genuine buy-now retry is already rejected by the "Auction not active"
+    // guard above (the first buy-now flipped status to ENDED in its own tx).
+    // Reaching here with alreadySettled means a settled-but-not-ended
+    // inconsistency -- don't rewrite actualEndTime/currentPrice, just return
+    // the row as it currently stands so the retry is a true no-op.
+    if (alreadySettled) return serializeMoney(auction);
 
-    // Record transactions
-    const buyerWallet = await tx.wallet.findUnique({ where: { userId: buyerId } });
-    const sellerWallet = await tx.wallet.findUnique({ where: { userId: auction.sellerId } });
-
-    await tx.transaction.createMany({
-      data: [
-        {
-          walletId: buyerWallet!.id,
-          userId: buyerId,
-          type: 'PAYMENT',
-          amount: -auction.buyNowPrice!,
-          description: `Buy Now: ${auction.title}`,
-          referenceId: auctionId,
-        },
-        {
-          walletId: sellerWallet!.id,
-          userId: auction.sellerId,
-          type: 'PAYMENT',
-          amount: auction.buyNowPrice!,
-          description: `Sale: ${auction.title}`,
-          referenceId: auctionId,
-        },
-      ],
-    });
-
-    // End auction with this buyer as winner
-    return tx.auction.update({
+    // End auction with this buyer as winner.
+    const updated = await tx.auction.update({
       where: { id: auctionId },
       data: {
         status: AuctionStatus.ENDED,
         winnerId: buyerId,
-        currentPrice: auction.buyNowPrice!,
+        currentPrice: D(auction.buyNowPrice),
         actualEndTime: new Date(),
       },
     });
+    return serializeMoney(updated);
   });
 };

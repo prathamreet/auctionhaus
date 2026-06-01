@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getWallet, deposit, withdraw, getTransactions } from './wallet.service';
 import { prismaMock } from '../../__mocks__/prisma';
+import { m } from '../../__mocks__/money';
 
 describe('Wallet Service', () => {
   beforeEach(() => {
@@ -33,12 +34,13 @@ describe('Wallet Service', () => {
 
       await deposit('u1', 500);
 
+      // Phase A1: services pass Decimal; m() accepts either number or Decimal.
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { balance: { increment: 500 } }
+        data: { balance: { increment: m(500) } }
       });
       expect(prismaMock.transaction.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ type: 'DEPOSIT', amount: 500 })
+        data: expect.objectContaining({ type: 'DEPOSIT', amount: m(500) })
       }));
     });
 
@@ -57,10 +59,10 @@ describe('Wallet Service', () => {
 
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { balance: { decrement: 500 } }
+        data: { balance: { decrement: m(500) } }
       });
       expect(prismaMock.transaction.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ type: 'WITHDRAWAL', amount: -500 })
+        data: expect.objectContaining({ type: 'WITHDRAWAL', amount: m(-500) })
       }));
     });
 
