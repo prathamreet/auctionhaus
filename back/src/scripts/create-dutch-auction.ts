@@ -4,7 +4,8 @@
 
 
 import { prisma } from '../lib/prisma';
-import { AuctionType, AuctionStatus } from '@prisma/client';
+import { AuctionType } from '@prisma/client';
+import { createAuction } from '../modules/auctions/auction.service';
 
 async function main() {
   // CONFIGURATION
@@ -26,21 +27,16 @@ async function main() {
   const now = new Date();
   const endTime = new Date(now.getTime() + durationHours * 60 * 60 * 1000);
 
-  const auction = await prisma.auction.create({
-    data: {
-      sellerId: seller.id,
-      title,
-      description,
-      type: AuctionType.DUTCH,
-      status: AuctionStatus.ACTIVE,
-      startingPrice: startPrice,
-      currentPrice: startPrice,
-      reservePrice: reservePrice,
-      dutchPriceStep: priceStep,
-      dutchInterval: intervalSeconds,
-      startTime: now,
-      endTime: endTime,
-    }
+  const auction = await createAuction(seller.id, {
+    title,
+    description,
+    type: AuctionType.DUTCH,
+    startingPrice: startPrice,
+    reservePrice: reservePrice,
+    dutchPriceStep: priceStep,
+    dutchInterval: intervalSeconds,
+    startTime: now,
+    endTime: endTime,
   });
 
   console.log(`[ok] Created Dutch Auction: "${auction.title}" (ID: ${auction.id})`);

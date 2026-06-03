@@ -12,6 +12,7 @@
 import bcrypt from 'bcryptjs';
 import { Role, AuctionType, AuctionStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { createAuction } from '../modules/auctions/auction.service';
 
 const PASSWORD = '123123';
 const STARTER_BALANCE = 1000000;
@@ -96,20 +97,15 @@ async function seedAuctions(): Promise<void> {
       console.log(`[skip] hoster already has an ACTIVE ${s.type} auction (${already.id}).`);
       continue;
     }
-    const auction = await prisma.auction.create({
-      data: {
-        sellerId: seller.id,
-        title: s.title,
-        description: s.description,
-        type: s.type,
-        status: AuctionStatus.ACTIVE,
-        startingPrice: s.startingPrice,
-        currentPrice: s.startingPrice,
-        minIncrement: s.minIncrement,
-        startTime: now,
-        endTime: s.endTime,
-        ...s.extra,
-      },
+    const auction = await createAuction(seller.id, {
+      title: s.title,
+      description: s.description,
+      type: s.type,
+      startingPrice: s.startingPrice,
+      minIncrement: s.minIncrement,
+      startTime: now,
+      endTime: s.endTime,
+      ...s.extra,
     });
     console.log(`[add]  ${s.type} auction "${auction.title}" (${auction.id})`);
   }
