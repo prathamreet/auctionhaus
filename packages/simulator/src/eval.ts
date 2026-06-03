@@ -1,243 +1,177 @@
 /**
- * Phase C5 — Fraud Detection Evaluation Harness
+ * Fraud-Detection Evaluation Harness
  *
- * Reads simulator run output (events.jsonl + manifest.json) and matches each
- * bid event against fraud flags emitted by the detection engine (stored in the
- * `fraud_flags` Postgres table). Computes:
- *   - Precision, Recall, F1 (binary: shill vs not-shill)
- *   - ROC curve data (TPR vs FPR at thresholds 0.05..0.95)
- *   - Per-feature ablation: F1 when each feature is zeroed out
+ * Reports on the HELD-OUT TEST partition (the deterministic split in
+ * dataset.ts, identical to the one train.ts trained against -- no leakage).
  *
- * Outputs:
- *   paper/figures/roc_data.json        (for pgfplots or matplotlib)
- *   paper/figures/ablation_data.json
- *   paper/tables/metrics.tex           (LaTeX table row)
+ * Produces:
+ *   - LR precision/recall/F1 + best-F1 threshold on the test set
+ *   - ROC sweep (test) -> paper/figures/roc_data.json
+ *   - per-feature ablation by neutralising one feature at a time (test)
+ *       -> paper/figures/ablation_data.json
+ *   - baselines fit on TRAIN, scored on TEST:
+ *       (a) outbid-count > 10 heuristic
+ *       (b) best single-feature decision stump
+ *   - paper/tables/metrics.tex  (baselines vs LR, all on test)
  *
- * Usage:
- *   SIM_RUN_DIR=packages/simulator/runs/<runId> npx ts-node packages/simulator/src/eval.ts
- *
- * Requires:
- *   - DATABASE_URL set in .env
- *   - prisma generate already run
+ * Usage (from repo root): npm run eval:fraud
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { PrismaClient } from '@prisma/client';
-import type { BidLogEntry, SimRunManifest } from './types';
-import { extractFeatures } from '../../../back/src/modules/fraud/fraud.features';
-import { score as classifierScore, SCORE_THRESHOLD } from '../../../back/src/modules/fraud/fraud.classifier';
-import { BidGraph } from '../../../back/src/modules/fraud/fraud.graph';
-import type { BidEvent } from '../../../back/src/modules/fraud/fraud.types';
+import { loadExamples, splitTrainTest, FEATURE_KEYS, type Example } from './dataset';
+import { score as lrScore, NORM_PARAMS } from '../../../back/src/modules/fraud/fraud.classifier';
+import type { FeatureVector } from '../../../back/src/modules/fraud/fraud.types';
 
-const prisma = new PrismaClient();
-
-let RUN_DIR = process.env.SIM_RUN_DIR ?? '';
-
-const PAPER_DIR = process.cwd().endsWith('back')
-  ? path.join(process.cwd(), '..', 'paper')
-  : path.join(process.cwd(), 'paper');
+const rootDir = process.cwd().endsWith('back') ? path.join(process.cwd(), '..') : process.cwd();
+const PAPER_DIR = path.join(rootDir, 'paper');
 const FIGURES_DIR = path.join(PAPER_DIR, 'figures');
 const TABLES_DIR = path.join(PAPER_DIR, 'tables');
 
-if (!RUN_DIR) {
-  // Prefer the preserved paper-snapshot corpus when present, so the published
-  // metrics (paper/main.tex Table I, supplementary.tex sec. 5) reproduce by
-  // default. Falls back to the parent runs/ folder if the snapshot is missing
-  // (fresh checkout, or future work where the snapshot has been removed).
-  const rootRel = process.cwd().endsWith('back')
-    ? path.join(process.cwd(), '..')
-    : process.cwd();
-  const snapshotDir = path.join(rootRel, 'back', 'packages', 'simulator', 'runs', '_paper-snapshot');
-  const flatDir = path.join(process.cwd(), 'packages', 'simulator', 'runs');
-  const candidateRoots = [snapshotDir, flatDir].filter((p) => fs.existsSync(p));
-
-  for (const runsDir of candidateRoots) {
-    const runDirs = fs.readdirSync(runsDir).filter((name) => {
-      const p = path.join(runsDir, name);
-      return (
-        fs.statSync(p).isDirectory() &&
-        !name.startsWith('_') &&
-        fs.existsSync(path.join(p, 'events.jsonl'))
-      );
-    });
-    if (runDirs.length > 0) {
-      runDirs.sort((a, b) => {
-        const statA = fs.statSync(path.join(runsDir, a));
-        const statB = fs.statSync(path.join(runsDir, b));
-        return statB.mtimeMs - statA.mtimeMs;
-      });
-      RUN_DIR = path.join(runsDir, runDirs[0]);
-      const source = runsDir.endsWith('_paper-snapshot') ? 'paper snapshot' : 'flat runs/';
-      console.log(`[Eval] SIM_RUN_DIR not set. Auto-resolved latest run (${source}): ${RUN_DIR}`);
-      break;
-    }
-  }
-}
-
-function mkdir(p: string) { fs.mkdirSync(p, { recursive: true }); }
-
-function sigmoid(x: number) { return 1 / (1 + Math.exp(-x)); }
-
 interface Metrics {
-  threshold: number;
   tp: number; fp: number; tn: number; fn: number;
   precision: number; recall: number; f1: number; fpr: number; tpr: number;
 }
 
-function computeMetrics(
-  scored: Array<{ isShill: boolean; score: number }>,
-  threshold: number
-): Metrics {
+function metricsFrom(scored: Array<{ label: number; pred: boolean }>): Metrics {
   let tp = 0, fp = 0, tn = 0, fn = 0;
-  for (const { isShill, score } of scored) {
-    const pred = score >= threshold;
-    if (pred && isShill) tp++;
-    else if (pred && !isShill) fp++;
-    else if (!pred && !isShill) tn++;
+  for (const { label, pred } of scored) {
+    if (pred && label === 1) tp++;
+    else if (pred && label === 0) fp++;
+    else if (!pred && label === 0) tn++;
     else fn++;
   }
   const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
   const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
-  const f1 = precision + recall > 0 ? 2 * precision * recall / (precision + recall) : 0;
+  const f1 = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
   const fpr = fp + tn > 0 ? fp / (fp + tn) : 0;
-  return { threshold, tp, fp, tn, fn, precision, recall, f1, fpr, tpr: recall };
+  return { tp, fp, tn, fn, precision, recall, f1, fpr, tpr: recall };
 }
 
-async function main() {
-  if (!RUN_DIR) {
-    console.error('SIM_RUN_DIR not set. Usage: SIM_RUN_DIR=packages/simulator/runs/<runId> npx ts-node eval.ts');
-    process.exit(1);
-  }
+function mkdir(p: string) { fs.mkdirSync(p, { recursive: true }); }
 
+/** Best single-feature decision stump fit on train, then scored on test. */
+function fitStump(train: Example[]): {
+  feature: keyof FeatureVector; direction: 'gt' | 'lt'; threshold: number; trainF1: number;
+} {
+  let best = { feature: FEATURE_KEYS[0], direction: 'gt' as 'gt' | 'lt', threshold: 0, trainF1: -1 };
+  for (const feature of FEATURE_KEYS) {
+    const vals = [...new Set(train.map((e) => e.features[feature]))].sort((a, b) => a - b);
+    const cands: number[] = [];
+    for (let i = 0; i < vals.length - 1; i++) cands.push((vals[i] + vals[i + 1]) / 2);
+    if (vals.length === 1) cands.push(vals[0]);
+    for (const threshold of cands) {
+      for (const direction of ['gt', 'lt'] as const) {
+        const scored = train.map((e) => ({
+          label: e.label,
+          pred: direction === 'gt' ? e.features[feature] > threshold : e.features[feature] < threshold,
+        }));
+        const m = metricsFrom(scored);
+        if (m.f1 > best.trainF1) best = { feature, direction, threshold, trainF1: m.f1 };
+      }
+    }
+  }
+  return best;
+}
+
+function main() {
   mkdir(FIGURES_DIR);
   mkdir(TABLES_DIR);
 
-  const eventsPath = path.join(RUN_DIR, 'events.jsonl');
-  const manifestPath = path.join(RUN_DIR, 'manifest.json');
-  if (!fs.existsSync(eventsPath)) {
-    console.error(`events.jsonl not found in ${RUN_DIR}`);
+  const all = loadExamples();
+  if (all.length === 0) {
+    console.error('[Eval] No examples. Run `npm run sim:run` then `npm run train:fraud` first.');
     process.exit(1);
   }
-
-  const lines = fs.readFileSync(eventsPath, 'utf8').trim().split('\n').filter(Boolean);
-  const events: BidLogEntry[] = lines.map((l) => JSON.parse(l));
-  const manifest: SimRunManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-
-  console.log(`[Eval] ${events.length} bid events, ${events.filter((e) => e.isShill).length} shill`);
-
-  // Re-score every event using the classifier (offline re-play)
-  const graph = new BidGraph();
-  const scored: Array<{
-    isShill: boolean;
-    score: number;
-    features: ReturnType<typeof extractFeatures>;
-    baselineScore: number;
-  }> = [];
-
-  for (const e of events) {
-    // We need seller info — fetch from manifest's agentMap for the auction
-    const sellerId = Object.entries(manifest.agentMap).find(
-      ([, v]) => v.agentType === 'truthful'
-    )?.[0] ?? 'unknown';
-
-    // Fetch auction meta from DB
-    let minIncrement = manifest.config.minIncrement;
-    let auctionTitle = 'Sim Auction';
-    try {
-      const a = await prisma.auction.findUnique({
-        where: { id: e.auctionId },
-        select: { minIncrement: true, title: true },
-      });
-      if (a) {
-        minIncrement = Number(a.minIncrement);
-        auctionTitle = a.title;
-      }
-    } catch {}
-
-    const event: BidEvent = {
-      bidId: `replay-${e.ts}-${e.bidderId}`,
-      auctionId: e.auctionId,
-      bidderId: e.bidderId,
-      bidderName: manifest.agentMap[e.bidderId]?.agentType ?? 'unknown',
-      sellerId,
-      auctionTitle,
-      amount: e.amount,
-      minIncrement,
-      ts: e.ts,
-      isAutoBid: false,
-    };
-
-    graph.add(event);
-    const features = extractFeatures(event, graph);
-    const s = classifierScore(features);
-
-    // Baseline heuristic: flag bidder as shill if they placed > 10 bids on this auction
-    const bidsSoFar = graph.getAuctionBids(e.auctionId);
-    const bidderBids = bidsSoFar.filter((b) => b.bidderId === e.bidderId);
-    const bScore = bidderBids.length > 10 ? 0.8 : 0.2;
-
-    scored.push({ isShill: e.isShill, score: s, features, baselineScore: bScore });
+  const { train, test } = splitTrainTest(all);
+  console.log(`[Eval] ${all.length} examples -> ${train.length} train / ${test.length} held-out test`);
+  if (test.length === 0) {
+    console.error('[Eval] Test partition empty. Generate more sim runs.');
+    process.exit(1);
   }
+  const testShill = test.filter((e) => e.label === 1).length;
+  console.log(`[Eval] Test labels: ${testShill} shill / ${test.length - testShill} legit`);
 
-  // ── ROC curve ──────────────────────────────────────────────────────────
+  // ── LR scores on test ──
+  const lrScored = test.map((e) => ({ label: e.label, score: lrScore(e.features) }));
+
+  // ── ROC sweep on test ──
   const thresholds = Array.from({ length: 19 }, (_, i) => (i + 1) * 0.05);
   const roc = thresholds.map((t) => {
-    const m = computeMetrics(scored, t);
+    const m = metricsFrom(lrScored.map((s) => ({ label: s.label, pred: s.score >= t })));
     return { threshold: t, tpr: m.tpr, fpr: m.fpr, f1: m.f1, precision: m.precision, recall: m.recall };
   });
   fs.writeFileSync(path.join(FIGURES_DIR, 'roc_data.json'), JSON.stringify(roc, null, 2));
 
-  // Best F1 threshold
   const best = roc.reduce((a, b) => (b.f1 > a.f1 ? b : a));
-  const bestMetrics = computeMetrics(scored, best.threshold);
-  console.log(`[Eval] Best threshold: ${best.threshold.toFixed(2)} | P=${best.precision.toFixed(3)} R=${best.recall.toFixed(3)} F1=${best.f1.toFixed(3)}`);
+  console.log(
+    `[Eval] LR (test) best threshold ${best.threshold.toFixed(2)} | ` +
+      `P=${best.precision.toFixed(3)} R=${best.recall.toFixed(3)} F1=${best.f1.toFixed(3)}`
+  );
 
-  // ── Per-feature ablation ───────────────────────────────────────────────
-  const featureNames = ['responseTimeMs', 'bidFrequencyPerMin', 'incrementRatio', 'sellerCoOccurrence', 'reciprocityScore'] as const;
-  const ablation: Array<{ feature: string; f1: number; precision: number; recall: number }> = [];
-
-  for (const feat of featureNames) {
-    const ablated = scored.map(({ isShill, features }) => {
-      const zeroed = { ...features, [feat]: 0 };
-      return { isShill, score: classifierScore(zeroed) };
+  // ── Ablation on test: neutralise one feature (set to its mean -> z=0) ──
+  const ablation = FEATURE_KEYS.map((feat) => {
+    const ablated = test.map((e) => {
+      // Neutralise one feature by setting it to its training mean (z-score 0),
+      // which removes its contribution from the logit without disturbing others.
+      const f: FeatureVector = { ...e.features };
+      f[feat] = NORM_PARAMS.mean[feat];
+      return { label: e.label, pred: lrScore(f) >= best.threshold };
     });
-    const m = computeMetrics(ablated, SCORE_THRESHOLD);
-    ablation.push({ feature: feat, f1: m.f1, precision: m.precision, recall: m.recall });
-  }
+    const m = metricsFrom(ablated);
+    return { feature: feat, f1: m.f1, precision: m.precision, recall: m.recall };
+  });
   fs.writeFileSync(path.join(FIGURES_DIR, 'ablation_data.json'), JSON.stringify(ablation, null, 2));
-
-  console.log('[Eval] Ablation:');
+  console.log('[Eval] Ablation (test, feature set to mean):');
   for (const a of ablation) {
-    console.log(`  ${a.feature.padEnd(24)} F1=${a.f1.toFixed(3)} P=${a.precision.toFixed(3)} R=${a.recall.toFixed(3)}`);
+    console.log(`  ${a.feature.padEnd(22)} F1=${a.f1.toFixed(3)} P=${a.precision.toFixed(3)} R=${a.recall.toFixed(3)}`);
   }
 
-  // Baseline: count > 10 outbids heuristic (actual)
-  const baselineScore = scored.map(({ isShill, baselineScore }) => ({ isShill, score: baselineScore }));
-  const baseline = computeMetrics(baselineScore, 0.5);
+  // ── Baselines (fit on train, scored on test) ──
+  const outbidBaseline = metricsFrom(
+    test.map((e) => ({ label: e.label, pred: e.bidderBidCountOnAuction > 10 }))
+  );
+  const stump = fitStump(train);
+  const stumpMetrics = metricsFrom(
+    test.map((e) => ({
+      label: e.label,
+      pred:
+        stump.direction === 'gt'
+          ? e.features[stump.feature] > stump.threshold
+          : e.features[stump.feature] < stump.threshold,
+    }))
+  );
+  console.log(
+    `[Eval] Baseline outbid>10 (test):    P=${outbidBaseline.precision.toFixed(3)} R=${outbidBaseline.recall.toFixed(3)} F1=${outbidBaseline.f1.toFixed(3)}`
+  );
+  console.log(
+    `[Eval] Baseline stump [${stump.feature} ${stump.direction} ${stump.threshold.toFixed(2)}] (test): ` +
+      `P=${stumpMetrics.precision.toFixed(3)} R=${stumpMetrics.recall.toFixed(3)} F1=${stumpMetrics.f1.toFixed(3)}`
+  );
 
-  // ── LaTeX metrics table ────────────────────────────────────────────────
-  const tex = `% Auto-generated by eval.ts — do not edit manually
+  // ── LaTeX metrics table (all on test) ──
+  const row = (name: string, m: Metrics, thr: string) =>
+    `${name} & ${m.precision.toFixed(3)} & ${m.recall.toFixed(3)} & ${m.f1.toFixed(3)} & ${thr} \\\\`;
+  const lrBest = metricsFrom(lrScored.map((s) => ({ label: s.label, pred: s.score >= best.threshold })));
+  const tex = `% Auto-generated by eval.ts -- held-out test set (do not edit by hand)
 \\begin{table}[h]
 \\centering
 \\begin{tabular}{lcccc}
 \\toprule
 \\textbf{Method} & \\textbf{Precision} & \\textbf{Recall} & \\textbf{F1} & \\textbf{Threshold} \\\\
 \\midrule
-Baseline (outbid count $>10$) & ${baseline.precision.toFixed(3)} & ${baseline.recall.toFixed(3)} & ${baseline.f1.toFixed(3)} & --- \\\\
-LR (5-feature, this work)    & ${best.precision.toFixed(3)} & ${best.recall.toFixed(3)} & ${best.f1.toFixed(3)} & ${best.threshold.toFixed(2)} \\\\
+${row('Baseline (outbid count $>10$)', outbidBaseline, '---')}
+${row(`Stump (\\texttt{${stump.feature}})`, stumpMetrics, stump.threshold.toFixed(2))}
+${row('LR (5-feature, this work)', lrBest, best.threshold.toFixed(2))}
 \\bottomrule
 \\end{tabular}
 \\vspace{8pt}
-\\caption{Fraud Detection Performance Comparison}
+\\caption{Fraud Detection Performance on the Held-Out Test Set}
 \\label{tab:fraud-metrics}
 \\end{table}
 `;
   fs.writeFileSync(path.join(TABLES_DIR, 'metrics.tex'), tex);
-  console.log('[Eval] Wrote paper/tables/metrics.tex and paper/figures/roc_data.json');
-  console.log(`[Eval] Baseline F1=${baseline.f1.toFixed(3)} → LR F1=${best.f1.toFixed(3)} (+${((best.f1 - baseline.f1) * 100).toFixed(1)}%)`);
-
-  await prisma.$disconnect();
+  console.log('[Eval] Wrote paper/figures/{roc_data,ablation_data}.json and paper/tables/metrics.tex');
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main();

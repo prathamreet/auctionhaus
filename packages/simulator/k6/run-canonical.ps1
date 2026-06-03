@@ -14,10 +14,17 @@
 #   .\packages\simulator\k6\run-canonical.ps1
 #
 # Prerequisites:
-#   - Backend running on http://localhost:5000
-#   - A user has been created and a fresh JWT obtained (set SIM_TOKEN)
-#   - An ACTIVE auction exists owned by a different user (set AUCTION_ID)
+#   - Backend running on http://localhost:5000, started with the benchmark env
+#     so the numbers are clean (no rate-limit 429s, stream consumer running, no
+#     backpressure 503s):
+#       $env:RATE_LIMIT_MAX="100000000"; $env:BID_SEQUENCER="true"; `
+#         $env:BID_STREAM_BACKPRESSURE="100000"; npm run dev:back
+#   - A fresh JWT obtained (set SIM_TOKEN) and an ACTIVE auction owned by a
+#     different user (set AUCTION_ID) -- `npm run db:prepare-bench` prints both.
 #   - k6 is on PATH
+#
+# If any run reports bid_errors > 0, the backend was not started with the env
+# above and those numbers are contaminated -- restart and re-run.
 #
 # Output:
 #   docs/rp/rp-audit-02-k6-canonical-<YYYYMMDD-HHMM>.md

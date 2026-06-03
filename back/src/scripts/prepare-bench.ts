@@ -89,7 +89,13 @@ async function main() {
   console.log(`\n======================================================================`);
   console.log(`READY FOR BENCHMARK`);
   console.log(`======================================================================`);
-  console.log(`Run the following k6 commands in your terminal to collect the metrics:`);
+  console.log(`STEP 1 -- (re)start the backend with benchmark env so the numbers are`);
+  console.log(`clean (no rate-limit 429s, stream consumer running, no backpressure 503s):`);
+  console.log(`\n  PowerShell:`);
+  console.log(`    $env:RATE_LIMIT_MAX="100000000"; $env:BID_SEQUENCER="true"; $env:BID_STREAM_BACKPRESSURE="100000"; npm run dev:back`);
+  console.log(`\n  bash:`);
+  console.log(`    RATE_LIMIT_MAX=100000000 BID_SEQUENCER=true BID_STREAM_BACKPRESSURE=100000 npm run dev:back`);
+  console.log(`\nSTEP 2 -- run the following k6 commands to collect the metrics:`);
   console.log(`\n--- 1. Direct mode (PostgreSQL locked transaction) ---`);
   console.log(`k6 run packages/simulator/k6/bid-throughput.js -e SIM_TOKEN="${token}" -e AUCTION_ID="${auction.id}" -e VUS=1 -e DURATION="15s" -e MODE="direct"`);
   console.log(`k6 run packages/simulator/k6/bid-throughput.js -e SIM_TOKEN="${token}" -e AUCTION_ID="${auction.id}" -e VUS=10 -e DURATION="15s" -e MODE="direct"`);

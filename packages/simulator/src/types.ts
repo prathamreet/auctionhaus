@@ -42,13 +42,10 @@ export interface SimRunManifest {
   auctionIds: string[];
   agentMap: Record<string, { userId: string; agentType: AgentType }>;
   /**
-   * auctionId -> sellerUserId. Added post-submission to support train.v2.ts
-   * (the corrected trainer that resolves seller co-occurrence against the
-   * real auction owner instead of the manifest's first truthful agent).
-   *
-   * Paper-snapshot manifests written before 2026-06-02 do not have this field;
-   * the corrected pipeline skips runs missing it (with a console warning)
-   * rather than silently picking a fake seller.
+   * auctionId -> sellerUserId. The dataset loader (dataset.ts) grounds the
+   * sellerCoOccurrence feature in the real auction owner via this map. Runs
+   * missing it (the pre-correction single-auction corpus under
+   * runs/_paper-snapshot) are skipped during training with a console warning.
    */
   auctionOwners?: Record<string, string>;
   totalBids: number;

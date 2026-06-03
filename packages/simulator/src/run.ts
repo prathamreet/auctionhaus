@@ -1,16 +1,27 @@
 /**
- * Phase C1 — Synthetic Bidder Simulator
+ * Synthetic Bidder Simulator (multi-auction corpus generator)
  *
- * Creates auctions, registers synthetic bidder accounts, runs each persona
- * against each auction, and writes:
- *   runs/{runId}/events.jsonl   — every bid decision (ground-truth labelled)
- *   runs/{runId}/manifest.json  — metadata for the eval harness
+ * Generates a labelled bid corpus for the fraud-detection train/eval pipeline
+ * by driving real HTTP traffic against the live AuctionHaus backend.
  *
- * Usage:
- *   npx ts-node packages/simulator/src/run.ts [--runs 10] [--duration 60]
+ * Why multi-auction + a decoy seller:
+ *   The dominant detection feature is seller co-occurrence (sigma) -- how many
+ *   distinct auctions of the SAME seller a bidder targets within the window. A
+ *   single auction per run makes sigma degenerate (always 0 or 1). Here a
+ *   PRIMARY seller lists several auctions and a DECOY seller lists one:
+ *     - shill / collusion bid across ALL of the primary seller's auctions
+ *       (high sigma, seller-affiliated),
+ *     - truthful / sniper bid on a single auction each, and a truthful bidder
+ *       may also touch the decoy seller (low sigma per seller, yet "active"),
+ *   so sigma separates seller-affiliated fraud from organic activity instead
+ *   of separating "has bid at all".
  *
- * The sim talks to the live backend — start the server first.
- * ADMIN credentials must be set in env: SIM_ADMIN_EMAIL, SIM_ADMIN_PASSWORD
+ * Each run writes:
+ *   runs/{runId}/events.jsonl   -- one accepted bid per line, ground-truth labelled
+ *   runs/{runId}/manifest.json  -- metadata incl. auctionOwners (auctionId -> sellerId)
+ *
+ * Start the backend first. Usage from repo root: npm run sim:run
+ * Env: SIM_DURATION (sec, default 60), SIM_PRIMARY_AUCTIONS (default 3).
  */
 
 import axios from 'axios';
@@ -23,13 +34,33 @@ import {
   ShillAgent,
   CollusionAgent,
 } from './agents';
+import type { AuctionState } from './agents';
 import type { BidLogEntry, SimRunManifest, AgentType } from './types';
 
 const BASE = process.env.SIM_BACKEND_URL || 'http://localhost:5000/api';
-const DURATION_SEC = parseInt(process.argv[3] || process.env.SIM_DURATION || '60', 10);
+const DURATION_SEC = parseInt(process.env.SIM_DURATION || '60', 10);
+const PRIMARY_AUCTIONS = Math.max(2, parseInt(process.env.SIM_PRIMARY_AUCTIONS || '3', 10));
 const POLL_MS = 500;
+const STARTING_PRICE = 1000;
+const MIN_INCREMENT = 100;
 
 interface UserCred { userId: string; token: string; email: string; }
+
+type AnyAgent = TruthfulAgent | SniperAgent | ShillAgent | CollusionAgent;
+
+interface Participant {
+  cred: UserCred;
+  type: AgentType;
+  isShill: boolean;
+  agent: AnyAgent;
+  partnerId?: string; // collusion only
+}
+
+interface SimAuction {
+  id: string;
+  sellerId: string;
+  participants: Participant[];
+}
 
 async function register(email: string, password: string, name: string): Promise<UserCred> {
   const res = await axios.post(`${BASE}/auth/register`, { email, password, name });
@@ -41,7 +72,7 @@ async function login(email: string, password: string): Promise<UserCred> {
   return { userId: res.data.user.id, token: res.data.token, email };
 }
 
-async function createAuction(token: string, startingPrice: number, durationSec: number): Promise<string> {
+async function createAuction(token: string, durationSec: number): Promise<string> {
   const endTime = new Date(Date.now() + durationSec * 1000).toISOString();
   const res = await axios.post(
     `${BASE}/auctions`,
@@ -49,8 +80,8 @@ async function createAuction(token: string, startingPrice: number, durationSec: 
       title: `Sim Auction ${uuidv4().slice(0, 8)}`,
       description: 'Simulator-generated auction for fraud detection evaluation.',
       type: 'ENGLISH',
-      startingPrice,
-      minIncrement: 100,
+      startingPrice: STARTING_PRICE,
+      minIncrement: MIN_INCREMENT,
       antiSnipingMins: 0,
       endTime,
     },
@@ -59,7 +90,7 @@ async function createAuction(token: string, startingPrice: number, durationSec: 
   return res.data.id as string;
 }
 
-async function getAuctionState(auctionId: string, token: string) {
+async function getAuctionState(auctionId: string, token: string): Promise<AuctionState> {
   const res = await axios.get(`${BASE}/auctions/${auctionId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -70,7 +101,7 @@ async function getAuctionState(auctionId: string, token: string) {
     minIncrement: Number(a.minIncrement),
     endTime: new Date(a.endTime).getTime(),
     status: a.status,
-    topBidderId: a.bids?.[0]?.bidderId ?? null,
+    topBidderId: a.bids?.[0]?.bidderId ?? undefined,
   };
 }
 
@@ -82,7 +113,9 @@ async function placeBid(auctionId: string, amount: number, token: string): Promi
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return true;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
@@ -92,26 +125,26 @@ async function runSimulation() {
   const startedAt = new Date().toISOString();
   const outDir = path.join(process.cwd(), 'packages', 'simulator', 'runs', runId);
   fs.mkdirSync(outDir, { recursive: true });
-
-  console.log(`[Sim] Run ${runId} started — duration ${DURATION_SEC}s`);
-
-  // ── Register agents ──────────────────────────────────────────────────────
   const suffix = runId.slice(0, 8);
-  const adminEmail = process.env.SIM_ADMIN_EMAIL || `sim-admin-${suffix}@ah.test`;
-  const adminPass = process.env.SIM_ADMIN_PASSWORD || `SimAdmin${suffix}!`;
 
-  let admin: UserCred;
-  try {
-    admin = await login(adminEmail, adminPass);
-  } catch {
-    admin = await register(adminEmail, adminPass, `SimAdmin${suffix}`);
-  }
+  console.log(`[Sim] Run ${runId} -- ${PRIMARY_AUCTIONS} primary + 1 decoy auction, ${DURATION_SEC}s`);
 
+  // ── Sellers ────────────────────────────────────────────────────────────────
+  const mkSeller = async (tag: string): Promise<UserCred> => {
+    const email = `sim-${tag}-${suffix}@ah.test`;
+    const pass = `Sim${tag}${suffix}!`;
+    try { return await login(email, pass); } catch { /* fall through to register */ }
+    return register(email, pass, `${tag}_${suffix}`);
+  };
+  const primarySeller = await mkSeller('seller');
+  const decoySeller = await mkSeller('decoy');
+
+  // ── Bidder personas (one user each, reused across the auctions they target) ──
   const makeCred = async (tag: string, idx: number): Promise<UserCred> => {
     const email = `sim-${tag}-${suffix}-${idx}@ah.test`;
     const pass = `Sim${tag}${suffix}!`;
-    try { return await login(email, pass); } catch {}
-    return register(email, pass, `${tag.charAt(0).toUpperCase()}${tag.slice(1)}_${suffix}_${idx}`);
+    try { return await login(email, pass); } catch { /* fall through */ }
+    return register(email, pass, `${tag}_${suffix}_${idx}`);
   };
 
   const [t1, t2, sniper, shill, colA, colB] = await Promise.all([
@@ -123,112 +156,158 @@ async function runSimulation() {
     makeCred('col', 2),
   ]);
 
-  // Also deposit wallet funds for each bidder (respecting the ₹100,000 single deposit limit)
+  // Fund every account (respecting the 100,000 single-deposit cap).
   const deposit = async (cred: UserCred) => {
     for (let i = 0; i < 5; i++) {
       try {
         await axios.post(`${BASE}/wallet/deposit`, { amount: 100000 },
           { headers: { Authorization: `Bearer ${cred.token}` } });
-      } catch (err: any) {
-        console.error(`[Sim] Deposit failed for ${cred.email}:`, err.response?.data?.message || err.message);
+      } catch (err) {
+        const msg = axios.isAxiosError(err) ? err.response?.data?.message ?? err.message : String(err);
+        console.error(`[Sim] Deposit failed for ${cred.email}: ${msg}`);
       }
     }
   };
   await Promise.all([t1, t2, sniper, shill, colA, colB].map(deposit));
 
-  // ── Create auction ───────────────────────────────────────────────────────
-  const startingPrice = 1000;
-  const auctionId = await createAuction(admin.token, startingPrice, DURATION_SEC);
-  console.log(`[Sim] Auction ${auctionId} created`);
-
-  // ── Build agents ─────────────────────────────────────────────────────────
-  const agents: Array<{
-    cred: UserCred;
-    type: AgentType;
-    isShill: boolean;
-    agent: TruthfulAgent | SniperAgent | ShillAgent | CollusionAgent;
-  }> = [
-    { cred: t1,    type: 'truthful',  isShill: false, agent: new TruthfulAgent(startingPrice) },
-    { cred: t2,    type: 'truthful',  isShill: false, agent: new TruthfulAgent(startingPrice) },
-    { cred: sniper, type: 'sniper',   isShill: false, agent: new SniperAgent(startingPrice) },
-    { cred: shill,  type: 'shill',    isShill: true,  agent: new ShillAgent(startingPrice, startingPrice * 3) },
-    { cred: colA,   type: 'collusion',isShill: true,  agent: new CollusionAgent(startingPrice, colB.userId) },
-    { cred: colB,   type: 'collusion',isShill: true,  agent: new CollusionAgent(startingPrice, colA.userId) },
-  ];
-
-  const log: BidLogEntry[] = [];
-  const agentMap: Record<string, { userId: string; agentType: AgentType }> = {};
-  for (const a of agents) {
-    agentMap[a.cred.userId] = { userId: a.cred.userId, agentType: a.type };
+  // ── Create auctions ──────────────────────────────────────────────────────────
+  const primaryIds: string[] = [];
+  for (let i = 0; i < PRIMARY_AUCTIONS; i++) {
+    primaryIds.push(await createAuction(primarySeller.token, DURATION_SEC));
   }
+  const decoyId = await createAuction(decoySeller.token, DURATION_SEC);
+  console.log(`[Sim] Created primary auctions [${primaryIds.map((x) => x.slice(0, 6)).join(', ')}] + decoy ${decoyId.slice(0, 6)}`);
 
-  // ── Main loop ─────────────────────────────────────────────────────────────
+  // ── Targeting: which personas bid on which auction ────────────────────────────
+  // Fraud (shill, collusion) span EVERY primary auction -> high sigma.
+  // Legit (truthful, sniper) touch a single primary each; a truthful bidder
+  // also bids the decoy seller -> "active" but low sigma per seller.
+  const auctions: SimAuction[] = [];
+
+  primaryIds.forEach((id, i) => {
+    const participants: Participant[] = [];
+
+    // Shill: every primary auction of this seller.
+    participants.push({
+      cred: shill, type: 'shill', isShill: true,
+      agent: new ShillAgent(STARTING_PRICE, STARTING_PRICE * 3),
+    });
+
+    // Collusion ring: both members on every primary auction (reciprocity + co-occurrence).
+    participants.push({
+      cred: colA, type: 'collusion', isShill: true, partnerId: colB.userId,
+      agent: new CollusionAgent(STARTING_PRICE, colB.userId),
+    });
+    participants.push({
+      cred: colB, type: 'collusion', isShill: true, partnerId: colA.userId,
+      agent: new CollusionAgent(STARTING_PRICE, colA.userId),
+    });
+
+    // Truthful: t1 on the first auction, t2 on the second (one primary each).
+    if (i === 0) {
+      participants.push({ cred: t1, type: 'truthful', isShill: false, agent: new TruthfulAgent(STARTING_PRICE) });
+    }
+    if (i === 1 % PRIMARY_AUCTIONS) {
+      participants.push({ cred: t2, type: 'truthful', isShill: false, agent: new TruthfulAgent(STARTING_PRICE) });
+    }
+
+    // Sniper: a single primary auction (the last one).
+    if (i === PRIMARY_AUCTIONS - 1) {
+      participants.push({ cred: sniper, type: 'sniper', isShill: false, agent: new SniperAgent(STARTING_PRICE) });
+    }
+
+    auctions.push({ id, sellerId: primarySeller.userId, participants });
+  });
+
+  // Decoy auction (different seller): only truthful bidders -- proves an active
+  // organic bidder can appear on 2 auctions yet keep low sigma PER seller.
+  auctions.push({
+    id: decoyId,
+    sellerId: decoySeller.userId,
+    participants: [
+      { cred: t1, type: 'truthful', isShill: false, agent: new TruthfulAgent(STARTING_PRICE) },
+      { cred: t2, type: 'truthful', isShill: false, agent: new TruthfulAgent(STARTING_PRICE) },
+    ],
+  });
+
+  // ── Manifest scaffolding ──────────────────────────────────────────────────────
+  const agentMap: Record<string, { userId: string; agentType: AgentType }> = {};
+  for (const a of auctions) {
+    for (const p of a.participants) {
+      agentMap[p.cred.userId] = { userId: p.cred.userId, agentType: p.type };
+    }
+  }
+  const auctionOwners: Record<string, string> = {};
+  for (const a of auctions) auctionOwners[a.id] = a.sellerId;
+
+  // ── Main loop ─────────────────────────────────────────────────────────────────
+  const log: BidLogEntry[] = [];
   const endMs = Date.now() + DURATION_SEC * 1000;
+
   while (Date.now() < endMs) {
-    let state;
-    try {
-      state = await getAuctionState(auctionId, admin.token);
-    } catch { await sleep(POLL_MS); continue; }
-    if (state.status === 'ENDED') break;
+    for (const auction of auctions) {
+      let state: AuctionState;
+      try {
+        state = await getAuctionState(auction.id, primarySeller.token);
+      } catch { continue; }
+      if (state.status === 'ENDED') continue;
 
-    for (const ag of agents) {
-      let decision;
-      if (ag.agent instanceof CollusionAgent) {
-        decision = (ag.agent as CollusionAgent).decide(state, ag.cred.userId, state.topBidderId ?? undefined);
-      } else {
-        decision = (ag.agent as any).decide(state, ag.cred.userId);
-      }
+      for (const p of auction.participants) {
+        const decision =
+          p.agent instanceof CollusionAgent
+            ? p.agent.decide(state, p.cred.userId, state.topBidderId)
+            : (p.agent as TruthfulAgent | SniperAgent | ShillAgent).decide(state, p.cred.userId);
 
-      if (decision.shouldBid && decision.amount !== undefined) {
-        const ok = await placeBid(auctionId, decision.amount, ag.cred.token);
-        if (ok) {
-          const entry: BidLogEntry = {
-            ts: Date.now(),
-            auctionId,
-            bidderId: ag.cred.userId,
-            amount: decision.amount,
-            agentType: ag.type,
-            isShill: ag.isShill,
-          };
-          log.push(entry);
-          fs.appendFileSync(path.join(outDir, 'events.jsonl'), JSON.stringify(entry) + '\n');
-          console.log(`[Sim] ${ag.type.padEnd(12)} bid ₹${decision.amount.toLocaleString()} | price=₹${state.currentPrice.toLocaleString()}`);
+        if (decision.shouldBid && decision.amount !== undefined) {
+          const ok = await placeBid(auction.id, decision.amount, p.cred.token);
+          if (ok) {
+            const entry: BidLogEntry = {
+              ts: Date.now(),
+              auctionId: auction.id,
+              bidderId: p.cred.userId,
+              amount: decision.amount,
+              agentType: p.type,
+              isShill: p.isShill,
+            };
+            log.push(entry);
+            fs.appendFileSync(path.join(outDir, 'events.jsonl'), JSON.stringify(entry) + '\n');
+            console.log(
+              `[Sim] ${auction.id.slice(0, 6)} ${p.type.padEnd(10)} bid ${decision.amount} | price=${state.currentPrice}`
+            );
+          }
         }
       }
     }
     await sleep(POLL_MS);
   }
 
-  // ── Write manifest ────────────────────────────────────────────────────────
-  // auctionOwners records the real seller for each auction so the corrected
-  // trainer (train.v2.ts) can compute sellerCoOccurrence against the actual
-  // auction owner instead of a guessed truthful agent. Paper-snapshot
-  // manifests from before 2026-06-02 do not have this field; that is by
-  // design -- preserving them as-is is what keeps the published weights
-  // reproducible.
+  // ── Manifest ────────────────────────────────────────────────────────────────
   const manifest: SimRunManifest = {
     runId,
     startedAt,
     endedAt: new Date().toISOString(),
     config: {
-      auctionCount: 1,
-      agents: agents.map((a) => ({ type: a.type, email: a.cred.email, password: '' })),
+      auctionCount: auctions.length,
+      agents: Object.values(agentMap).map((a) => ({ type: a.agentType, email: '', password: '' })),
       auctionDurationSec: DURATION_SEC,
-      startingPrice,
-      minIncrement: 100,
+      startingPrice: STARTING_PRICE,
+      minIncrement: MIN_INCREMENT,
       backendUrl: BASE,
     },
-    auctionIds: [auctionId],
+    auctionIds: auctions.map((a) => a.id),
     agentMap,
-    auctionOwners: { [auctionId]: admin.userId },
+    auctionOwners,
     totalBids: log.length,
     shillBids: log.filter((b) => b.isShill).length,
   };
   fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
 
-  console.log(`\n[Sim] Done. ${log.length} bids (${manifest.shillBids} shill).`);
+  console.log(`\n[Sim] Done. ${log.length} bids (${manifest.shillBids} shill) across ${auctions.length} auctions.`);
   console.log(`[Sim] Output: ${outDir}`);
   return { runId, outDir, log };
 }
 
-runSimulation().catch(console.error);
+runSimulation().catch((e) => {
+  console.error('[Sim] Run failed:', e instanceof Error ? e.message : e);
+  process.exit(1);
+});
