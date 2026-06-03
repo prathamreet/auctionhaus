@@ -4,7 +4,7 @@
 import { prisma } from '../lib/prisma';
 
 async function main() {
-  console.log('🗑️  Clearing ALL users and EVERYTHING else...');
+  console.log('[clear] Clearing ALL users and EVERYTHING else...');
 
   try {
     // Delete everything in reverse order of dependency
@@ -18,9 +18,9 @@ async function main() {
     await prisma.wallet.deleteMany();
 
     const users = await prisma.user.deleteMany();
-    console.log(`✅ Deleted ${users.count} users and all associated data.`);
+    console.log(`[done] Deleted ${users.count} users and all associated data.`);
   } catch (error) {
-    console.error('❌ Error clearing users:', error);
+    console.error('[fail] Error clearing users:', error);
   }
 }
 

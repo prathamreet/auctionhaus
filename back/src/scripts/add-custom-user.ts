@@ -15,7 +15,7 @@ async function main() {
   const role = 'USER';
   const balance = 100000;
 
-  console.log(`🌱 Adding user: ${email}...`);
+  console.log(`[seed] Adding user: ${email}...`);
   const hashedPassword = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.upsert({
@@ -33,7 +33,7 @@ async function main() {
     }
   });
 
-  console.log(`✅ User ${user.email} is ready. (ID: ${user.id})`);
+  console.log(`[ok] User ${user.email} is ready. (ID: ${user.id})`);
 }
 
 main()

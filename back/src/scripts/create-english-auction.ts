@@ -17,7 +17,7 @@ async function main() {
   const sellerEmail = 'hoster@x.com';
   const seller = await prisma.user.findUnique({ where: { email: sellerEmail } });
   if (!seller) {
-    console.error(`❌ Error: User ${sellerEmail} not found. Please run add-custom-user.ts first.`);
+    console.error(`[fail] User ${sellerEmail} not found. Run npm run db:seed-users first.`);
     return;
   }
 
@@ -39,7 +39,7 @@ async function main() {
     }
   });
 
-  console.log(`✅ Created English Auction: "${auction.title}" (ID: ${auction.id})`);
+  console.log(`[ok] Created English Auction: "${auction.title}" (ID: ${auction.id})`);
 }
 
 main()

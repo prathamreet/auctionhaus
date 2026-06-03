@@ -8,7 +8,7 @@ import { prisma } from '../lib/prisma';
 import { AuctionStatus, AuctionType } from '@prisma/client';
 
 async function main() {
-  console.log('🏁 Setting up Benchmark state in database...');
+  console.log('[bench] Setting up Benchmark state in database...');
 
   const secret = process.env.JWT_SECRET || 'auctionhaus_super_secret_jwt_key_for_dev_only';
 
@@ -87,7 +87,7 @@ async function main() {
 
   console.log(`+ Created active ENGLISH auction (ID: ${auction.id})`);
   console.log(`\n======================================================================`);
-  console.log(`🚀 READY FOR BENCHMARK!`);
+  console.log(`READY FOR BENCHMARK`);
   console.log(`======================================================================`);
   console.log(`Run the following k6 commands in your terminal to collect the metrics:`);
   console.log(`\n--- 1. Direct mode (PostgreSQL locked transaction) ---`);
@@ -104,7 +104,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ Setup failed:', e);
+    console.error('[fail] Setup failed:', e);
     process.exit(1);
   })
   .finally(async () => {
