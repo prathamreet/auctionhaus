@@ -9,6 +9,8 @@ router.use(authenticate, requireAdmin);
 
 router.get('/flags', fraudController.getFraudFlags);
 router.get('/stats', fraudController.getFraudStats);
+router.get('/perf', fraudController.getFraudPerf);
+router.post('/perf/reset', fraudController.resetFraudPerf);
 router.put('/flags/:id/dismiss', fraudController.dismissFlag);
 
 export default router;

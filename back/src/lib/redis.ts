@@ -11,7 +11,7 @@ const handleRedisError = (name: string) => {
   let logged = false;
   return (err: Error) => {
     if (!logged) {
-      console.warn(`⚠️ [${name}] Redis connection error: ${err.message}. Real-time features may be degraded.`);
+      console.warn(`[warn] [${name}] Redis connection error: ${err.message}. Real-time features may be degraded.`);
       logged = true;
     }
   };
