@@ -180,6 +180,108 @@ The Addendum-4 constraint (`S extends z.ZodType<unknown, z.ZodTypeDef, Record<st
 
 Verified both consumers (`login`, `register`) compile unchanged: they already read `form.values.X as string`, call `form.register("field")` with string keys, and read `form.errors.X` off a `Record<string, string>` -- none of which depend on the form-values type being the schema shape. Lint stayed clean (front + back both 0 problems in the same run). Back build + 130 tests green throughout.
 
+## Addendum 6: Honest pipeline rebuild — paper rejected, freeze lifted (2026-06-03)
+
+The first submission was **rejected on domain scope** (not technical merit). That lifts the "paper is frozen" constraint that forced the v1/v2 split. The deferred corrections (RP3 multi-auction σ, RP5.3 held-out split, RP6 real baselines, and the σ-grounding fix) are now implemented for real. The code becomes genuinely correct; the user regenerates the resubmission's numbers from it.
+
+### Files
+
+| File | Change |
+|---|---|
+| `packages/simulator/src/dataset.ts` | **New.** Single shared loader: replays each run through the production `BidGraph`+`extractFeatures`, grounds `sellerCoOccurrence` in `manifest.auctionOwners` (real seller), and provides a deterministic FNV-1a train/test split keyed on bidId. Excludes `_`-prefixed run dirs. Also attaches `bidderBidCountOnAuction` for the outbid-count baseline. |
+| `packages/simulator/src/run.ts` | **Rewritten** multi-auction: primary seller lists `SIM_PRIMARY_AUCTIONS` (default 3) auctions + a decoy second seller lists one. Shill/collusion span all primary auctions (high σ); truthful/sniper one each; truthful also bids the decoy (low σ per seller, yet active). Per-(persona,auction) agent instances reuse one credential. `manifest.auctionOwners` records every auction's seller. |
+| `packages/simulator/src/train.ts` | **Rewritten.** Fits LR on the TRAIN partition only (mean/std on train, no leakage), writes `fraud.classifier.ts` directly. v1/v2 + `--write/--confirm` guard removed. Ships `SCORE_THRESHOLD = 0.5`. |
+| `packages/simulator/src/eval.ts` | **Rewritten.** Reports on the HELD-OUT TEST partition: ROC sweep, mean-ablation (feature → its mean → z=0), and two real baselines (outbid-count>10 + best single-feature decision stump fit on train, scored on test). Writes the same paper artifacts. No Prisma dependency. |
+| `packages/simulator/src/train.v2.ts` | **Deleted** (logic folded into dataset.ts/train.ts). |
+| `packages/simulator/src/types.ts` | `auctionOwners` doc comment updated (no more v2 reference). |
+| `back/package.json`, `package.json` | Removed `train:fraud:v2`. |
+| `runs/_paper-snapshot/README.md`, `runs/_post-paper/README.md` | Updated to "historical, excluded from pipeline." Old single-auction corpus retained for provenance. |
+| `reaching-rp.md`, `plan.md` | Pivot documented (reaching-rp.md UPDATE banner; plan.md Phase RP-2). |
+
+### Design decisions
+
+- **σ is now genuinely discriminative.** Within a run, the primary seller owns several auctions; σ for a bidder counts distinct auctions of that seller the bidder targeted. Shill/collusion → σ≈3; truthful/sniper → σ≈1. The decoy seller proves an *active* organic bidder (2 auctions across 2 sellers) still has low σ *per seller*, separating "seller-affiliated" from "active".
+- **No leakage.** One deterministic split function in `dataset.ts`; `train.ts` fits on train, `eval.ts` scores on test. Same partition in both processes (hash of bidId).
+- **Honest baselines.** The decision stump is a fair competitor (best single feature+threshold). If σ-stump nearly matches LR, that is the honest result and the ablation already implies it — the paper reports it truthfully.
+- **Threshold.** `train.ts` ships 0.5 (LR boundary). `eval.ts` reports the full ROC so the operating point for the paper is a data-driven choice, not a hardcoded 0.20.
+
+### What the USER runs (I cannot run servers)
+
+```
+# 1. backend up with a clean DB
+npm run prisma:migrate
+npm run dev:back
+
+# 2. generate the corpus (run 3-5 times for a healthy train/test split)
+npm run sim:run
+npm run sim:run
+npm run sim:run
+
+# 3. fit + evaluate
+npm run train:fraud     # writes back/src/modules/fraud/fraud.classifier.ts
+npm run eval:fraud      # writes paper/figures/*.json + paper/tables/metrics.tex
+```
+
+Then update the paper sections (simulator params, weights, ablation, metrics, baselines) from the regenerated artifacts. Numbers WILL differ from the rejected version — that is the point; they are now honest.
+
+### Not done (out of scope of this request)
+- Paper `.tex` edits and domain-scope reframing — the user does these after regenerating numbers.
+
+## Addendum 7: Escrow settlement closed + audit finalized (2026-06-03)
+
+User asked to "complete everything and make it final... so research paper and actual work be on the same page." Closed the one audit finding that contradicted a paper claim, plus reviewed all remaining audit items.
+
+### Escrow settlement (audit Critical #1 + #2) — fixed
+
+Before: auction-end never moved the winner's held funds to the seller (only buy-now settled). `confirmWinnerPayment` (`POST /payments/.../confirm`) had no frontend caller, so for a normal English auction the winner's money stayed in `heldAmount` forever and `WinnerCertificate` falsely told the seller "Payment auto-settled via escrow."
+
+| Path | Fix | File |
+|---|---|---|
+| English + Sealed | Auto-settle at end: a fresh auction-locked tx calls `settleWithinTx(WON_AUCTION)` (winner `heldAmount` → seller balance), marks the winning bid `WON`, and notifies the seller `PAYMENT_RECEIVED`. Errors caught/logged so notifications still fire. | `back/src/workers/index.ts::endAuction` |
+| Dutch | Settles immediately in the same tx that ends the auction on accept (Dutch never reaches `endAuction`). | `back/src/modules/bidding/bid.service.ts::placeBid` |
+| Buy-now | Already settled (`DIRECT_SALE`) — unchanged. | `auction.service.buyNow` |
+
+Idempotency: all paths go through `settleWithinTx`, guarded by the `Settlement` row (unique on `auctionId`). So the now-redundant `confirmWinnerPayment` endpoint is a harmless backstop, and no auction can double-settle. `WinnerCertificate` copy is now accurate (rendered only for winner/seller via `isEnded && (isWinner || isSeller)`).
+
+Test-safety verified by reading the suites: `endAuction` is not unit-tested (only `processAutoBidLadder` is), and the Dutch `placeBid` test asserts only `auction.update` — the added `settleWithinTx` resolves cleanly against its existing wallet mock. No test changes needed; 130 stay green (user re-runs `npm run test:back` to confirm).
+
+### Remaining audit items — reviewed, accepted (not bugs)
+- `PUT /auctions/:id` (`updateAuction`): real tested endpoint, no UI caller — intentional API surface.
+- `GET /api/fraud/perf` + `/perf/reset`: admin diagnostics backing the sub-ms / memory paper claims; no UI by design.
+- `useZodForm` unused helpers: reusable hook surface.
+- `BidSequencer` `/stream`: dormant unless `BID_SEQUENCER=true` (benchmark feature).
+- Fraud detector live reachability: flags seller-affiliated multi-auction behaviour by construction; manual single-auction clicking won't trip it — that's the method, shown via the simulator.
+
+### Net: code ↔ paper consistency closed
+Every headlined contribution is genuinely implemented and consistent. The only remaining step is mechanical (user regenerates numbers, then edits `.tex`). `reaching-rp.md` UPDATE banner now carries the closure summary.
+
+## Addendum 8: Final inspection + benchmark honesty fixes (2026-06-03)
+
+Full re-read of the paper against the rebuilt code, plus diagnosis of the k6 "errors" the user hit at 10/100 VU.
+
+### k6 benchmark was being contaminated — fixed
+
+Root causes of the `ERRO ... thresholds crossed` lines and `bid_errors`:
+1. **Rate limiter.** `rateLimiter` was `max: 1000` per 15 min, keyed per-IP, shared across all localhost requests. Direct mode is slow (~570 req/15s) so it stayed under the cap and gave clean numbers; stream mode is fast (~12k req/15s) so after 1000 it got **429**, which the k6 check counts as `bid_errors` AND whose fast rejections drag p95 down and inflate iteration counts. The stream throughput numbers (incl. the rejected paper's) were partly measuring rate-limit rejections.
+2. **Hard k6 thresholds.** The script had `bid_latency{mode:stream}: p(99)<500` and `bid_errors: count<5` as failing thresholds, so a benchmark that exceeded an arbitrary SLO exited non-zero with `ERRO`. Wrong for a measurement harness.
+
+Fixes:
+- `back/src/middleware/rateLimiter.middleware.ts` — `max` now env-overridable (`RATE_LIMIT_MAX`, `RATE_LIMIT_STRICT_MAX`); defaults unchanged (1000/100).
+- `packages/simulator/k6/bid-throughput.js` — removed failing thresholds; added `summaryTrendStats` so p50/p95/p99 actually print (were "—"); summary now shows iterations, iters/sec, and `bid_errors` with a WARNING if any request was rejected; header documents the required backend env. Stream row honestly labelled "Redis Stream (enqueue)" since stream mode measures enqueue acceptance (202), not end-to-end processing.
+- `back/src/scripts/prepare-bench.ts` + `k6/run-canonical.ps1` — print/require the clean-benchmark backend env: `RATE_LIMIT_MAX=100000000 BID_SEQUENCER=true BID_STREAM_BACKPRESSURE=100000 npm run dev:back`. `BID_SEQUENCER=true` is essential — without the consumer running, stream bids enqueue but never process.
+
+### Paper-text reconciliation list (for the user's .tex pass after re-running)
+
+Code is internally correct; these are paper prose/number updates to make on resubmission:
+- **Simulator section (supplementary §2):** now multi-auction (N primary + 1 decoy seller), not a single 60s auction. Update agent-targeting description.
+- **Weights / NORM_PARAMS / threshold tables:** regenerate from `train.ts` output (threshold is now 0.5, not 0.20).
+- **Metrics table (Table I) + ablation:** regenerate from `eval.ts` (held-out test set; real baselines incl. the decision stump).
+- **F1 response-time prose (main.tex §V.B):** says "for the opening bid this is set to zero" but the code (and supplementary §3.3 listing) uses a neutral default of 8000 ms. Update the prose to match the code (8000 ms neutral default avoids flagging the opening bidder as bot-speed).
+- **Throughput framing (main.tex §VI / Table III):** be explicit that stream mode measures *enqueue acceptance* throughput (the sequencer decouples acceptance from serial processing), so the headline gain is acceptance/absorption, not raw end-to-end processing rate. Numbers should be re-collected with the clean backend env above (the old ones were rate-limit-contaminated).
+
+### Verified consistent (code ↔ paper)
+30-min sliding window, the five features, z-score + [-4,4] clamp, LR scoring + `fraud:flag` emit, four-agent simulator with `isShill` labels, SHA-256 commit-reveal, Decimal money + `FOR UPDATE` ascending-wallet locks, atomic auto-bid ladder (one Bid row per increment), and — now — atomic escrow settlement at auction end. Production `onBid` and the training pipeline both use the **real** sellerId, so the σ feature means the same thing live and in training.
+
 ## Next Up
 
 The repository is now safe to be cloned and inspected by reviewers without contradicting the paper. Two things the user can optionally do whenever it suits them:

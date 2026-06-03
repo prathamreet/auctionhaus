@@ -30,7 +30,6 @@
     "db:reset-auctions": "npm run db:clear-auctions --workspace=back",
     "sim:run": "npm run sim:run --workspace=back",
     "train:fraud": "npm run train:fraud --workspace=back",
-    "train:fraud:v2": "npm run train:fraud:v2 --workspace=back",
     "eval:fraud": "npm run eval:fraud --workspace=back",
     "postinstall": "npm run prisma:generate"
   },

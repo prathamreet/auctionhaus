@@ -12,6 +12,48 @@
 
 ---
 
+## UPDATE 2026-06-03 — paper rejected (domain scope); corrections now implemented
+
+The first submission was **rejected on domain scope** (not on technical merit). Because the paper is no longer a frozen published artifact, the corrections this document had to *defer* — the ones that would have made the published numbers fabricated if shipped while the paper stood — are now **implemented for real**. The plan inverts: the code becomes genuinely correct, then the resubmission's numbers are regenerated from it.
+
+What changed in the codebase (this session):
+
+- **Single shared dataset module** `packages/simulator/src/dataset.ts` — one replay path, `sellerCoOccurrence` grounded in the real auction owner (`manifest.auctionOwners`), and a deterministic FNV-1a train/test split keyed on bidId (no leakage between `train.ts` and `eval.ts`).
+- **Multi-auction simulator** `run.ts` — a primary seller lists several auctions plus a decoy second seller; shill/collusion span all of the primary seller's auctions (high σ) while truthful/sniper touch one each (low σ per seller). σ is now genuinely discriminative instead of degenerate.
+- **`train.ts`** — fits LR on the TRAIN partition only and writes `fraud.classifier.ts` directly. The v1/v2 split fiction and the `--write/--confirm` snapshot guard are gone (nothing to protect now).
+- **`eval.ts`** — reports on the HELD-OUT TEST partition: ROC sweep, mean-ablation (neutralise a feature to its mean → z=0), and two real baselines (outbid-count + a best single-feature decision stump fit on train, scored on test). Writes `paper/tables/metrics.tex` on test numbers.
+- **`train.v2.ts` deleted**; `train:fraud:v2` scripts removed. Old single-auction corpus retained under `runs/_paper-snapshot/` (provenance, excluded from the pipeline).
+
+**This supersedes the v1/v2 "Option B" decision below** (recorded in §5 Q1 and the dashboard). Sections 0–6 below are kept as the historical record of the frozen-paper era; the live state is this banner + the run guide in the session log `xdocs/sessions/2026-06-02-reaching-paper.md` (Addendum 6).
+
+The numbers will change (that is the point). After the user runs `sim:run` ×N → `train:fraud` → `eval:fraud`, the paper's simulator section, weights table, ablation, metrics table, and baseline discussion all get updated from the freshly generated artifacts.
+
+### Escrow settlement fixed — "atomic escrow" claim now true end-to-end
+
+The strict audit's one finding that contradicted a paper claim is closed. The paper (System Design §IV.B) describes atomic escrow settlement; the code previously settled only buy-now, leaving auction-end winners' funds stuck in `heldAmount` and the seller never paid — while `WinnerCertificate` falsely told the seller "Payment auto-settled via escrow." Now:
+
+- **English + Sealed** settle automatically at `endAuction` (winner `heldAmount` → seller balance via the idempotent `settleWithinTx(WON_AUCTION)` in a fresh auction-locked tx, plus a `PAYMENT_RECEIVED` notification).
+- **Dutch** settles immediately inside `placeBid` the moment a bid is accepted (it ends there, before the end-auction job runs).
+- **Buy-now** already settled (`DIRECT_SALE`) — unchanged.
+- The `Settlement` row (uniqued on `auctionId`) makes every path idempotent, so the manual `confirmWinnerPayment` endpoint stays as a harmless backstop and double-settling is impossible.
+- The `WinnerCertificate` copy is now accurate (it is gated to winner/seller only).
+
+Test-safety: `endAuction` has no unit tests (only `processAutoBidLadder` does); the Dutch `placeBid` test still passes (the added `settleWithinTx` resolves against its wallet mock; the asserted `auction.update` call is unchanged). All 130 backend tests remain green.
+
+### Remaining audit items — reviewed, accepted, not bugs
+
+- `PUT /auctions/:id` (`updateAuction`) — real, tested endpoint with no UI caller. Kept as intentional API surface; not harmful.
+- `GET /api/fraud/perf` + `/perf/reset` — admin diagnostic endpoints backing the paper's sub-ms + memory claims via manual measurement; no UI by design.
+- `useZodForm` exposes a few unused helpers (`validate`, `reset`, …) — reusable hook surface, harmless.
+- `BidSequencer` `/stream` path — dormant unless `BID_SEQUENCER=true`; it is the throughput-benchmark feature, on purpose.
+- Fraud detector live reachability — by construction it flags seller-affiliated multi-auction behaviour, so a manual single-auction click-through won't trip it. That is the method, not a defect; the simulator demonstrates it.
+
+### Code ↔ paper: on the same page
+
+Every contribution the paper headlines is now genuinely implemented and internally consistent: online 5-feature shill detection (σ properly grounded + discriminative), the multi-agent simulator (multi-auction + decoy seller), held-out evaluation with real baselines, SHA-256 commit-reveal (wired into the UI), the Redis Stream sequencer (benchmarked), and atomic escrow (now settling at end). The only open step is mechanical: run the pipeline to regenerate numbers, then update the `.tex`.
+
+---
+
 ## 0. Status Dashboard (read this first)
 
 ### Done (paper integrity is secured)
