@@ -112,6 +112,74 @@ Nothing to do here. The existing wiring already handles all the demo-relevant ca
 - No schema migrations.
 - No socket protocol changes.
 
+## Addendum 2: Toolchain & Build Fixes (same day)
+
+The user ran the full monorepo command matrix and hit several failures. Fixed all of them plus made the monorepo scripts easier.
+
+| # | Symptom | Root cause | Fix |
+|---|---|---|---|
+| TC1 | `npm run prisma:migrate` -> `Environment variable not found: DATABASE_URL` | Root script ran `npx prisma migrate dev --schema=back/prisma/schema.prisma` from the repo root, so Prisma never loaded `back/.env`. (`generate` worked only because it does not need the URL.) | Root `prisma:generate` / `prisma:migrate` / `prisma:studio` now delegate to the back workspace (`npm run ... --workspace=back`), which runs with `cwd=back` and loads `back/.env`. |
+| TC2 | `npm run lint:front` -> `Missing script` | Root only had `lint:back`. | Added `lint:front` and a combined `lint` (back then front). `ci:local` now runs the combined `lint`. |
+| TC3 | `npm run build:front` -> TS error: `Property 'style' does not exist` on `Field` | `CommitmentPanel.tsx` passed `style` to the `Field` primitive, which did not accept it. | Added optional `style?: React.CSSProperties` and `className?: string` to `front/src/components/ui/Field.tsx`, applied to its root div. |
+| TC4 | `npm run lint:back` -> 1 error `no-useless-assignment` in `generate-docs.ts:286` | `let fn = '';` then every branch reassigns or `continue`s, so the init was dead. | Changed to `let fn: string;` (definite assignment holds because the else branch continues). |
+| TC5 | lint warning: `any` in `auction.service.ts:226` | `userWallets: Record<string, any>` | Narrowed to `Record<string, { id: string }>` (only `.id` is used downstream). |
+| TC6 | lint warnings in `bid.sequencer.ts` (`any` at 165, unused `workerName` at 189) | `(redis as any).xreadgroup` cast and an unused param. | Added a module-level `XReadGroupReply` type; bound `redis.xreadgroup` once per consume loop via a typed `as unknown as (...) =>` cast; removed the unused `workerName` param from `processEntry` and its call site. |
+| TC7 | lint warning: unused `io` import in `notification.service.test.ts:5` | The `jest.mock` factory provides `io`; the top-level import binding was unused. | Removed the unused `import { io }` (the mock is unaffected). |
+| TC8 | Next.js 16 build warning: `The "middleware" file convention is deprecated. Please use "proxy" instead.` | Next 16 renamed the edge `middleware` convention to `proxy`. | Renamed `front/src/middleware.ts` -> `front/src/proxy.ts`, exported function `middleware` -> `proxy`; `config.matcher` unchanged. Updated stale "middleware" comments in `authStore.ts`. Client-side route guards remain as a backstop. |
+
+### Monorepo command ergonomics
+
+Root `package.json` now exposes:
+- `build` (back then front), `lint` (back then front), `lint:front` (new).
+- `prisma:generate` / `prisma:migrate` / `prisma:studio` all delegate to the back workspace so `back/.env` always loads.
+- `db:seed` (users only), `db:seed-demo` (users + one ACTIVE auction of each type owned by hoster@x.com), `db:reset-auctions`.
+
+New one-shot seeder `back/src/scripts/seed-demo.ts` (`npm run db:seed-demo` from root): idempotent, creates the five demo accounts (all password `123123`, funded wallets) and one English + one Dutch + one Sealed auction owned by `hoster@x.com`, skipping anything that already exists. This makes the review setup a single command.
+
+### Tests
+`npm run test` was already green (27 suites / 130 tests). The TC5-TC7 changes are type/lint-only and do not alter runtime behaviour; the notification test's removed import is non-functional (the mock stays).
+
+## Addendum 3: Front Build + React 19 / Next 16 Lint (same day)
+
+A second toolchain pass after the user ran `build:front` and `lint`. The front build was blocked by a Zod typing change, and `eslint-config-next` 16 turned on the React-Compiler hook rules (`react-hooks/purity`, `react-hooks/refs`, `react-hooks/set-state-in-effect`) as errors. Fixed every one properly -- no rule suppression, no config downgrade.
+
+| # | Symptom | Fix |
+|---|---|---|
+| FB1 | `build:front` TS error: `Property 'errors' does not exist on type 'ZodError'` (`contracts.ts:132`) | Zod 3.22+ dropped the `.errors` alias; `zodIssuesToErrors` now reads `err.issues ?? []`. |
+| FB2 | `react-hooks/purity` error: `Date.now()` in render (`Countdown.tsx:52`) | Replaced the `useReducer` force-tick with a `now` state advanced by the interval (`setNow(Date.now())` in the callback); render derives `diff = endTime - now`. |
+| FB3 | `react-hooks/purity` error: `Date.now()` in render (`auctions/page.tsx:230`, AuctionCard) | Catalogue cards do not tick; snapshot the clock once with `useState(() => Date.now())`. |
+| FB4 | `react-hooks/refs` error: ref written in render (`LiveTicker.tsx:75`) | Moved `hoveredRef.current = hovered` into a `useEffect([hovered])`; the ref is only read in the post-commit interval callback so it is always current. |
+| FB5 | `react-hooks/set-state-in-effect` x2 (`Navbar.tsx:32,56`) | Removed both effect setStates. The unread badge only renders while `user` is truthy, so no logout reset is needed (just `return`); the visit-to-/notifications reset moved to an `onClick={() => setUnread(0)}` on the Alerts link (event-driven, allowed). |
+| FB6 | `react-hooks/set-state-in-effect` (`useSocketListener.ts:43`) | Removed the redundant re-sync `setState`; the lazy `useState` initializer captures the mount state and the four listeners carry every transition. |
+| FB7 | Unused imports: `CardBody` (admin/fraud, wallet), `CardHeader` (wallet), `EmptyState` (dashboard) | Removed from the import lists. |
+| FB8 | Unused var `contested` (`AutoBidHealth.tsx:59`) | Removed; the third state is the fall-through warning tone, now documented in the comment. |
+| FB9 | 3 unused `eslint-disable react-hooks/exhaustive-deps` directives (`useSocketListener.ts`) | The rule no longer fires (handlers are read through refs), so the dead directives were replaced with plain explanatory comments. |
+
+Also added root `test:front` (`npm run test --workspace=front --if-present`) so the command the user tried exists and exits cleanly (front has no jest suite).
+
+**Note on the lazy-initializer pattern (FB2/FB3):** `useState(() => Date.now())` is React's sanctioned escape hatch for reading the clock once during render and the purity rule permits initializers. If a future lint run still flags it, the fallback is an effect-set `now` with a sensible initial value.
+
+## Addendum 4: Second front build + refs round (same day)
+
+The previous round cleared the first wave; a re-run surfaced two more root causes. Both fixed at the root, and the whole frontend was swept for the same patterns to stop the recurring cycle.
+
+| # | Symptom | Root cause + fix |
+|---|---|---|
+| FC1 | `build:front` TS error: `Spread types may only be created from object types` (`useZodForm.ts:30`) | The generic was `S extends z.ZodTypeAny`, so TS could not see that `z.input<S>` is an object, and `{ ...p }` over the form values failed. Constrained it to `S extends z.ZodType<unknown, z.ZodTypeDef, Record<string, unknown>>`. Inside the hook the values are now a spreadable object; at the call site inference still resolves the precise shape, so `form.values.email` etc. keep their exact types. Verified both consumers (`login`, `register`) use plain `z.object` schemas that satisfy the constraint. |
+| FC2 | `react-hooks/refs` x6: `xRef.current = y` written during render in all three socket hooks (`useSocketListener.ts:74,76,107,109,150,152`) | The "store latest callback in a ref" pattern writes the ref in the render body, which the React Compiler rule forbids. Moved each hook's ref writes into an unkeyed `useEffect(() => { ... })` that runs after every commit. The refs are only read inside socket callbacks (which fire post-commit), and `useRef(handler)` already seeds the correct value at mount, so the latest-handler guarantee is unchanged. |
+
+**Frontend-wide sweep (to break the recurring cycle):**
+- `.current =` writes: only in `useSocketListener.ts` (now all in effects) and `LiveTicker.tsx` (already in an effect from Addendum 3). Zero render-phase ref writes remain.
+- `Date.now()` / `new Date()`: all remaining occurrences are inside `useState` lazy initializers, effects, socket-event callbacks, Zod refinements, or submit/validate handlers -- none in a render body. Confirmed against the lint output (none were ever flagged outside the two already fixed).
+
+## Addendum 5: Zod-4 generics in useZodForm (same day)
+
+The Addendum-4 constraint (`S extends z.ZodType<unknown, z.ZodTypeDef, Record<string, unknown>>`) was wrong for the installed Zod. `zod@^3.22.4` resolves to 3.25.x, which ships the new Zod-4-style core: `z.object()` returns `ZodObject<..., $strip>` with a `_zod: $ZodObjectInternals` internal. My three-param `z.ZodType<...>` constraint matched `Record<string, unknown>` against that internals slot, so `loginSchema` no longer satisfied the constraint -> `build:front` failed at `login/page.tsx:19`.
+
+**Root-cause fix (version-independent):** stopped constraining via Zod's internal generics. `useZodForm` is back to `S extends z.ZodTypeAny`, and the form's internal state is typed as a plain `Values = Record<string, unknown>` -- so every spread (`{ ...p }`) and index (`values[name]`) is well-typed no matter how Zod represents a schema's input. Zod types are used only at the boundaries: `initial: z.input<S>` (call-site checked) and `Output = z.output<S>` (the parsed data handed to `onSubmit`/`validate`). The `initial` casts go through `as unknown as Values` so they compile whatever `z.input<S>` resolves to.
+
+Verified both consumers (`login`, `register`) compile unchanged: they already read `form.values.X as string`, call `form.register("field")` with string keys, and read `form.errors.X` off a `Record<string, string>` -- none of which depend on the form-values type being the schema shape. Lint stayed clean (front + back both 0 problems in the same run). Back build + 130 tests green throughout.
+
 ## Next Up
 
 The repository is now safe to be cloned and inspected by reviewers without contradicting the paper. Two things the user can optionally do whenever it suits them:
