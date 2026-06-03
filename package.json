@@ -23,6 +23,7 @@
     "prisma:studio": "npx prisma studio --schema=back/prisma/schema.prisma",
     "sim:run": "npm run sim:run --workspace=back",
     "train:fraud": "npm run train:fraud --workspace=back",
+    "train:fraud:v2": "npm run train:fraud:v2 --workspace=back",
     "eval:fraud": "npm run eval:fraud --workspace=back",
     "postinstall": "npm run prisma:generate"
   },

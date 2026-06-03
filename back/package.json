@@ -17,6 +17,7 @@
     "docs:generate": "ts-node src/scripts/generate-docs.ts",
     "sim:run": "ts-node ../packages/simulator/src/run.ts",
     "train:fraud": "ts-node ../packages/simulator/src/train.ts",
+    "train:fraud:v2": "ts-node ../packages/simulator/src/train.v2.ts",
     "eval:fraud": "ts-node ../packages/simulator/src/eval.ts",
     "lint": "eslint src",
     "test": "jest",
