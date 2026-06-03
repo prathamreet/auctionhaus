@@ -26,19 +26,18 @@ export default function Navbar() {
 
   const isAdmin = user?.role === "ADMIN";
 
-  // Fetch unread once on login; socket keeps it live
+  // Fetch unread once on login; socket keeps it live. The badge is only
+  // rendered while `user` is truthy, so there is no need to reset it to 0 on
+  // logout -- the count simply stops being shown.
   useEffect(() => {
-    if (!user) {
-      setUnread(0);
-      return;
-    }
+    if (!user) return;
     api
       .get("/notifications?limit=1")
       .then((r) => setUnread(r.data.unreadCount ?? 0))
       .catch(() => {});
   }, [user, user?.id]);
 
-  // Live new-notification: bump badge (unless on /notifications)
+  // Live new-notification: bump badge (unless already viewing /notifications)
   useSocketListener(
     "notification:new",
     () => {
@@ -49,13 +48,6 @@ export default function Navbar() {
     },
     !!user
   );
-
-  // Reset badge when visiting /notifications
-  useEffect(() => {
-    if (pathname === "/notifications" && unread !== 0) {
-      setUnread(0);
-    }
-  }, [pathname, unread]);
 
   return (
     <nav
@@ -135,6 +127,7 @@ export default function Navbar() {
               <Link
                 href="/notifications"
                 aria-label="Notifications"
+                onClick={() => setUnread(0)}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
