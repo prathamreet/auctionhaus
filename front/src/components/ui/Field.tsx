@@ -6,15 +6,19 @@ export function Field({
   error,
   children,
   htmlFor,
+  style,
+  className,
 }: {
   label?: React.ReactNode;
   hint?: React.ReactNode;
   error?: string | null;
   children: React.ReactNode;
   htmlFor?: string;
+  style?: React.CSSProperties;
+  className?: string;
 }) {
   return (
-    <div>
+    <div style={style} className={className}>
       {(label || hint) && (
         <div
           style={{
