@@ -41,6 +41,16 @@ export interface SimRunManifest {
   config: SimulationConfig;
   auctionIds: string[];
   agentMap: Record<string, { userId: string; agentType: AgentType }>;
+  /**
+   * auctionId -> sellerUserId. Added post-submission to support train.v2.ts
+   * (the corrected trainer that resolves seller co-occurrence against the
+   * real auction owner instead of the manifest's first truthful agent).
+   *
+   * Paper-snapshot manifests written before 2026-06-02 do not have this field;
+   * the corrected pipeline skips runs missing it (with a console warning)
+   * rather than silently picking a fake seller.
+   */
+  auctionOwners?: Record<string, string>;
   totalBids: number;
   shillBids: number;
 }

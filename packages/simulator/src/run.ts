@@ -200,6 +200,12 @@ async function runSimulation() {
   }
 
   // ── Write manifest ────────────────────────────────────────────────────────
+  // auctionOwners records the real seller for each auction so the corrected
+  // trainer (train.v2.ts) can compute sellerCoOccurrence against the actual
+  // auction owner instead of a guessed truthful agent. Paper-snapshot
+  // manifests from before 2026-06-02 do not have this field; that is by
+  // design -- preserving them as-is is what keeps the published weights
+  // reproducible.
   const manifest: SimRunManifest = {
     runId,
     startedAt,
@@ -214,6 +220,7 @@ async function runSimulation() {
     },
     auctionIds: [auctionId],
     agentMap,
+    auctionOwners: { [auctionId]: admin.userId },
     totalBids: log.length,
     shillBids: log.filter((b) => b.isShill).length,
   };

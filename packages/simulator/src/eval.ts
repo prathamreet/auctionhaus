@@ -41,11 +41,25 @@ const FIGURES_DIR = path.join(PAPER_DIR, 'figures');
 const TABLES_DIR = path.join(PAPER_DIR, 'tables');
 
 if (!RUN_DIR) {
-  const runsDir = path.join(process.cwd(), 'packages', 'simulator', 'runs');
-  if (fs.existsSync(runsDir)) {
+  // Prefer the preserved paper-snapshot corpus when present, so the published
+  // metrics (paper/main.tex Table I, supplementary.tex sec. 5) reproduce by
+  // default. Falls back to the parent runs/ folder if the snapshot is missing
+  // (fresh checkout, or future work where the snapshot has been removed).
+  const rootRel = process.cwd().endsWith('back')
+    ? path.join(process.cwd(), '..')
+    : process.cwd();
+  const snapshotDir = path.join(rootRel, 'back', 'packages', 'simulator', 'runs', '_paper-snapshot');
+  const flatDir = path.join(process.cwd(), 'packages', 'simulator', 'runs');
+  const candidateRoots = [snapshotDir, flatDir].filter((p) => fs.existsSync(p));
+
+  for (const runsDir of candidateRoots) {
     const runDirs = fs.readdirSync(runsDir).filter((name) => {
       const p = path.join(runsDir, name);
-      return fs.statSync(p).isDirectory() && fs.existsSync(path.join(p, 'events.jsonl'));
+      return (
+        fs.statSync(p).isDirectory() &&
+        !name.startsWith('_') &&
+        fs.existsSync(path.join(p, 'events.jsonl'))
+      );
     });
     if (runDirs.length > 0) {
       runDirs.sort((a, b) => {
@@ -54,7 +68,9 @@ if (!RUN_DIR) {
         return statB.mtimeMs - statA.mtimeMs;
       });
       RUN_DIR = path.join(runsDir, runDirs[0]);
-      console.log(`[Eval] SIM_RUN_DIR not set. Automatically resolved latest simulation run: ${RUN_DIR}`);
+      const source = runsDir.endsWith('_paper-snapshot') ? 'paper snapshot' : 'flat runs/';
+      console.log(`[Eval] SIM_RUN_DIR not set. Auto-resolved latest run (${source}): ${RUN_DIR}`);
+      break;
     }
   }
 }
