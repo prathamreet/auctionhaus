@@ -223,7 +223,7 @@ export const cancelAuction = async (auctionId: string, userId: string, isAdmin =
       // Phase A1: Decimal-safe per-user refund aggregation.
       // This handles sealed-bid auctions with multiple winning bids cleanly.
       const refunds: Record<string, Prisma.Decimal> = {};
-      const userWallets: Record<string, any> = {};
+      const userWallets: Record<string, { id: string }> = {};
 
       for (const bid of topBids) {
         if (bid.bidder.wallet) {

@@ -44,6 +44,9 @@ const STREAM_TTL_ENTRIES = 1000; // trim stream to last 1000 entries per auction
 const CONSUMER_GROUP = 'bid-processors';
 const BLOCK_MS = 2000; // XREADGROUP block timeout
 
+// XREADGROUP reply shape we consume: [streamKey, [[entryId, [field, value, ...]], ...]]
+type XReadGroupReply = Array<[string, Array<[string, string[]]>]> | null;
+
 // Phase E6: backpressure threshold. If the unconsumed stream length exceeds
 // this, enqueue rejects with 503 and emits a `bid:backpressure` event to the
 // admin room. Configurable via env (BID_STREAM_BACKPRESSURE) so a load test
@@ -137,6 +140,13 @@ export class BidSequencer {
   }
 
   private async consumeLoop(workerName: string): Promise<void> {
+    // ioredis types xreadgroup with many overloads that don't accept a spread
+    // string[] cleanly. Bind once and narrow to the exact reply shape we
+    // consume via a typed callable cast instead of `any`.
+    const xreadgroup = redis.xreadgroup.bind(redis) as unknown as (
+      ...a: string[]
+    ) => Promise<XReadGroupReply>;
+
     while (this.running) {
       try {
         // Read from ALL streams matching 'auction:*:bids' via a single XREADGROUP.
@@ -162,13 +172,13 @@ export class BidSequencer {
           ...activeKeys.map(() => '>'),
         ];
 
-        const results = await (redis as any).xreadgroup(...args) as Array<[string, Array<[string, string[]]>]> | null;
+        const results = await xreadgroup(...args);
         if (!results) continue;
 
         for (const [key, entries] of results) {
           const auctionId = key.replace(/^auction:/, '').replace(/:bids$/, '');
           for (const [entryId, fields] of entries) {
-            await this.processEntry(auctionId, entryId, fields, key, workerName);
+            await this.processEntry(auctionId, entryId, fields, key);
           }
         }
       } catch (err: unknown) {
@@ -185,8 +195,7 @@ export class BidSequencer {
     auctionId: string,
     entryId: string,
     fields: string[],
-    streamKey: string,
-    workerName: string
+    streamKey: string
   ): Promise<void> {
     // fields is a flat array: [key, value, key, value, ...]
     const map: Record<string, string> = {};
