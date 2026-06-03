@@ -60,6 +60,8 @@ export default function WalletPage() {
   const wallet = data?.wallet;
   const txs: Transaction[] = txData ?? [];
   const available = wallet ? wallet.balance - wallet.heldAmount : 0;
+  const isEmpty = wallet && wallet.balance === 0 && wallet.heldAmount === 0;
+  const DEPOSIT_CAP = 100000;
 
   const handleAction = async () => {
     setMsg("");
@@ -69,8 +71,12 @@ export default function WalletPage() {
       setErr("Enter a valid amount");
       return;
     }
+    if (action === "deposit" && val > DEPOSIT_CAP) {
+      setErr(`Single deposit cap is ${DEPOSIT_CAP.toLocaleString("en-IN")}. Place multiple deposits if needed.`);
+      return;
+    }
     if (action === "withdraw" && wallet && val > available) {
-      setErr(`Insufficient funds. Available: ₹${available.toLocaleString("en-IN")}`);
+      setErr(`Insufficient funds. Available: ${available.toLocaleString("en-IN")}`);
       return;
     }
     setBusy(true);
@@ -103,6 +109,14 @@ export default function WalletPage() {
         title="Wallet"
         subtitle="Deposits, withdrawals, and per-auction holds."
       />
+
+      {!isLoading && isEmpty && (
+        <Alert tone="info" style={{ marginBottom: "1.25rem" }}>
+          <strong>Fund your wallet to start bidding.</strong>{" "}
+          Place a deposit on the right, then head to the catalogue. All bids
+          are mock-paid out of the wallet balance below.
+        </Alert>
+      )}
 
       {isLoading || !wallet ? (
         <StatGrid minWidth={260}>
@@ -198,9 +212,10 @@ export default function WalletPage() {
                 <Input
                   type="number"
                   min="1"
+                  max={action === "deposit" ? DEPOSIT_CAP : available || undefined}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="₹ amount"
+                  placeholder={action === "deposit" ? `Up to ${DEPOSIT_CAP.toLocaleString("en-IN")}` : "Amount"}
                 />
                 <Button
                   onClick={handleAction}
@@ -211,6 +226,17 @@ export default function WalletPage() {
                 </Button>
               </div>
             </Field>
+            <div
+              style={{
+                marginTop: "0.5rem",
+                fontSize: "var(--font-xs)",
+                color: "var(--muted)",
+              }}
+            >
+              {action === "deposit"
+                ? `Single-deposit cap: ${DEPOSIT_CAP.toLocaleString("en-IN")}. Place multiple deposits if you need more.`
+                : `Withdrawable now: ${available.toLocaleString("en-IN")} (excludes amounts held in active bids).`}
+            </div>
           </Card>
 
           <div style={{ marginTop: "1.5rem" }}>
@@ -278,8 +304,12 @@ function TransactionList({ txs }: { txs: Transaction[] }) {
               </Badge>
             </div>
             <div style={{ fontSize: "var(--font-xs)", color: "var(--muted)" }}>
-              {tx.description ?? ""}{" "}
-              {tx.description ? "·" : ""}{" "}
+              {tx.description ? (
+                <>
+                  {tx.description}
+                  <span style={{ margin: "0 0.4em" }}>·</span>
+                </>
+              ) : null}
               {new Date(tx.createdAt).toLocaleString([], {
                 dateStyle: "medium",
                 timeStyle: "short",

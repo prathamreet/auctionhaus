@@ -222,12 +222,15 @@ export default function Home() {
           fontSize: "var(--font-xs)",
           fontWeight: 600,
           letterSpacing: "0.04em",
+          flexWrap: "wrap",
+          gap: "1rem",
         }}
       >
         <span>AuctionHaus / Protocol 1.0.4</span>
-        <div style={{ display: "flex", gap: "2rem", opacity: 0.65 }}>
-          <span>LATENCY: 14MS</span>
-          <span>UPTIME: 99.9%</span>
+        <div style={{ display: "flex", gap: "2rem", opacity: 0.65, flexWrap: "wrap" }}>
+          <span>NODE 18 + POSTGRES 15</span>
+          <span>REDIS STREAMS + SOCKET.IO</span>
+          <span>NEW HORIZON COE</span>
         </div>
       </div>
     </div>
