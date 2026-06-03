@@ -243,6 +243,35 @@ The user's intent: "look more into UIUX part, make it more production level and 
 8. ~~**F8. CSS animations + reduced-motion respect.**~~ ✓ **2026-05-31 (`bliss`):** `front/src/app/globals.css` — 7 new keyframe animations: `ah-toast-in` / `ah-toast-out` (LiveTicker slide), `ah-pulse-urgent` (countdown critical-state scale + colour modulation), `ah-ladder-cascade` (per-rung staggered highlight using a `--i` CSS variable), `ah-banner-drop` + `ah-banner-fade` (ladder banner entrance and 3 s-delayed exit), `ah-conn-pulse` (connection-status dot), `ah-banner-shake` (backpressure attention grab). All wrapped in a `@media (prefers-reduced-motion: reduce)` block at the bottom that kills every Phase F animation and transform — accessibility-correct fallback to the same UI states without the kinetic flourishes.
 9. ~~**F9. Plan + session log addendum + TLDR doc.**~~ ✓ **2026-05-31 (`bliss`):** This Phase F section. Phase E session log extended with the UI/UX addendum block at its tail. `xdocs/sessions/INDEX.md` entry rewritten to mention Phase F alongside Phase E. New `TODAY.md` at the repo root — single-file conversational TLDR of the entire 2026-05-31 day for the user's own reference (covers the audit-to-Phase-F arc + the two outstanding user actions).
 
+### Phase RP — Paper Reconciliation (post-submission audit, 1 day)
+Goal: pull-the-repo defence. After the IEEE submission landed on 2026-06-01, post-submission `train:fraud` runs had silently overwritten `fraud.classifier.ts` with new weights and a new threshold, so the running code no longer matched supplementary §3.4's "complete source code" listing. Phase RP reconciles the gap by changing only code (the paper is locked).
+
+The user's intent: "make the project exactly same as we claimed on research paper" and "don't get banned due to paper data mismatch if they pull the repo and match it." Full plan lives in [reaching-rp.md](reaching-rp.md); summary below.
+
+1. ~~**RP1.1 + RP1.2. Restore paper-snapshot constants + lock banner.**~~ ✓ **2026-06-02:** `back/src/modules/fraud/fraud.classifier.ts` carries the exact threshold (0.20), weights, and norm-params from supplementary Tables III + VII. `PAPER_SNAPSHOT: 2026-06-01` banner names the producing corpus and trainer at the top of the file.
+2. ~~**RP1.3. Safety-guard the trainer.**~~ ✓ **2026-06-02:** `packages/simulator/src/train.ts` (filename preserved to match supplementary §4.1) carries the safety guard in place. Default invocation writes to `fraud.classifier.candidate.ts`; live-snapshot overwrite requires both `--write` and `--confirm`. `back/package.json` and root `package.json` expose `train:fraud` (paper-faithful, default) and `train:fraud:v2` (corrected pipeline).
+3. ~~**RP1.4. Preserve producing runs.**~~ ✓ **2026-06-02:** Three paper-era runs under `back/packages/simulator/runs/_paper-snapshot/`, one post-paper run under `_post-paper/`, empty stray removed, READMEs in both subdirs.
+4. ~~**RP2. Manifest carries real sellerId.**~~ ✓ **2026-06-02:** `SimRunManifest.auctionOwners?` added; `run.ts` records the admin/seller id in every new manifest. `train.ts` ignores the field for paper reproducibility; `train.v2.ts` reads it.
+5. ~~**train.v2.ts (Option 3).**~~ ✓ **2026-06-02:** Corrected, opt-in trainer. Reads `manifest.auctionOwners`, writes only `fraud.classifier.candidate.v2.ts`, never touches the live snapshot. Skips runs that lack `auctionOwners` with an explicit console warning.
+6. ~~**RP4.1 + RP4.3. Canonical k6 numbers.**~~ ✓ **2026-06-02:** `paper/figures/k6_results.json` matches supplementary Table XII verbatim. `paper/figures/README.md` names canonical artefacts and flags main-paper Table III as the looser earlier set.
+7. ~~**RP4.2. k6 sweep runner.**~~ ✓ **2026-06-02:** `packages/simulator/k6/run-canonical.ps1` runs the six configurations in sequence with git SHA / auction id / JWT in the header, appending to `docs/rp/rp-audit-02-k6-canonical-<timestamp>.md`.
+8. ~~**RP5.1. Per-bid latency instrumentation.**~~ ✓ **2026-06-02:** `LatencyRing` (1024-sample reservoir) in `fraud.engine.ts` wraps the hot path with `performance.now()`. Backs the paper's sub-millisecond claim.
+9. ~~**RP5.2. Bid-graph memory instrumentation.**~~ ✓ **2026-06-02:** `BidGraph.stats()` returns `approxBytes`. Backs supplementary Theorem 2.
+10. ~~**RP5 endpoints.**~~ ✓ **2026-06-02:** `GET /api/fraud/perf` and `POST /api/fraud/perf/reset` exposed on the existing admin-only fraud router.
+11. **RP3, RP5.3, RP6. Deferred / decided not to do.** Documented in `reaching-rp.md`. RP3 (multi-auction sim corpus) is opt-in user work; RP5.3 (held-out test split) would contradict paper Table I; RP6 (extra baselines) would diverge from paper text.
+
+### Phase G — Pre-Review Fine-Tune (2026-06-02 evening, hours before review)
+Goal: smooth out the small rough edges before a 2026-06-04 project review. No new features; targeted polish on the things a reviewer notices first.
+
+1. ~~**G1. App-wide ErrorBoundary.**~~ ✓ **2026-06-02:** `front/src/components/ErrorBoundary.tsx` (class component, dev-mode stack visible, production card with reload + home buttons). Wired inside Navbar in `providers.tsx` so the nav stays usable when a page crashes.
+2. ~~**G2. Landing-page footer accuracy.**~~ ✓ **2026-06-02:** Replaced the fake "LATENCY 14MS / UPTIME 99.9%" badges with stack labels and institution. No more numbers a reviewer can call out.
+3. ~~**G3. Wallet polish.**~~ ✓ **2026-06-02:** Zero-balance info callout above stat grid; deposit-cap hint inline under the form; withdraw-side hint with withdrawable-now amount; fixed the leading-space description bug in transaction rows.
+4. ~~**G4. Dashboard zero-state.**~~ ✓ **2026-06-02:** Brand-new-user welcome card with Fund-wallet + Browse-market CTAs. Appears only when bids/listings/wins are all zero.
+5. ~~**G5. Backend log emojis stripped.**~~ ✓ **2026-06-02:** rules.md compliance — replaced emoji-prefixed logs in `back/src/index.ts`, `back/src/lib/redis.ts`, and every script under `back/src/scripts/` with bracketed tags. Dev console is cleaner; no UI impact.
+6. ~~**G6. seed-users adds hoster.**~~ ✓ **2026-06-02:** `seed-users.ts` now creates `hoster@x.com` so the three `create-*-auction.ts` scripts work immediately after `db:seed-users`. Shared password documented in the final log line.
+
+Realtime layer was audited and needs no changes — `socket.ts` reconnect, `useSocketListener` / `useAuctionRoom` ref-stable subscriptions, login/register both call `reconnectSocket`, and the Navbar's `ConnectionStatus` already shows the tri-state. Phase F's work covered everything.
+
 ---
 
 ## 6. Rules for Future Sessions
