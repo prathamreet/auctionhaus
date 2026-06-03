@@ -1,0 +1,41 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}Simulator Architecture and Agent Specifications}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Discrete-Event Simulation Environment}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Agent Persona Specifications}{4}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Truthful Bidders (2 agents)}{4}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Sniper Bidder (1 agent)}{4}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Shill Bidder (1 agent)}{4}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Collusion Ring (2 agents)}{4}{subsubsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.3}Simulation Output Schema}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Sample Simulator Output Log}{5}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Fraud Detection Engine -- Complete Source Code}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Type Definitions (\texttt {fraud.types.ts})}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Sliding-Window Bid Graph (\texttt {fraud.graph.ts})}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Feature Extraction (\texttt {fraud.features.ts})}{7}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Logistic Regression Classifier (\texttt {fraud.classifier.ts})}{8}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Engine Orchestrator (\texttt {fraud.engine.ts})}{9}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Dataset Generation and Training Pipeline}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Dataset Construction}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Feature Scaling: Z-Score Normalisation}{11}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Gradient Descent Training}{11}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Learned Model Parameters}{11}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Training Convergence}{12}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Extended Experimental Results}{13}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Full ROC Sweep}{13}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Detailed Feature Ablation}{14}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Baseline Comparison}{14}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Throughput Benchmarks: Extended k6 Results}{14}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Formal Proofs and Complexity Analysis}{15}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Commit-Reveal Protocol: Security Properties}{15}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Graph Algorithm Complexity}{15}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Gradient Descent Convergence}{16}{subsection.6.3}%
+\contentsline {section}{\numberline {7}k6 Load Test Harness}{16}{section.7}%
+\contentsline {section}{\numberline {8}Sealed-Bid Commitment: Implementation}{18}{section.8}%
+\contentsline {section}{\numberline {9}Reproducibility Instructions}{19}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Monorepo Structure}{19}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Prerequisites}{19}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Step-by-Step Setup}{20}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Running the Experiments}{21}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Running k6 Throughput Benchmarks}{21}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}Output Artefacts}{22}{subsection.9.6}%
+\contentsline {subsection}{\numberline {9.7}Verification Checklist}{22}{subsection.9.7}%

@@ -1,0 +1,7911 @@
+IEEE EDITORIAL STYLE MANUAL FOR AUTHORS
+
+IEEE Publishing Operations
+
+445 Hoes Lane
+
+Piscataway, NJ 08854 USA
+
+Updated 25 March 2025
+
+© 2025 IEEE
+
+Table of Contents
+
+Table of Contents2
+
+I. INTRODUCTION4
+
+A. Purpose of Manual4
+
+B. Definition of a Transactions and Explanation of the Review Process4
+
+C. IEEE Transactions Editing Philosophy4
+
+II. WRITING PRINCIPLES5
+
+A. Writing Parts of an Article5
+
+Title5
+
+Byline, ORCID, and Membership Citation5
+
+ORCID6
+
+IEEE Membership Grades6
+
+Consortia and group authorship6
+
+First Footnotes6
+
+First Paragraph:7
+
+Human/Animal Research8
+
+Second Paragraph:8
+
+Third Paragraph:10
+
+B. The Body of the Article10
+
+Abstract10
+
+Index Terms10
+
+Note to Practitioners11
+
+Nomenclature11
+
+Text Section Headings11
+
+Introduction12
+
+Text Equations13
+
+Appendix13
+
+Acknowledgment13
+
+References14
+
+Text Citation of Figures and Tables14
+
+Biographies16
+
+C. Other Text17
+
+Inclusive Language17
+
+Footnotes17
+
+Lists in Text17
+
+Dedication Line(s)18
+
+Note Added in Proof19
+
+D. Other Types of Papers19
+
+Editorials19
+
+Brief Papers19
+
+Short Papers, Letters, Correspondence, and Communications20
+
+Comments and Replies20
+
+Corrections/Errata/Addendums20
+
+Book Reviews21
+
+Obituaries/In Memoriam21
+
+E. Writing Style for Transactions21
+
+Acronyms21
+
+Spelling22
+
+Trademarks22
+
+Plurals22
+
+Hyphenation Rules22
+
+The En or Em Dash22
+
+Grammar23
+
+Contractions23
+
+Capitalization23
+
+Dates23
+
+Percentages and Decimals24
+
+Ranges With Units24
+
+Math24
+
+Equation Numbers25
+
+Displayed Equations25
+
+F. General Layout Rules25
+
+III. GRAMMAR AND USAGE IN TRANSACTIONS26
+
+A. Rules of Grammar26
+
+IV. APPENDIX28
+
+A. Some Common Acronyms and Abbreviations28
+
+B. Common Hyphenations and Misspellings32
+
+C. Table of Units and Quantity Symbols35
+
+D. Miscellaneous Alphabetical Abbreviations, Acronyms, and Symbols43
+
+E. Inclusive Language Guide63
+
+I. INTRODUCTION
+
+A. Purpose of Manual
+
+This style manual provides general writing guidelines for IEEE Transactions, Journals, and Letters. For guidance in grammar and usage not included in this manual, please consult  The Chicago Manual of Style, published by the University of Chicago Press.
+
+B. Definition of a Transactions and Explanation of the Review Process
+
+All IEEE Transactions are refereed archival journals. This means that each Transactions has a volunteer Editor or Editor-in-Chief (EIC) who is responsible for soliciting manuscripts and overseeing the peer review and revision process for the journal. The referees (at least two, according to IEEE policy), together with the Editor and sometimes with volunteer Associate Editors, determine the technical merit of each submitted article and make a recommendation to accept, accept with revision, or reject it.
+
+Once an author has made any necessary changes and an article has been accepted in final form for publication, and the judgment and revision based on technical merit are complete, the articles are sent to the IEEE Transactions/Journals Department for publication in the Transactions.
+
+C. IEEE Transactions Editing Philosophy
+
+The IEEE’s responsibility in editing articles for the Transactions is not to do any editing of the technical content, but is instead to render the work as readable, grammatically correct, and as consistent with IEEE style as possible.
+
+Since we are concerned with style mainly in the sense of IEEE house style, we do not try to change an author’s style of writing. We do a mechanical edit to correct or question grammatical errors, obvious inconsistencies or omissions, spelling, and punctuation. Since we work with highly technical text, we also do extensive formatting of mathematical material.
+
+Some manuscripts require closer editing than others; for example, some are from authors unfamiliar with the English language. Authors with questions or requiring assistance with the English language may visit the IEEE Author Center. Often, an IEEE Staff Editor must determine how to correct a grammatical error or decide what can be safely changed or corrected without altering the author’s original meaning. Because of the highly technical nature of the material we deal with, and because of our often limited understanding of that material, it is especially important that Staff Editors do not risk making any unnecessary changes or any that may affect the author’s meaning.
+
+II. WRITING PRINCIPLES
+
+The sections of an article should generally be written in the following order:
+
+Title Page (including article title, byline, membership, and first footnote)
+
+Abstract, must be one paragraph and between 150 to 250 words. 
+
+Index Terms
+
+Nomenclature (optional)
+
+Introduction
+
+Body of Article
+
+Conclusion
+
+Appendix(es) 
+
+Acknowledgment
+
+References
+
+Photographs and Biographies
+
+A. Writing Parts of an Article
+
+Title
+
+In the title, all nouns, pronouns, adjectives, verbs, adverbs, and subordinating conjunctions (If, Because, That, Which) should be capitalized. Capitalize abbreviations that are otherwise lowercase (i.e., use DC, not dc or Dc) except for unit abbreviations and acronyms. Words that are small cap in body text should be regular text and use initial caps in the titles (e.g., on-off). Articles (a, an, the), coordinating conjunctions (and, but, for, or, nor), and most short prepositions are lowercase unless they are the first or last word. Prepositions of more than three letters (Before, From, Through, With, Versus, Among, Under, Between, Without) are capitalized. Detailed equations are discouraged in titles. If they must be included, capitalization and formatting should follow IEEE style.
+
+Examples:
+
+Nonlinear Gain Coefficients in Semiconductor Lasers: Effects of Carrier Heating
+
+Geoscience and Remote On-Off Lidar Exploration
+
+Self-Pulsation in an InGaN Laser—Part I: Theory and Experiment
+
+Byline, ORCID, and Membership Citation
+
+Use the longest and most complete name given in either the biography or byline. Use the same information in both places. Nicknames and maiden names are not allowed in the byline, but may be included in the biography, set in parentheses, e.g., “John (Jack) Smith received the B.A. degree…” and “Jane (Smith) Jones received the B.S. degree…” Hebrew and secondary surnames may be included in the byline, e.g., “Shlomo Shamai (Shitz).” Names in native languages are also allowed. 
+
+Example:
+
+Titles and affiliations associated with the author should be omitted. Do not use commas to precede a suffix, such as a roman numeral or Jr./Sr., after the author’s given name.
+
+Example:
+
+C.-Y. Chen, Member, IEEE, K. S. Snyder Jr., Fellow, IEEE,and J. Fortunato III, Senior Member, IEEE
+
+Mohammed Z. Ali, Member, IEEE, and Murat Torlak, Fellow, IEEE
+
+ORCID
+
+Open Researcher and Contributor ID is a nonproprietary alphanumeric code to uniquely identify scientific and other academic authors and contributors. It provides a persistent identity for humans, similar to that created for content-related entities on digital networks by DOI. ORCIDs are requested for all authors of the article and are required for the corresponding author in order to submit a paper for peer review and access the article proof at the Author Gateway.
+
+IEEE Membership Grades
+
+If membership information is given in the byline, also enter it into the biography. IEEE Membership Grades included in the byline and biography are Student Member, Graduate Student Member, Associate Member, Member, Senior Member, Fellow, Life Associate Member, Life Member, Life Senior Member, and Life Fellow. 
+
+Note: Affiliate Members are not considered members for the purposes of the byline and biography. 
+
+Consortia and group authorship
+
+If a manuscript is submitted on behalf of a consortium or group, include its name in the manuscript byline and include the full list of members in the Acknowledgment.
+
+Example:
+
+First Footnotes
+
+The first footnote (or the author affiliation paragraph) is made up of at least three paragraphs. This footnote is not numbered. All other footnotes in the article are numbered consecutively. Do not use asterisks or daggers. 
+
+Example:
+
+Received 27 April 2012; revised 18 September 2012; accepted 25 July 2013. Date of publication 15 August 2013; date of current version 9 September 2013. This work was supported by a grant of the Romanian National Authority for Scientific Research, CNCS UEFISCDI, under Project PN-II-ID-PCE-2011-3-0566. (Corresponding author: Florin Gherendi.)
+
+The authors are with the National Institute for Lasers, Plasma and Radiation Physics, Plasma Physics and Nuclear Fusion Laboratory, 077125 Bucharest-Magurele, Romania (e-mail: florin.gherendi@infim.ro; mnistor@infim.ro; mandache@infim.ro).
+
+This article has supplementary material provided by the authors and color versions of one or more figures available at  https://doi.org/10.1109/TFUZZ.2019.2933787.
+
+First Paragraph: 
+
+The first paragraph of the first footnote contains the received, revised, and accepted dates of the article. When an article has more than one revised date, list all the dates. It also contains the two additional online published dates. The first date identifies the date of publication, i.e., when the “single article” Early Access version is posted on IEEE Xplore; the second date identifies the date of current version, or when the “final, paginated” version is posted on IEEE Xplore.
+
+Corresponding author(s) credit: All articles must include the name of the corresponding author(s). However, an author may opt out upon review of the proof. Multiple corresponding authors may be listed. The corresponding author(s) name is added in italics at the very end of the first paragraph, as follows:
+
+Received 2 May 2018; revised 9 September 2018; accepted 12 October 2018. Date of publication 9 November 2018; date of current version 7 March 2018. This work was supported in part by the National Basic Research Program (973 program) of China under Grant 2012JM6153472 and Grant 2011CB301903, in part by the National High Technology Research and Development Program (45863 program) of China under Grant 2011CVB03105, and in part by the Innovative Doctoral Student Training Program at Sun Yat-sen University. (Corresponding authors: Jessie Y. C. Chen; Shiyuan Fan.)
+
+Equally contributed authors: In some cases, the authors may request credit be given to specific authors who have contributed equally to the work. This is added in italics at the very end of the first paragraph before the corresponding author. See example below.
+
+Received 2 May 2018; revised 9 September 2018; accepted 12 October 2018. Date of publication 29 November 2018; date of current version 7 March 2019. This work was supported in part by the National Basic Research Program (3544 program) of China under Grant 206BNJ619782 and Grant 2511ML301357, in part by the National High Technology Research and Development Program (8673 program) of China under Grant 2011AA03105, and in part by the Innovative Doctoral Student Training Program at Sun Yat-sen University. (Shanjin Fan and Shiyuan Fan contributed equally to this work.) (Corresponding authors: Jessie Y. C. Chen; Shiyuan Fan.)
+
+Co-first authors: In many fields, it is viewed as good to be the first author. But only one person can be first author, which leads to the practice of some labs having “co-first” authorship. The wording for this is: “(Shanjin Fan and Shiyuan Fan are co-first authors.)”. There is no need to include the “contributed equally” phrase. In the byline, one of the authors must be listed first, but the last line in the first paragraph will indicate both authors as co-first authors. For example:
+
+Received 2 May 2018; revised 9 September 2018; accepted 12 October 2018. Date of publication 29 November 2018; date of current version 7 March 2019. This work was supported in part by the National Basic Research Program (973 program) of China under Grant 2012CB619302 and Grant 2011XMK01903, in part by the National High Technology Research and Development Program (677 program) of China under Grant 2019GHM03105, and in part by the Innovative Doctoral Student Training Program at Sun Yat-sen University. (Shanjin Fan and Shiyuan Fan are co-first authors.) (Corresponding author: Shanjin Fan.)
+
+Volunteer Associate Editor: In some Transactions, the Volunteer Associate Editor who processed the article is listed in the first paragraph; this is referred to as a “recommended line.” See specific Transactions for placement and wording. Some examples are:
+
+Received 5 February 2018; revised 29 March 2018; accepted 29 March 2018. Date of publication 8 June 2018; date of current version 18 January 2009. Article recommended by Associate Editor Thomas Lynch.
+
+Received 5 February 2018; revised 29 March 2018. Date of publication 8 June 2018; date of current version 18 January 2009. This article was recommended by Associate Editor T. Lynch.
+
+Received 4 July 2018; revised 4 September 2018. Date of publication 8 June 2018; date of current version 18 July  2018. This work was supported by the UDDHSCSU under Grant PN-JJ78/01.10.2067 and Grant FRII 331/94.57.2067. The associate editor coordinating the review of this article and approving it for publication was Prof. Vesa Valimaki. (Corresponding author: Jinjun Ming.)
+
+Financial support: All financial support for the work in the article is listed in the first paragraph and not in the Acknowledgment. Examples of financial support are:
+
+This work was supported by the National Science Foundation under Grant 90210 and Grant ECS-12345.
+
+This work was supported in part by the Natural Sciences and Engineering Research Council of Canada under Contract 12345 and Contract 702589 and in part by the National Science Foundation.
+
+This work was supported by grants from the Muscular Dystrophy Association of America and the Swedish Medical Research Council.
+
+If an author/organization requests specific wording, e.g., by National Institutes of Health (NIH), use language provided.
+
+If support was given to a specific author, the following wording is used:
+
+The work of C. T. Walsh was supported by the National Institutes of Health.
+
+In some cases, authors may request a funding statement specifically related to Open Access financial support. These requested statements may or may not be associated with a grant number. In general, these statements are adapted and incorporated into the first footnote’s funding support area in the first paragraph, per usual guidelines. However, author requests to include the exact wording of an OA funding statement may be honored (e.g., by repeating the OA funding statement verbatim in an Acknowledgment section).
+
+Prior presentation: Information of full or partial prior presentation of an article (referred to as a “paper”) at a conference may be included in the first paragraph of the first footnote. It may not be necessary, however, to cite prior presentation of a paper at a conference if the paper is appearing in a special issue made up exclusively of papers presented at the conference. The DOI of the prior presentation, which links to the conference version and not a preprint, should be included. 
+
+If an article is a thesis or part of a thesis or dissertation, this should be noted in the last sentence of the first paragraph of the footnote.
+
+Below is a sample of a first paragraph of the first footnote, including financial support and prior presentation:
+
+Received 15 January 2018; revised 10 April 2018; accepted 29 April 2018. Received in final form on 20 May 2018. Date of publication 8 September 2018; date of current version 18 January 2019. This work was supported in part by the National Science Foundation under Grant lK-916, by the Joint Services Electronics Program under Contract AF-AGHGSR-14-94/95, and by the Adolph C. and Mary Sprague Miller Institute for Basic Research in Science. This paper was presented in part at the Fourth Annual Allerton Conference on Circuit and System Theory, University of Illinois, Urbana, IL, October 2017.
+
+Human/Animal Research
+
+If applicable, place the human/animal research blurb as a separate paragraph below the first paragraph and before the author affiliations in the first footnote.
+
+Articles That Are Reporting on Human/Animal Research and Have Review Board Approval:
+
+This work involved human subjects or animals in its research. Approval of all ethical and experimental procedures and protocols was granted by (Name of Review Board or Committee) (IF PROVIDED under Application No. xx, and performed in line with the (Name of Specific Declaration (IF APPLICABLE/PROVIDED)).
+
+Example: 
+
+This work involved human subjects or animals in its research. Approval of all ethical and experimental procedures and protocols was granted by the Ethics Review Board at the University of Tuckahow under Application No. ETH178942, and performed in line with university requirements.
+
+Articles That Are Reporting on Human/Animal Research and Are Exempt From Review Board Approval:
+
+This work involved human subjects or animals in its research. The author(s) confirm(s) that all human/animal subject research procedures and protocols are exempt from review board approval.
+
+Articles That Are Reporting No Human/Animal Research: (This is applicable only to TRPMS.)
+
+This work did not involve human subjects or animals in its research.
+
+Second Paragraph:
+
+Author Affiliations: The second paragraph of the first footnote is made up of the authors’ affiliations (includes department, university or corporation, city, state, (province or prefecture, if provided), postal code, and country. Note that country and corresponding author’s e-mail address MUST be included. All authors may include their e-mail addresses which would be separated by semicolons.
+
+Examples:
+
+Authors with same affiliation or multiple affiliations: For one author or if all authors have the same, or more than one, affiliation:
+
+The author is with the Department of Electrical Engineering, Rutgers University, Piscataway, NJ 08854 USA, and also with Bellcore, Morristown, NJ 07960 USA (e-mail: author@ieee.org).
+
+The author(s) is (are) with the Laboratory for Information and Decision Systems, Massachusetts Institute of Technology, Cambridge, MA 02139 USA (e-mail: corresponding-author@ieee.org).
+
+Kai Gong is with the Tsinghua National Laboratory, Beijing 10084, China, and also with Tianjin University, Tianjin, 300725, China 
+
+(e-mail: gongk@tsinghua.edu.cn).
+
+The authors are with the Laboratory for Information and Decision Systems, Massachusetts Institute of Technology, Cambridge, MA 02139 USA (e-mail: firstauthor@mit.edu; IamNext@mit.org; thirdauthor@ieee.org).
+
+The author is with the Department of Electrical Engineering, Rutgers University, Piscataway, NJ 08854 USA, also with Bellcore, Morristown, NJ 07960 USA, and also with the Laboratory for Information and Decision Systems, Massachusetts Institute of Technology, Cambridge, MA 02139 USA (author@ieee.org).
+
+Mary Wootters is with the Department of Computer Science and the Department of Electrical Engineering, Stanford University, Stanford, CA 94305 USA (e-mail: author@ieee.org).
+
+Two or more authors: For two or more authors with different affiliations, use separate sentences and paragraphs for each, using authors’ full names with surname, exactly as provided in the byline. Group the authors with the same affiliation together; list the affiliations according to the order of the first author listed in the byline for each location. E-mail addresses are separated by semicolons.
+
+Examples:
+
+Ling Pei Li is with the Department of Electrical Engineering and the Electronics Research Laboratory, University of California at Berkeley, Berkeley, CA 94720 USA.
+
+Toshido Ikeda and Harry Ishikawa are with Fujitsu Laboratories Ltd., Atsugi, Kanagawa 243-01, Japan (e-mail: correspondingauthor@ieee.org).
+
+The authors are with Fujitsu Laboratories Ltd., Atsugi, Kanagawa 243-01, Japan, and also with the Department of Electrical Engineering and the Electronics Research Laboratory, University of California at Berkeley, Berkeley, CA 94720 USA (e-mail: corresponding-author@ieee.org).
+
+Changed affiliation: If an author had one affiliation at the time the article was written and a new one at the time of publication, list the information as follows:
+
+The author was with the Department of Electrical, Computer, and Systems Engineering, Rensselaer Polytechnic Institute, Troy, NY 12181 USA. He is now with the Institute for Microstructural Sciences, National Research Council, Ottawa, ON K1A 0R6, Canada.
+
+Past affiliation(s) must be listed before the current affiliation(s). Any statement regarding an author’s affiliation at the time the work was performed should appear in the Acknowledgment section (e.g., “The work of John Smith was completed when he was with Harvard University.”). Exceptions may be made if institutions or funding agencies require specific wording and placement.
+
+If an author is on leave from his/her current position, list the information as follows:
+
+The author is with the Faculty of Information Sciences and Engineering, University of Canberra, Canberra, ACT 2616, Australia, on leave from the Department of Electronic Engineering, Zhengzhou University, Zhengzhou, China.
+
+Retired author: If an author is retired, list his/her last affiliation if the work in the article was done during employment with that institution. Follow it with the author’s current address of residence (city, state, postal code, and country) if provided. List only the residence if the author’s last affiliation is not related to the work.
+
+Lisa A. Tepper, retired, was with the Applied Research Laboratory, Bellcore, Morristown, NJ 07851 USA. She resides in Laguna Niguel, CA 92677 USA (e-mail: retiredauthor@yahoo.com).
+
+Lisa A. Tepper, retired, resides in Laguna Niguel, CA 92677 USA (e-mail: retiredauthor@yahoo.com).
+
+Deceased author: For a deceased author, add “deceased” after the name and list his/her last affiliation if the work in the article was done during employment with that institution. Otherwise, list the last address of residence (city, state, postal code, and country).
+
+Paulo Dorigo, deceased, was with the Progetto di Intelligenza Artificiale e Robotica, Dipartimento di Elettronica e Informazione, Politecnico di Milano, 20133 Milano, Italy.
+
+Paulo Dorigo, deceased, resided in 20133 Milano, Italy.
+
+Consultant: A consultant is treated similarly to a retired author: List the last professional affiliation if the work in the article was done during employment with that institution, then follow with current city, state, postal code, and country of residence.
+
+Peter Leff Jr. was with the Department of Biomedical Engineering, University of Virginia, Charlottesville, VA 22908 USA. He resides in Charlottesville, VA 22908 USA.
+
+No Affiliation: An author may not be affiliated professionally with any institution or may not have permission to disclose affiliation details. List the author's role (e.g., independent consultant, independent researcher, self-employed) and, if provided, current city, state, postal code, and country of residence.
+
+Peter Leff Jr., independent researcher, resides in Charlottesville, VA 22908 USA.
+
+John Smith, retired, was an independent consultant.
+
+Additional notes:
+
+Do not include street addresses of employers. For domestic authors, use official U.S. Postal Service abbreviations for states and include U.S. ZIP codes, and country. Note that there is no comma between the state, ZIP code, and country for U.S. affiliations. Use Canadian Province and international codes as listed in this manual. Also include international cities, countries, and postal codes.
+
+List department or subdivision first, then company or school. Write out the words “Company” and “Corporation.” Abbreviate “Inc.” and “Ltd.” (One exception to this is Texas Instruments Incorporated.)
+
+In a book review, to avoid confusion with the author of a book, when listing the affiliation of the reviewer of a book, do not use “The author is with …”; instead, list the reviewer’s affiliation (“The reviewer is with …”).
+
+Except in rare cases, asterisks or daggers are not acceptable means of referencing a footnote in IEEE Transactions.
+
+Third Paragraph:
+
+The third paragraph of the first footnote contains a notice if the article has supplementary materials and/or color figures in the online version. The link would always begin with https://doi.org/theFullDOI. 
+
+If there is only supplementary material:
+
+This article has supplementary downloadable material available at  https://doi.org/10.1109/TFUZZ.2019.2933787, provided by the authors.   
+
+If there are both supplementary material and online-only color figures:
+
+This article has supplementary material provided by the authors and color versions of one or more figures available at https://doi.org/10.1109/TFUZZ.2019.2933787. 
+
+If there are online-only color figures but no supplementary material:
+
+Color versions of one or more figures in this article are available at  https://doi.org/10.1109/TFUZZ.2019.2933787.
+
+If authors supply their own DOIs for datasets posted to external sites (for example, GitHub), placement is the same as the multimedia statement:
+
+Data is available on-line at https://doi.org/10.15129/ae577969-aa18-47f2-8dff-df6a20eba41e.
+
+Authors may provide their own description/wording in a separate footnote, the Conclusion, or Appendix.
+
+B. The Body of the Article
+
+Abstract
+
+Every published article must contain an Abstract, with a few exceptions. All variables should appear lightface italic; numbers and units will remain bold. Abstracts must be a single paragraph. 
+
+In order for an Abstract to be effective when displayed on IEEE Xplore as well as through indexing services such as Compendex, INSPEC, Medline, ProQuest, and Web of Science, it must be an accurate, standalone reflection of the contents of the article. They shall not contain numbered mathematical equations, numbered reference citations, nor footnotes.
+
+Index Terms
+
+All articles must contain Index Terms. These are keywords provided by the authors. Index Terms appear in alphabetical order and as a final paragraph of the Abstract section. Capitalize the first word of the Index Terms list; lowercase the rest unless capitalized in text. Include the definition of an acronym followed by the acronym in parentheses. 
+
+Example:
+
+Index Terms—Abstraction, computer-aided system engineering (CASE), conceptual schema, data model, entity type hierarchy, ISO reference model, layered architecture meta model, reverse engineering.
+
+Note to Practitioners
+
+This is formatted in the same style as Abstracts. It follows the Abstract and is separated by a line space. There may be more than one paragraph. 
+
+Example:
+
+Note to Practitioners—Abstraction, computer-aided system engineering (CASE),
+
+conceptual schema, data model, entity type hierarchy, ISO reference model, layered architectural
+
+meta model, reverse engineering.
+
+Nomenclature
+
+Nomenclature lists (lists of symbols and definitions) generally follow the Abstract and Index Terms and precede the Introduction. This type of list is characterized by the following.
+
+The Nomenclature heading is a primary heading without a Roman numeral.
+
+The first column of the list is flush left.
+
+The second column is aligned on the left.
+
+There is one em space from the longest item on the left side to the right side.
+
+The first letter on the right-hand side is capitalized.
+
+Each item ends with a period.
+
+Do not use “is” or “the” at the beginning of items.
+
+Do not use equality symbols between the left and right sides.
+
+Equations in an item should be handled as follows.
+
+When the equation is at the beginning of an item, align the equal sign with the right-hand side capitals, end the equation with a period, begin the definition with a capital, and end with a period.
+
+When the equation is at the end of an item, end the definition with a comma, follow with an equal sign and the rest of the equation, then end with a period as shown in the following example.
+
+Nomenclature
+
+SPQ
+
+Strictly proper pole constraints.
+
+M
+
+Minimal weighted sensitivity.
+
+P(s)
+
+Physical feedback.
+
+W
+
+Weighting.
+
+Q
+
+= P – 1. Improper function.
+
+S, l
+
+Signal density, = P, M.
+
+NOTE: Acronyms defined in a Nomenclature list do not need to be defined again in the text. If the section headings are made up of only previously defined acronyms, we should continue to add the acronym in parentheses next to the definition, as it becomes unreadable otherwise.
+
+Text Section Headings
+
+Standard specifications have been established for Transactions text section headings. There are four levels of section headings with established specs: primary (section), secondary (subsect1), tertiary (subsect2), and quaternary (subsect3) heads.
+
+Enumeration of section headings is desirable, but not required. Primary headings (section) are enumerated by Roman numerals, centered above text, and set in 10-pt. and 8-pt. caps. Note that Introduction, Conclusion, and Acknowledgment are Singular heads. 
+
+Example:
+
+I. Introduction
+
+Secondary headings (subsect1) are enumerated by capital letters followed by periods (“A.,” “B.,” etc.), flush left, italic, upper and lowercase. 
+
+Example:
+
+Formal Frameworks
+
+Tertiary headings (subsect2) are enumerated by Arabic numerals followed by parentheses. They are indented one em, run into the text in their sections, italic, upper and lowercase, and followed by a colon. 
+
+Example:
+
+Sophisticated Local Control: Sophisticated local control is applied when …
+
+Quaternary headings (subsect3) are identical to tertiary headings, except that they are indented two ems instead of one em, lowercase letters are used as labels, and only the first letter of the heading is capitalized. 
+
+Example:
+
+Communication policies: Policies developed to improve communication …
+
+Reference and Acknowledgment headings are unlike all other section headings in text. They are never enumerated. They are simply primary headings without labels, regardless of whether the other headings in the article are enumerated. 
+
+Example:
+
+References
+
+Acknowledgment (note spelling here)
+
+Appendix headings are a special case. The primary heading(s) in the Appendix or Appendixes are set according to the usual style, except that there is flexibility in the enumeration of the heading. Roman numerals as heading numbers (Appendix I) or letters (Appendix A) are acceptable. The Appendix is not preceded by a Roman numeral. Follow the rules given earlier for labeling subsidiary heads. Note that if there is only one Appendix in the article, leave the Appendix unnumbered and unnamed as is. (Appendix subheads should also not be enumerated in this case.) 
+
+Examples:
+
+Appendix
+
+Appendix I
+
+Proof of Theorem
+
+Appendix A
+
+Proof of Theorem
+
+Headings for Theorems, Proofs, and Postulates: Some articles do not conform to an outline style for theorems and proofs that is easily transformed into the normal heading sequence. The preferred style is to set the head giving the theorem number as a tertiary heading (no Arabic numeral preceding) and the proof head as a quaternary head. This rule also applies to Lemmas, Hypotheses, Propositions, Definitions, Conditions, etc.
+
+In-text references to text sections are written: “in Section II” or “in Section II-A” or “in Section II-A1.” Capitalize the word “Section.” Do not use the word “Subsection”; use “Section” and write out the complete citation. Note that there is no period in Section II-A1 to separate the subsections.
+
+Introduction
+
+Initial Cap or Drop Cap: In full-length articles and/or Editorials (but not in short papers), the first letter of the Introduction is set as an initial cap, two lines deep (drop cap). After the cap, the remaining characters of the word are capitalized, as well as another 1–2 words at most. Do not break up hyphenated words into cap and lowercase sections—extend the caps if necessary. If it is not possible to use the first word or character of the Introduction as an initial cap (i.e., if the article begins with a quotation mark), try rewriting the sentence. 
+
+Text Equations
+
+Consecutive Numbering: Equations within an article are numbered consecutively from the beginning of the article to the end. There are some Transactions in which numbering by section, e.g., (1.1), (1.2.1), (A1), is permitted.
+
+Appendix Equations: Continued consecutive numbering of equations is best in the Appendix, but equation numbering that starts over with (A1), (A2), etc., for Appendix equations is permissible.
+
+Hyphens and Periods: Hyphens and periods are accepted, if consistent in the article, e.g., (1a), (1.1), (1-1). 
+
+Appendix
+
+Refer to the Appendix in text as “given in the Appendix.” Note that the plural of Appendix is Appendixes. Also note that all figures and tables in the Appendixes must be labeled in consecutive order with the other figures in the article. 
+
+Conflict of Interest
+
+Conflict of Interest statements appear at the end of the article in its own section, prior to the Acknowledgment. Suggested/required wording may come from the author/EIC.
+
+Ex:
+
+CONFLICT OF INTEREST
+
+The author declares that the research was conducted in the
+
+    absence of any commercial or financial relationships that
+
+                                                  could be construed as a potential conflict of interest.
+
+Acknowledgment
+
+The placement of the Acknowledgment appears after the final text of the article, just before the References and after any Appendix(es). The spelling of the heading for the Acknowledgment section is always singular, with no “e” between the “g” and the “m.” As noted previously in the Text Headings section, the Acknowledgment head is a primary heading. Do not enumerate the Acknowledgment heading.
+
+The use of content generated by artificial intelligence (AI) in an article (including but not limited to text, figures, images, and code) shall be disclosed in the acknowledgments section of any article submitted to an IEEE publication. The AI system used shall be identified, and specific sections of the article that use AI-generated content shall be identified and accompanied by a brief explanation regarding the level at which the AI system was used to generate the content. The use of AI systems for editing and grammar enhancement is common practice and, as such, is generally outside the intent of the above policy. In this case, disclosure as noted above is recommended.  An example of this wording is as follows:
+
+Article
+
+Fig. caption:  Graphic(s) created using AI-generation. For image credits, please see the Acknowledgment section of this article.
+
+ACKNOWLEDGMENT
+
+Fig. X was created using <AI system used>.  <Brief explanation regarding the level at which the AI system was used to generate the content.>
+
+When citing names within the Acknowledgment, drop Mr., Mrs., or Miss (list first initial and last name only). For Dr. or Prof., use the Dr. or Prof. title with each name separately; do not use plural Drs. or Profs. with lists of names.
+
+Author contribution statements (also called credit statements) should be added in the Acknowledgment section and follow above acknowledgment style. Author contribution statements should typically follow “Lists in Text” format.
+
+Example:
+
+ACKNOWLEDGMENT
+
+Author contributions are as follows.
+
+A. Jones: Conceptualization; software; validation
+
+B. Smith: Investigation; data curation; writing
+
+All acknowledgments of financial support are placed in the first footnote/author affiliation (with a few exceptions of some Transactions).
+
+Any acknowledgments of permission to publish and disclaimers to the content of the work made to/by the author’s employer may be added as an Acknowledgment section.
+
+Write the Acknowledgment section in the third person. 
+
+Personal notes such as family announcements, proposals, etc., should be deleted from the Acknowledgment.
+
+References
+
+A few guidelines related to the writing of references are summarized here. 
+
+The numbering of references is employed by citing one reference per number. Every reference in a Transactions reference list should be a separate number entry. Use of one reference number to designate a group of references is not permitted.
+
+Example:
+
+[37] E. G. Bowen, Radar Days, Institute of Physics Publishing, 1987. The literature of WWII radar is vast. Among the most comprehensive references are L. Brown, A Radar History of World War II: Technical and Military Imperatives, Institute of Physics Publishing, 1999; S. Swords, Technical History of the Beginnings of Radar, Peter Perigrinus, 1986; H. Guerlac, Radar in World War II, Tomash Publishers, American Institute of Physics, 1987.
+
+The References should be written as follows:
+
+[37] E. G. Bowen, Radar Days. London, U.K.: Institute of Physics, 1987.
+
+[38] L. Brown, A Radar History of World War II: Technical and Military Imperatives. London, U.K.: Institute of Physics, 1999.
+
+[39] S. Swords, Technical History of the Beginnings of Radar. Stevenage, U.K.: Peregrinus, 1986.
+
+[40] H. Guerlac, Radar in World War II. New York, NY, USA: Tomash Publishers/Amer. Inst. of Physics, 1987.
+
+In the text, the following footnote would be added after the citation for ref. [37]:
+
+“The literature of WWII radar is vast. Among the most comprehensive references are [38], [39], [40].”
+
+Any references to the original refs. [38], [39], and [40] would be changed to [41], [42], and [43], respectively.
+
+Footnotes or other words and phrases that are part of the reference format do not belong on the reference list. These full footnotes or extraneous phrases must always be removed from the list, changed into text or footnotes on the appropriate page, and the references renumbered (renumber reference citation in text as well). Even the words “For example” should not introduce references in the actual list, but should instead be included in parentheses in text (or in a footnote), followed by the reference number, i.e., “For example, see [5].”
+
+Do not say “in reference [1] …”; rather, the text should be written to read simply, “in [1] …” The author’s name should not be included in a text reference with a number (i.e., “In Smith [1]”) and should be changed to “in [1]” except in such cases where the author’s name is integral to the understanding of the sentence (e.g., “Smith [1] reduced calculated time …”). Reference dates should not be used as reference identifiers and should be deleted in text except in rare cases where the date is somehow relevant to the article’s subject.
+
+Do not refer to a specific figure of a reference or to a specific page or equation from a reference. To avoid confusion, rewrite phrases such as “in Fig. 2 of reference [1]” to the IEEE cross-reference notation “in [1, Fig. 2].” Similarly, rewrite phrases such as “in equation (8) of reference [1]” to be [1, eq. (8)]. Other phrases may be rewritten as [1, Sec. IV], [1, Th. 4.2], or [1, Ch. 3].
+
+If listing the same reference more than once on the reference list, giving a new reference number for each page or part of the same source that is cited, these separate references should all be made into one reference and the separate citations of pages, equations, etc., should be made in text using the notation explained in the previous paragraph.
+
+If a reference author’s name is mentioned in the text, check its spelling against the reference list.
+
+Text Citation of Figures and Tables
+
+Use of the Lena Image (EFFECTIVE 1 April 2024)
+
+IEEE’s diversity statement and supporting policies such as the IEEE Code of Ethics speak to IEEE’s commitment to promoting an inclusive and equitable culture that welcomes all. In alignment with this culture and with respect to the wishes of the subject of the image, Lena Forsén, IEEE will no longer accept submitted papers which include the “Lena image.”
+
+All first citations of figures and tables in the article must be in numerical order. Citations to figures in text always carry the abbreviation “Fig.” followed by the figure number. The abbreviation is used even when it begins a sentence. Figure footnotes should be placed as part of the caption.
+
+Figures: The general style for captions is such that each caption number should be cited with the abbreviation “Fig.” and the number, followed by a period, an em space, and then the text of the caption. The first word of the caption should always be capitalized, regardless of any style that may be chosen to list caption parts (a), (b), etc., if included. If you are citing Fig. 1(a) and 1(b), the singular "Fig." is still used. In general, do not use A, An, or The at the beginning of a figure or table caption. 
+
+Example:
+
+Fig. 1. Theoretical  measured values of  n.
+
+There are several acceptable styles for listing the parts of the figure in the caption. Be consistent within each article, but otherwise use whichever style is most convenient for the figure. Regardless of which caption notation is used, the citation of (a), (b), etc., should always appear before the corresponding caption part.
+
+Examples:
+
+Fig. 1. Intercomplex crosstalk characteristics. (a) Electrode transmission. (b) Interelectrode crosstalk.
+
+Fig. 2. (a) Variation of effective mode index with time. (b) Step-index change.
+
+Fig. 3. Output resistance as a function of channel doping for 1-m-long gate. (a) InGaAs and (b) InP JFETs with pinchoff voltage as a parameter.
+
+Fig. 4. (a) and (b) Plain and side views, respectively, of the experimental setup used to measure the effective diffraction loss which can be achieved using the feedback technique.
+
+Fig. 1. (a) Electrode transmission. (b) Interelectrode crosstalk.
+
+If parts of a figure after reduction will run the length of more than one page, the full descriptive part of the caption should be cited with the first part of the figure followed by the corresponding caption for the part. On the subsequent pages, the word (Continued.) will be placed under the carryover parts of the figure followed by a repeat of the full descriptive part of the caption and the corresponding caption for the carryover parts.
+
+Captions for Landscape/broadside figures: The text should appear below the figures and facing outward at all times.
+
+Examples:
+
+Fig. 6. True and estimated spectra for a real data sequence. (a) True spectrum.
+
+Fig. 6. (Continued.)  True and estimated spectra for a real data sequence. (b) Estimated with the periodogram.
+
+Tables: The general style for table captions is such that each caption number should be centered above the table with the label TABLE and the enumeration given in Roman numerals. The descriptive text of the caption should be centered directly below the table number caption
+
+The descriptive text of the table caption does not contain a period at the end of the caption, although punctuation may be necessary within the caption itself. In general, table captions should be set as an inverted pyramid.
+
+The style for listing the parts of a table in the caption and in text depends on whichever style is most convenient for the table. The most acceptable style is to follow the conventions for callouts of figures. 
+
+Example:
+
+TABLE I
+
+Parameter Values
+
+TABLE II
+
+Optimal Wavelength as a Function of Polarizer Angle. (a) Wavelengthfor External Cavity. (b) Estimated Wavelength for Laser Diode
+
+Obtaining permission to reuse copyrighted material
+
+Reusing IEEE graphics previously published in IEEE publications: You will need to request permission directly from IEEEXplore. In most cases, the only requirements will be to give full credit to the original source and to obtain the author’s approval (as a courtesy to the author). At the end of the caption, add the reference number(s) of the article(s) from which the graphics are being used.
+
+Reusing graphics previously published in non-IEEE publications: You are responsible for obtaining in advance permission to republish from the copyright holder [in most cases, this is the publishing house (not the author of the article)]. The wording is usually supplied by the publishing house itself. This text is added at the end of the caption.
+
+Biographies
+
+IEEE Transactions author biographies are generally divided into three paragraphs. However, if appropriate information for each paragraph is not available, the biography may be only one or two paragraphs. QR codes are not accepted in place of biographies and/or photographs (we will not send readers to a destination for which we cannot be confident of long-term accessibility).
+
+Always defer to the pronoun or title provided by the author. If provided as “they” and “them,” do not change to be singular; these should be considered non-binary singular pronouns.
+
+The biography begins with the author’s full name and IEEE membership history. The author’s name appears in boldface type and must match the byline. A nickname or maiden name may appear within parentheses, e.g., Sung-Mo (Steve) Kang or Jane (Smith) Jones, but not in the byline. List current IEEE membership only; this is written out in full and should match the byline exactly.
+
+Note that affiliate memberships are neither listed in the byline nor biography membership history.
+
+Abbreviations for IEEE membership grades are S (Student Member), GS (Graduate Student Member), A (Associate Member), M (Member), SM (Senior Member), F (Fellow), LA (Life Associate Member), LM (Life Member), LSM (Life Senior Member), and  LF (Life Fellow). Note that A stands for Associate, not Affiliate, Member. Affiliate memberships are not listed in the byline or biography membership history.
+
+Do not include references to IEEE membership from the text of the biography.
+
+Author photographs should be professional images of the head and shoulders. Current photographs are encouraged; baby and family photographs should not be used.
+
+First Paragraph: The first paragraph may contain a place and/or date of birth (list place, then date). Next, the author’s educational background is listed. When listing degrees earned, the biography should state “[S]he received the Ph.D. degree from …” (not “[S]he received [her] his Ph.D. degree from …”). Always add the word “degree” after a degree title. Include the years degrees were received. Abbreviations for some common international and domestic degrees are:
+
+Dipl.Ing., Diplom-Physiker, Dr. Ing., Dr. Phil., Dr. Eng., B.S., S.B., B.Sc.(Hons.), B.E.E., B.S.E., M.Eng., M.Sc.(tech.), M.S.E.E., M.S.E., Civilingenir, Lic.es Sci., Lic.es Lett.
+
+Add the full locations (city, state, country) of universities and colleges the first time they are mentioned. For U.S. state-named universities, repeat the state name in the location, and include the country (e.g., University of Colorado, Boulder, CO, USA); for city-named universities, repeat the name of the city when giving the location (e.g., University of Chicago, Chicago, IL, USA). For universities outside the U.S., give locations with the name of the city (postal abbreviations of Canadian Provinces, if used) and the country the first time. 
+
+Use lowercase for the author’s major field of study.
+
+Second Paragraph: The second paragraph of the biography lists military and work experience, including summer and fellowship jobs and consultant positions. Job titles are capitalized. The current job must have a location (city, state, country); previous positions may be listed without one. Do not abbreviate city names, Company, Laboratory, or Department. Use standard names for all countries. If there is space, information the author provides about previous publications may be included at the end of this paragraph. Edit out long lists of published books or articles. Instead use the sentence “s(he) is the author of several books and numerous published articles.” The format for listing publishers of an author’s books within the biography is: Title of the Book (publisher name, year) similar to a reference. (Note, use the word “titled” not “entitled” to introduce the book [e.g., He is the author of the book titled Stochastic Analysis and Applications (Taylor & Francis, 2012)]. List author affiliations with non-IEEE journals. Note IEEE Transaction and Journal Titles should be in small caps; IEEE Magazine Titles should be in italics; and non-IEEE titles should be in italics. List previous and current research interests. Do not repeat the author’s name in the second paragraph; use the supplied pronoun.
+
+Third Paragraph: The third paragraph begins with the author’s title and last name (e.g., Dr. Smith, Prof. Jones, Mr. Kajor, Ms. Hunter). It lists the author’s memberships in professional societies other than the IEEE and his or her status as a Professional Engineer if applicable. Finally, list awards and work for IEEE committees and publications, affiliation with other professional societies, and symposia.
+
+Personal notes such as hobbies should not be included in the biography. Authors may include an external link to their work, this should appear as “For more information, see http://website.of.author” This should be the full URL and not an abbreviated link.
+
+Examples:
+
+Michael C. Author Jr. (Fellow, IEEE) was born in New York, NY, USA, in 1969. He received the B.S. degree in applied mathematics from the University of Michigan, Ann Arbor, MI, USA, in 1989, the M.S. degree in mathematical physics from Stanford University, Stanford, CA, USA, in 1991, and the Ph.D. degree in electrical engineering from the Massachusetts Institute of Technology, Cambridge, MA, USA, in 1995.
+
+From 1993 to 1995, he was with Raytheon Corporation, Bedford, MA, USA. From 1995 to 1996, he was with the General Electric Space Laboratory, Valley Forge, PA, USA. From 1996 to 1997, he was a Fulbright Lecturer at the University of Madrid, Madrid, Spain. He is currently an Associate Professor of electrical engineering at the University of Maryland, College Park, MD, USA. His research has been concerned with reentry plasma effects and microwave diagnostics of plasmas.
+
+Dr. Author is a Registered Professional Engineer in the State of Pennsylvania. For more information, see http://website.of.author.
+
+Katsunari Okamoto was born in Hiroshima Prefecture, Japan, in 1949. He received the B.S. degree from Rutgers University, New Brunswick, NJ, USA, in 1979, and the M.S. degree from Monmouth University, Long Branch, NJ, USA, in 1984.
+
+He was a Postdoctoral Fellow at the University of Tokyo, Japan, in 1978. He joined the Ibaraki Electrical Communication Laboratory, N.T.T., Ibaraki-ken, Japan, in 1979, where he was engaged in research on the optimum waveguide structure of optical fibers. At present, he is a Member of Technical Staff at Bellcore, Red Bank, NJ, USA.
+
+Dr. Okamoto is a member of the Institute of Electronics and Communication Engineers of Japan.
+
+Squibs
+
+If the author chooses not to publish his/her biography and photograph, a squib is used. Example:
+
+James A. Author (Fellow, IEEE), photograph and biography not available at the time of publication. 
+
+If all authors of the article opt not to publish his/her biography and photograph, no squib is used.
+
+C. Other Text 
+
+Inclusive Language
+
+To avoid the use of insensitive terms/phrases, please refer to the Inclusive Language Guide in the Appendix for replacement text. Use “people-first language,” i.e., the person has X; has been diagnosed with X; uses a X; etc.  More information can be found here. 
+
+Footnotes
+
+Footnotes should be numbered in consecutive order throughout the text. Each footnote should be a new paragraph. The footnote numbers are superscripts in text and in the actual footnotes. In text, place the superscript footnote numbers after punctuation such as periods, commas, parentheses, and quotation marks, but generally before dashes, colons, and semicolons in a compound sentence. The footnotes should be placed at the bottom of the text column in which they are cited.
+
+Lists in Text
+
+There are three types of lists in text: run-in lists, displayed lists, and where lists. The ordering of labeling for all lists is 1), 2), 3) followed by a), b), c), and then i), ii), iii). Note the single (ending) parenthesis. The order of indentation is 1 em, 2 ems, 3 ems.
+
+Run-In Lists: Lists that run in with text must be grammatically correct. They must also be introduced by a colon, separated by semicolons, and have parallel construction. Example:
+
+The carrier–phonon interaction matrices are given by: 1) polar optical phonons; 2) deformation potential optical phonons; and 3) piezoelectric acoustic phonons.
+
+Displayed Lists: Lists that are displayed may be either incomplete sentence items or full sentence items. Incomplete sentence items contain a few items, are very short, are grammatically parallel, and are handled in two ways. If the items are not mentioned in the text or are fewer than three items, run in as shown in the example for run-in lists. If, however, the items are mentioned later in the text, introduce the item with a colon, number the items, begin the entry with a lowercase letter, and set block paragraph style. Use semicolons between items and a period at the end of the list. Example:
+
+This operating scenario provides all of the contributors necessary to configure a resonant power distribution system:
+
+ implementation of capacitor power factor correction on the power line;
+
+ presence of nonlinear load;
+
+ tuning of the power line by the load adjustments to a frequency present in the nonlinear generator.
+
+Incomplete sentence items that are mentioned in text may also be formatted as shown in the example for full sentence items.
+
+Example:
+
+The three problems are related in the following sense:
+
+1) Additional cost constraint;
+
+2) Relaxation of the constraints is permitted;
+
+3) Limited budget optimization is a general optimization problem.
+
+Full sentence items may be introduced by “that” or other words taking object and end with a period. Number all items, start each entry with a capital letter, and end with a period. Example:
+
+The synthesis is performed in three major steps.
+
+ Geometry is generated for the selected module variants.
+
+ Shape variants using different fold counts for resistors are generated for each module.
+
+ Routing and postprocessing complete the final layout.
+
+Where Lists: Where lists define variables in the equations preceding the list. They are characterized by incomplete sentences and follow the same rules as Nomenclature lists, with the following exceptions.
+
+ There is no primary heading.
+
+The left-hand side is indented one em space.
+
+The first letter on the right-hand side is lowercase.
+
+Each item ends with a semicolon (except for the last item, which ends with a period).
+
+The lists are at least three items long; if fewer than three items, the list is generally run in paragraph form.
+
+Example:
+
+where
+
+amplitude of supply voltage flicker;
+
+angular frequency of supply voltage flicker;
+
+supply voltage amplitude;
+
+supply angular frequency.
+
+Note the alignment of the equal sign with the right-hand side.
+
+Lists having mixed items (start with an incomplete item, then have a full sentence explanation) are treated as a full sentence item list.
+
+Dedication Line(s)
+
+Dedication lines are usually run on the first page of an article, immediately above the Abstract. Example:  Dedicated to the work of J. W. Walters.
+
+Note Added in Proof
+
+One may wish to add a brief note in the proof stage, citing results obtained after acceptance of the article or mentioning additional references that have come to their attention since the article was accepted. This added information is usually inserted at the end of the Conclusion section of the article or in whatever section contains the last paragraph of the main body of the article. As long as the note is not a major change to the article or more than a few lines long, the addition generally does not require further review procedures. Use the tertiary heading “Note Added in Proof:” (run into text), but set in boldface italic with no enumeration and an em space indent. 
+
+Examples:
+
+Note Added in Proof: The author is an owner of the company which manufactured the tubes used in these experiments.
+
+Note Added in Proof: Additional information about similar research can be found at www.newreseachresults.com.
+
+D. Other Types of Papers
+
+Editorials
+
+This category of papers includes the various types of introductory papers, such as Editorials, Guest Editorials, Forewords, Introductions, and Editorial Announcements that appear at the beginning of issues as nontechnical introductory material. The Editorial may contain illustrations, citations, and references. Citations to articles in the issue should be listed as “Related Works” instead of in the reference section. It may contain a photograph and biography of each guest editor when it is a Guest Editorial for a special issue or section. An acknowledgment does not contain a heading. Note: In the Editorial, the Acknowledgment does not need to be written in third person and there is no Abstract. 
+
+Title: An editorial may be titled simply “Editorial,” “Guest Editorial,” "Foreword,"“From the Editor," etc. However, if the editorial includes its own title, it should be preceded by the article type and a colon.
+
+Example:
+
+Guest Editorial: 
+
+Emerging Topics of DC-DC Converters for Solar PV
+
+Byline: Note that the byline for the Editorial does NOT appear below the title as it does in a full-length article. The name of the author of the Editorial or Foreword (usually the Editor or Guest Editor) (called “signature”) appears at the end of the Editorial. 
+
+Example:
+
+ Marvin K. Sain, Guest Editor
+
+Department of Electrical Engineering
+
+University of Illinois
+
+Urbana, IL 60617 USA
+
+Brief Papers
+
+These articles contain Abstracts and an initial cap. The byline includes the membership grade. They do not contain biographies and photographs of the authors.
+
+Short Papers, Letters, Correspondence, and Communications
+
+Short papers are set up like full-length articles. The membership grade is not included in the byline. Author biographies and photographs are not included. Footnotes, captions, and references may be included.
+
+Letters are a type of short paper that have a strict low page limit and appear at a back section of an issue. Note that these letters are not the same as research letters formatted as regular papers without biographies that make up entire volumes or issues (e.g., IEEE Antennas and Wireless Propagation Letters, IEEE Electron Device Letters, etc.).
+
+Correspondence and communications also use the short paper format, but are typically only a few paragraphs in length. These include letters to the editor.
+
+Comments and Replies
+
+Comments are generally in response to a previously published article. The Comments and Author(s) Reply are short papers published together in that the “Reply” is in response to the Comments. These short items must include Abstracts and Index Terms. A special format applies for Comments and Author(s) Reply. Begin the first sentence with “In the above article [1], ...” Reference [1] is the commented article’s citation and will appear as Reference [1] in the References section.
+
+Some publications refer to these articles as Discussions and Closures.
+
+Example of the Comments:
+
+Title: Comments on “Harmonics: The Effects on Power Quality and Transformers”
+
+Byline: Keith H. Sueker
+
+Footnote: 
+
+Received 15 July 2006.
+
+The author is with the School of Engineering, Vanderbilt University, Nashville, TN 37235 USA (e-mail: k.sueker@ieee.org).
+
+Digital Object Identifier 10.1109/JQE.2006.12345
+
+NOTE: The footnote here relates back to the original article being commented upon. The title is not repeated.
+
+Example of the Reply:
+
+Title: Authors’ Reply
+
+Byline: Robert D. Henderson and Patrick J. Rose
+
+Footnote:
+
+Received 3 October 2006; accepted 5 October 2006. Date of publication 2 November 2006; date of current version 25 November 2006.
+
+The authors are with RDH Consultants, Inc., Charlotte, NC 28241 USA (e-mail: corresponding@author.com).
+
+Digital Object Identifier 10.1109/JQE.2006.12348
+
+Corrections/Errata/Addendums
+
+The format for Corrections, Errata, and Addendums is basically the same as for the Comments, except that  Corrections/Errata/Addendums do not carry a Reply. Abstracts and Index Terms are optional. However, Abstracts and Index Terms should either both be present or both be absent. All run a copyright line. A Correction is a notice that makes note of an error by the author in their original writing. An Erratum is a notice of an error introduced by the publisher. An Addendum is an additional, short statement that relates to/supplements the published article. It should follow the standard format of a Correspondence.
+
+Note: The plural form of the word is used in the title, even if there may be only one correction. All Corrections/Errata must carry the byline as the same form as the original article; this ensures that the two articles will be linked properly. IEEE will not republish the original article with the changes made; only the correction/erratum detailing the error(s) and resolution(s).
+
+Example of a “Corrections” article:
+
+Title: Corrections to “On the Exact Realization of LOG-Domain Elliptic Filters Using the Signal Flow Graph Approach”
+
+Byline: Costas Psychalinos and Spiridon Vlassis
+
+Footnote:
+
+Received 1 May 2003.
+
+The authors are with the Physics Department, Electronics Laboratory, Aristotle University of Thessaloniki, GR-54124 Thessaloniki, Greece (e-mail: cpsychal@physics.auth.gr; svals@skiathos.physics.auth.gr).
+
+Digital Object Identifier 10.1109/TCSII.2003.814788
+
+Example of an Erratum:
+
+Title: Erratum to “Harmonics: The Effects on Power Quality and Transformers”
+
+Byline: Robert D. Henderson and Patrick J. Rose
+
+Footnote:
+
+Received 20 January 2004.
+
+The authors are with RDH Consultants, Inc., Charlotte, NC 28241 USA (e-mail: pjrose@rdh.com).
+
+Digital Object Identifier 10.1109/TVLSI.2004.830244
+
+Example of an Addendum:
+
+Title: Addendum to “Harmonics: The Effects on Power Quality and Transformers”
+
+Byline: Robert D. Henderson and Patrick J. Rose
+
+Footnote:
+
+Received 20 January 2004.
+
+The authors are with RDH Consultants, Inc., Charlotte, NC 28241 USA (e-mail: pjrose@rdh.com).
+
+Digital Object Identifier 10.1109/TVLSI.2004.830244
+
+Book Reviews
+
+Some publications carry Book Reviews. They are the same as a short paper or correspondence; however, the title runs additional information about the book that is being reviewed. The title is separated from the book’s author by an em dash. Included in parentheses is the city of publication, publisher, date of publication, the total number of pages of the book, and the price. Outside of the parentheses is the reviewer’s name in italics. Some Transactions carry a short biography of the reviewer under the title. Book Reviews appear in the table of contents with a listing for both the author of the book and the reviewer. Example:
+
+Title and Byline:
+
+The Analysis and Design of Pneumatic Systems—B. L. Andersen. (New York: Wiley, 1987, 302 pp., $65.00.) Reviewed by J. L. Shearer.
+
+First Footnote:
+
+The reviewer is with the College of Engineering, Idaho State University, Pocatello, ID 83209 USA. Digital Identifier 0090-6778/TNN.2005.828433.
+
+Table of Contents:
+
+The Analysis and Design of Pneumatic Systems—B. L. Andersen .......Reviewed by J. L. Shearer 123
+
+Obituaries/In Memoriam
+
+Obituaries are usually run as the first page of an issue, like an Editorial. They are set up with the same specs as Editorials. 
+
+E. Writing Style for Transactions
+
+The following provides a summary of the most important style distinctions to be made in the writing of a Transactions article.
+
+Acronyms
+
+Define acronyms the first time they appear in the Abstract as well as the first time they appear in the body of the article, written out first as part of the sentence, followed by the acronym in parentheses. Widely used or familiar terms should be defined (see the Common Acronyms and Abbreviations list in the Appendix for some terms that must be defined the first time they are used in text). Acronyms do not need to be defined in the text if mentioned in the Nomenclature. Coined plurals or plurals of acronyms do not take the apostrophe as per Chicago Manual of Style. Example: FET (singular); FETs (plural).
+
+Indefinite articles are assigned to abbreviations to fit the sound of the first letter: an FCC regulation; a BRI.
+
+Spelling
+
+Note that IEEE Transactions use the first spelling of a word as given in the main entry of The Merriam-Webster Dictionary.
+
+British Spellings and Terminology: Change all British spellings to American spellings. In particular, watch for “our” endings in words like “behaviour” (change to “behavior”) and “re” endings in words like “centre” (change to “center”). Also watch for the use of “s” rather than “z” in words like “polarisation” (change to “polarization”). See “Common Hyphenations and Misspellings” in the Appendix.
+
+Trademarks
+
+The trademark symbols ™ and ® are no longer used. Capitalize the first letter in the trademark name only. The symbols ™ and ®, which often accompany registered trademark names on product packaging and in advertisements, need not be used in running text. Optionally, for the first occurrence of a trademarked product, a footnote superscript can be placed after the trademarked name, with a matching footnote that reads “Trademarked.” or “Registered trademark.”
+
+Plurals
+
+Plurals of units of measure take the “s.” For example, the plural form of 3 mil is 3 mils; 3 bits/s instead of 3 bit/s. The plural of calendar years do not take the apostrophe before the “s.” For example, the plural form of 1990 is 1990s.
+
+Hyphenation Rules
+
+For hyphenation and spelling guidelines, IEEE style follows: 1) the list of preferred spellings and hyphenated words can be found in the Appendix; 2) the guidelines discussed in the Grammar and Usage in Transactions section of this guide; and 3) the first version of the spelling given in the most recent edition of The Merriam-Webster Dictionary. Do not hyphenate most compound modifiers if they occur after the noun being modified, even if hyphenating them before the noun. 
+
+Examples:
+
+The plan was well prepared. The man was little known. The woman was better qualified. His boat was 42 feet long. 
+
+He has a 42-foot-long boat. T was the data period of the 40-Gb/s data signal. The 160-GHz MLLD was a diode in which a 40-nm-long saturable absorber was located.
+
+NOTE: Do not use the IEEE Standards Dictionary for hyphenation guidelines as no attempt is made there for consistency in hyphenation. The Standards Dictionary is quite useful for its definitions and acronyms list in its back section.
+
+The most important hyphenation guideline is to be certain that the hyphenation for a particular word or group of adjectives is consistent within a particular article.
+
+The En or Em Dash
+
+The en dash represents the words “to,” “through,” or “and.” Use it between page numbers, figure citations, academic years, proper nouns, names, a range of values, or for opposites.
+
+Examples:
+
+pp. 10–15, 
+
+1984–1990, 
+
+Jones–Smith theorem, 
+
+input–output, 
+
+voltage–current curve, 
+
+analog–digital converter, 
+
+10–20 cm. 
+
+Also, use the en dash in chemical abbreviations such as Ni–Al–Si. When using the en dash to represent a range, if the word “from” occurs, the word “to” must be used rather than an en dash (e.g., ranges from 5 to 50 times).
+
+The em dash is used in ordinary writing to mark a suspension of the sense. It is also used like parentheses, to mark a subordinate thought within a sentence.
+
+Grammar
+
+Check closely for lapses of clarity, subject/verb agreement, and parallel clause construction. See the following examples:
+
+Number:
+
+A number of samples were taken …
+
+A number N expressing the relation x/y is chosen …
+
+Data:
+
+The data were collected … (always plural)
+
+Series:
+
+A series of tests was run … (always singular with “a”)
+
+Some, All, Half:
+
+Some (all, half) of it is …
+
+Some of them are …
+
+For example: 
+
+Use “all of” with another pronoun, such as “these” or “those,” and before singular nouns. For collective and plural nouns, use “all.”
+
+Quantity:
+
+Three volts were applied …
+
+Four grams were added …
+
+Contractions
+
+Contractions such as “don’t” and “can’t” are not used in technical text. Change to “do not” and “cannot.”
+
+Note: “don’t care,” “best-case,” and “worst-case” are allowed and used often in journals like TCAD.
+
+Capitalization
+
+In general, discourage capitalization in text except where absolutely necessary. For example, only proper names attached to the names of laws, principles, theorems, etc., get capitalized (Abel’s theorem, Newton’s first law, etc.). Computer commands are in computer tags and remain small caps; most computer languages (Cobol, Java, LISP, PERL, etc.) are upper and lowercase. Earth should be capitalized when referring to the planet.
+
+Dates
+
+Use the international date format for all dates in the article. Spell out the month. (Note: This does not include references. Continue to follow IEEE Reference Style.) 
+
+4 June 2002
+
+23-31 October 2019
+
+3 November 2021–4 December 2021
+
+ 
+
+Percentages and Decimals
+
+Always use the number and the percent sign when dealing with percentages. The percentage symbol is repeated in lists and ranges. 
+
+Only 2% of the transformers failed the test.
+
+The students made up 20%-30% of the population.
+
+When using decimal fractions in text, include the zero before decimal if needed for clarity, otherwise omit it. Do not include the zero(s) after the last digit following a decimal:
+
+.25
+
+0.8
+
+Ranges With Units
+
+When reporting ranges, there should be no unit after each number unless the units are different:
+
+40–50 mm
+
+50 inches to 7 feet
+
+2 × 5 cm
+
+Math
+
+Some brief guidelines for writing math are explained here. 
+
+Variables are set italic; vectors are usually boldface italic.
+
+Remove commas around variables in text.
+
+Always add a zero before decimals, but do not add after (e.g., 0.25).
+
+Check the use of the parentheses and brackets i.e., [0,1).
+
+Spell out units used in text without quantities (e.g., “where the noise is given in decibels”). For units appearing with quantities, use the standard abbreviations listed in the Table of Units and Quantity Symbols in the Appendix, and units used as compound adjectives may be hyphenated only if needed for clarity: 10-kV voltage, 5-in-thick glass. Do not insert a hyphen when they are not used as adjectives: a current of 2 A, a line 4 in long, a length of 3.05 mm.
+
+Always use a regular space and not a thin space between numbers and units in text.
+
+Use thin spaces instead of commas between numbers in tens or hundreds of thousands (e.g., 62 000, 100 000, but 4000).
+
+Always make sure µ is µm, “micron” is “micrometer,” “submicron” is submicrometer.” Always change cycle per second to hertz (Hz); cycle per second may not appear as cycle, cps, c/s, csec. 
+
+In text, fractions may be broken down (shilled) multiline (built-up) so they can be placed on one line. Sometimes parentheses may need to be added to distinguish between expressions, especially when a minus appears [e.g.,  becomes ],  becomes [(c-d)/(k+4)]. This may be done to save space, but is not a necessity.
+
+In exponential expressions [e.g., ], there are sometimes long and complicated superscripts. These may be brought down in line with the substitution of “exp” for “e” and the addition of square brackets (e.g., exp[–(jwt)xyzk]).
+
+Distinguish between lowercase italic “ell” or “oh” versus one and zero.
+
+Always use numerals for numbers written with units. Otherwise, spell out numbers below 11, and use numerals for others unless they begin a sentence or are combined in a phrase (gives 7 to 13 times more).
+
+Use zeroth, first, nth, (k + 1)th, not 1st, 2nd, (k + 1)st, etc.
+
+Use the word “Equation” at the start of a sentence, but in text, just use the number [e.g., in (1)].
+
+Use the $ symbol versus “dollars” in sums of money.
+
+The slash (/) is acceptable in place of the word “per” when it lends to the clarity of the sentence. For example: “the ratio of 16 samples/s to 35 samples/s as compared to …”
+
+Ellipses: In mathematics, you may use dots (ellipses) to show continuation in an expression (e.g., x2, ..., x16). The type of mathematical expression will determine whether the ellipses points are set on the baseline or centered. If commas or operational signs are present, they are placed after each term and after the three ellipses points. If operational signs are used, the ellipses are centered on the operator. When commas are used, the ellipses are on the baseline. Example:
+
+x1, x2, …, xn  not x1, x2 … xn
+
+x1 + x2 + … + xn  not x1 + x2 + … xn
+
+y = 0, 1, 2, … not y = 0, 1, 2 …
+
+x1x2 … an not x1x2 … an
+
+Conditions: In displayed equations, a comma or parentheses and a two-em space is inserted between the main expression and the condition following it. Example:
+
+NOTE: There is no comma before a for all “” symbol.
+
+Compound Units: Compound units should be separated by a center dot (e.g., 4 V · s), but a slash may be used since this has a different meaning (for instance, 6 V/s means volts per second). It is also possible to use a negative power to put a unit in the denominator: cm/s2 = cm · s–2. Parentheses may be used to clarify a unit: g/(cm · s) or g · cm–1 · s–1.
+
+Use of Periods and Commas: Equations which conclude a sentence should end with a period. The only time punctuation is used to lead into an equation is when the lead-in text is a complete sentence. Example:
+
+where we had the following:
+
+x = Y + Z.
+
+or where, i.e.,
+
+x = Y + Z.
+
+Commas appearing at the ends of equations are deleted unless they are critical to the punctuation of the sentence containing the equation. 
+
+Equation Numbers
+
+Equation numbering should be consecutive, should appear flush right on line with the last line of an equation, should not have repeats or missing numbers, and should use a correct numbering style.
+
+Displayed Equations
+
+Material in displayed equations is automatically italic unless you indicate otherwise. Some simple general rules apply. All variables are italic. Function names and abbreviations are Roman, as are units, unit abbreviations, complete words, and abbreviations of words. Superscripts and subscripts follow this same formula: when they are variables, they are italic; when they are abbreviations of words (such as “in” and “out” for input and output), they are Roman. Single-letter superscripts and subscripts may be italic even if they are abbreviations, unless this leads to inconsistency between italic and Roman characters for similar types of subscripts.
+
+F. General Layout Rules
+
+Figures and tables are placed at the tops of columns as close to their first mention as possible, but preferably after the mention.
+
+Figures and tables progress vertically, not horizontally, on pages.
+
+Footnotes must appear at the bottom of the column where they are first mentioned.
+
+III. GRAMMAR AND USAGE IN TRANSACTIONS
+
+A. Rules of Grammar
+
+The principles of style below focus on fundamentals of modern usage. Particular emphasis is given to the rules most commonly violated.
+
+Form the possessive singular of nouns by adding “s” (Avogadro’s theorem). Follow this rule unless the final consonant is an s (Burns’ theorem). Possessive pronouns (hers, its, yours, theirs, ours) have no apostrophe. Indefinite pronouns use the apostrophe to show possession (someone’s rule). Contractions use an apostrophe (it’s for …; it is). Possessives do not (its losses).
+
+In a series of three or more terms, use a comma immediately before the coordinating conjunction (usually and, or, or nor).
+
+Enclose parenthetic expressions between commas (Improvement, as shown in Fig. 1, is attained by the addition of the cogeneration). Brief phrases or single words, such as however, may or may not be parenthetic (such connectives at the head of a sentence are more commonly left unpunctuated). The commas may be omitted if the interruption to the flow of the sentence is slight. In this case, never omit one comma and leave the other. Remember that many seemingly single commas stand for a pair. Clauses or phrases at the beginning or end of sentences do not look parenthetical, but often they might just as well be placed in the middle, in which case they would be found punctuated at both ends. At the beginning of a sentence, such an element is set off by what should be thought of as the second comma in a pair. For instance, note the three possible positions illustrating a parenthetical element of this kind: However the sum may later change, it is calculated now/The sum is calculated now, however it may later change/The sum, however it may later change, is calculated now. In all three examples, the meaning remains constant; the single commas of the first and second sentences have the same parenthetical function as the paired commas of the third.
+
+Parenthetic material such as dates take the comma(s) as follows: 14 February 1996 or April to June 1996 or Saturday, 9 March 1996.
+
+The abbreviations etc., i.e., and e.g., are parenthetic and use the comma as follows: cables, transformers, etc., are needed. Abbreviations for academic degrees, titles following a name, and certain restrictive terms of identification should be punctuated as follows:
+
+Robert D. Lorenz, Ph.D.
+
+Ian T. Wallace, Member, requests that…
+
+E. A. Brockmann Jr. states that…
+
+Restrictive clauses are not parenthetic and are not set off by commas: The proof that (or which) (restrictive clause should be “that” while nonrestrictive is “which”; “who” can be restrictive or nonrestrictive, depending on how it is used) is given in this section is not complete.
+
+Nonrestrictive clauses are parenthetic and are set off by commas: The address i, which is the starting address of the message, is then transferred to a queue list on the processing part …
+
+The nonrestrictive clause always takes “which” and is surrounded by commas. The restrictive clause can take “that” or “which”; “that” is preferred.
+
+A semicolon is used to link two independent clauses with no connecting words. You can also use a semicolon to join two independent clauses together with one of the following conjunctive adverbs: however, moreover, therefore, consequently, otherwise, nevertheless, thus, etc.
+
+Use a colon after an independent clause to introduce a list.
+
+Punctuation always goes inside quotation marks, except for the colon and semicolon. Use single quotation marks around quotes within quotes. Quotes may be used around a new or special usage of a term the first time only, but use of quotes in this manner should be kept to a minimum.
+
+Direct quotes should be set in quotation marks in roman font. Text should not be in italics.
+
+Do not use double parentheses in text expressions, but keep them in math. For example, (see (10)) should become [see (10)].
+
+All acronyms and numerical plurals do not use apostrophes, i.e., FETs, 1980s (Note: Some exceptions may apply in mathematical writing.)
+
+Compound nouns made from a one-syllable verb and a short adverb are one word when found that way in the dictionary (setup, takeoff, breakup). Compound nouns are likely to be two words, without a hyphen, or one word (bandwidth, bypass, flowchart, phase shift, sideband, standing wave). Compound nouns of more than two words can be hyphenated.
+
+A pair of words, modifying a third word separately, does not get a hyphen (a tall water tower, a hot metal cylinder). If the first word modifies the second, and the pair together modify the third, there is a hyphen between the pair (a highfrequency signal, a secondorder equation). The exception to this is the adverb ending in “ly,” which needs no hyphen to join it to the next word.
+
+A hyphen is not used after the comparative or the superlative (a higher order equation, a worst case value, nearest neighbor method). Do not hyphenate chemical compounds (sodium chloride crystals). Alloys and mixtures take the en dash (Ni–Co, He–Ne laser).
+
+Do not use commas between adjectives (a planar equiangular spiral antenna).
+
+Do not hyphenate predicate adjectives (… is well known, …is second order). 
+
+If you are unsure, check The Merriam-Webster Dictionary to see if words are hyphenated.
+
+Compound verbs are generally hyphenated (arc-weld, freeze-dry). Keep the hyphen when using the participles of such verbs as adjectives (freezedried, arcwelded). However, verbs with up, out, down, off, on, etc., do not have a hyphen, although the nouns formed from them may be hyphenated or one word (verb: set up, break down, read out; noun: setup, breakdown, readout).
+
+Words Often Confused
+
+Affect: to change or modify (verb).
+
+Effect: result (noun); cause (verb).
+
+Alternate: a substitute.
+
+Alternative: a matter of choice.
+
+Among: involves more than two things.
+
+Between: involves more than two things, but considers each individually.
+
+Compare to: point out resemblances between different objects.
+
+Compare with: point out similarities and differences between same objects.
+
+Compose: to make up or form: a set composed of members.
+
+Comprise: to be made up of; to be formed by: a set comprising members; members comprising a set.
+
+Farther: distance.
+
+Further: quantity.
+
+Fewer: modifies plural nouns specifying countable units, e.g., fewer tubes.
+
+Less: modifies singular mass nouns and singular abstract nouns, e.g., less air.
+
+Imply: something suggested though not expressed.
+
+Infer: something deduced from evidence.
+
+Number: used when objects can be counted: a large number of people.
+
+Amount: used when objects cannot be counted: a large amount of water.
+
+Principal: chief, main, most important (adjective).
+
+Principle: a rule (noun).
+
+Precede: come before.
+
+Proceed: continue, advance.
+
+That: (defining, restrictive).
+
+Which: (nondefining, nonrestrictive)
+
+IV. APPENDIX
+
+A. Some Common Acronyms and Abbreviations
+
+NOTE: Asterisks (*) indicate terms which must be defined the first time they are used in text. Other terms listed here may be used without definition. 
+
+#
+
+1-D
+
+one-dimensional
+
+2-D
+
+two-dimensional
+
+3-D
+
+three-dimensional
+
+4-D
+
+four-dimensional
+
+A
+
+ac
+
+alternating current
+
+A–D, A/D
+
+analog-to-digital
+
+AF
+
+audio frequency*
+
+AFC
+
+automatic frequency control*
+
+AGC
+
+automatic gain control*
+
+AM
+
+amplitude modulation
+
+APD
+
+avalanche photodiode
+
+AR
+
+antireflection*
+
+ARMA
+
+autoregressive moving average*
+
+ASIC
+
+application-specified integrated circuit*
+
+ASK
+
+amplitude shift keying
+
+ATM
+
+asynchronous transfer mode
+
+av
+
+average (subscript)*
+
+avg
+
+average (function)
+
+AWGN
+
+additive white Gaussian noise*
+
+B
+
+B–E
+
+base–emitter source
+
+BER
+
+bit error rate*
+
+BPSK
+
+binary phase-shift keying
+
+BWO
+
+backward-wave oscillator*
+
+C
+
+c.c.
+
+complex conjugate (in equations)
+
+CCD
+
+charge-coupled device*
+
+CDMA
+
+code division multiple access*
+
+CD-ROM
+
+compact disk read-only memory
+
+CIM
+
+computer integrated manufacturing*
+
+CIR
+
+carrier-to-interference ratio*
+
+CMOS
+
+complimentary metal–oxide–semiconductor
+
+CPFSK
+
+continuous phase frequency-shift keying*
+
+CPM
+
+continuous phase modulation*
+
+CPSK
+
+continuous phase-shift keying*
+
+CPU
+
+central processing unit
+
+CRT
+
+cathode-ray tube
+
+CT
+
+current transformer*
+
+CV
+
+capacitance–voltage
+
+CW
+
+continuous wave*
+
+D
+
+dc
+
+direct current
+
+DC
+
+directional coupler
+
+DF
+
+direction finder*; deuterium fluoride; degree of freedom*
+
+DFT
+
+discrete Fourier transform*
+
+DMA
+
+direct memory access*
+
+DPCM
+
+differential pulse code modulation*
+
+DPSK
+
+differential phase-shift keying*
+
+E
+
+EDP
+
+electronic data processing
+
+EHF
+
+extremely high frequency*
+
+ELF
+
+extremely low frequency*
+
+EMC
+
+electromagnetic compatibility*
+
+EMF
+
+electromotive force*
+
+EMI
+
+electromagnetic interference*
+
+ems
+
+expected value of mean square*
+
+F
+
+FDM
+
+frequency division multiplexing*
+
+FDMA
+
+frequency division multiple access*
+
+FET
+
+field-effect transistor
+
+FFT
+
+fast Fourier transform*
+
+FIR
+
+finite-impulse response*
+
+FM
+
+frequency modulation
+
+FSK
+
+frequency-shift keying*
+
+FTP
+
+file transfer protocol
+
+FWHM
+
+full-width at half-maximum*
+
+G
+
+GUI
+
+graphical user interface
+
+H
+
+HBT
+
+heterojunction bipolar transistor
+
+HEMT
+
+high-electron mobility transistor
+
+HF
+
+high frequency
+
+HTML
+
+hypertext markup language
+
+HV
+
+high voltage
+
+HVdc
+
+high voltage direct current
+
+I
+
+IC
+
+impedance compensation*; integrated circuit
+
+ID
+
+inside diameter; induced draft*; interdigital*
+
+IDP
+
+integrated data processing*
+
+IF
+
+intermediate frequency
+
+IGFET
+
+insulated-gate field-effect transistor
+
+i.i.d.
+
+independent identically distributed*
+
+IM
+
+intermediate modulation
+
+IMPATT
+
+impact ionization avalanche transit time (diode)
+
+I/O, I–O
+
+input–output
+
+IR
+
+infrared
+
+IR
+
+current-resistance
+
+ISI
+
+intersymbol interference
+
+I–V
+
+current–voltage
+
+J
+
+JFET
+
+junction field-effect transistor
+
+JPEG
+
+Joint Photographers Expert Group
+
+L
+
+LAN
+
+local area network
+
+LC
+
+inductance–capacitance
+
+LED
+
+light-emitting diode
+
+LHS
+
+left-hand side*
+
+L–I
+
+light output–current
+
+LMS
+
+least mean square
+
+LO
+
+local oscillator*
+
+LP
+
+linear programming*
+
+LPE
+
+liquid phase epitaxy*
+
+LR
+
+inductance–resistance
+
+M
+
+MESFET
+
+metal–semiconductor field-effect transistor
+
+MF
+
+medium frequency*
+
+MFSK
+
+minimum frequency-shift keying
+
+MHD
+
+magnetohydrodynamics
+
+MIS
+
+metal–insulator–semiconductor
+
+MLE
+
+maximum-likelihood estimator*
+
+MLSE
+
+maximum-likelihood sequence estimator*
+
+MMF
+
+magnetomotive force
+
+MMIC
+
+monolithic microwave integrated circuit*
+
+MoM
+
+method of moments*
+
+MOS
+
+metal–oxide–semiconductor
+
+MOSFET
+
+metal–oxide–semiconductor field-effect transistor
+
+MOST
+
+metal–oxide–semiconductor transistor
+
+MPEG
+
+Motion Pictures Expert Group
+
+N
+
+NA
+
+numerical aperture*
+
+NIR
+
+near infrared response*
+
+NMR
+
+nuclear magnetic resonance*
+
+n-p-n
+
+(diode)
+
+NRZ
+
+nonreturn to zero*
+
+O
+
+OD
+
+outside diameter
+
+OEIC
+
+optoelectronic integrated circuit*
+
+OOP
+
+object-oriented programming
+
+P
+
+PAM
+
+pulse-amplitude modulation*
+
+PC
+
+personal computer
+
+PCM
+
+pulse-code modulation*
+
+pdf
+
+probability density function*
+
+PDM
+
+pulse-duration modulation*
+
+PF
+
+power factor*
+
+PID
+
+Proportional-integral differential
+
+p-i-n, p-n-p
+
+(diode)
+
+PLL
+
+phase-locked loop*
+
+PM
+
+phase modulation*
+
+PML
+
+perfectly matched layer
+
+pp, p–p
+
+peak-to-peak*
+
+PPM
+
+pulse-position modulation*
+
+PRF
+
+pulse-repetition frequency*
+
+PRR
+
+pulse-repetition rate*
+
+PSK
+
+phase-shift keying*
+
+PTM
+
+pulse–time modulation
+
+p.u.
+
+per unit*
+
+PWM
+
+pulse width modulation*
+
+Q
+
+Q
+
+quality factor; figure of merit
+
+QoS
+
+quality of service
+
+QPSK
+
+quaternary phase-shift keying
+
+R
+
+RAM
+
+random access memory
+
+RC
+
+resistance–capacitance
+
+R&D
+
+research and development
+
+RF
+
+radio frequency
+
+RFI
+
+radio frequency interference*
+
+RHS
+
+right-hand side*
+
+RIN
+
+relative intensity noise*
+
+RL
+
+resistance–inductance
+
+rms
+
+root mean square
+
+ROM
+
+read-only memory
+
+RV
+
+random variable
+
+S
+
+SAW
+
+surface acoustic wave*
+
+SGML
+
+standard generalized markup language
+
+SHF
+
+super high frequency*
+
+SI
+
+International System of Units; severity index*
+
+SIR
+
+signal-to-interference ratio
+
+S/N, SNR
+
+signal-to-noise ratio
+
+SOC
+
+system-on-a-chip*
+
+SSB
+
+single sideband*
+
+SW
+
+short wave*
+
+SWR
+
+standing-wave ratio*
+
+T
+
+TDM
+
+time-division modulation*; time-division multiplexing*
+
+TDMA
+
+time-division multiple access*
+
+TE
+
+transverse electric
+
+TEM
+
+transverse electromagnetic
+
+TFT
+
+thin-film transistor*
+
+TM
+
+transverse magnetic
+
+TVI
+
+television interference*
+
+TWA
+
+traveling-wave amplifier*
+
+U
+
+UHF
+
+ultrahigh frequency
+
+UV
+
+Ultraviolet
+
+V
+
+VCO
+
+voltage-controlled oscillator*
+
+VHF
+
+very high frequency*
+
+V–I
+
+voltage–current
+
+VLF
+
+very low frequency*
+
+VLSI
+
+very large scale integration*
+
+W
+
+WAN
+
+wide area network
+
+WDM
+
+wavelength division multiplexing*
+
+B. Common Hyphenations and Misspellings
+
+A
+
+a posteriori
+
+a priori
+
+Abelian
+
+accommodate
+
+acknowledgment
+
+acoustoelectric
+
+acoustooptical
+
+ad hoc
+
+ad hoc networks
+
+adder
+
+aerospace
+
+aftereffect
+
+airborne
+
+all-pass (adj)
+
+Alnico
+
+alphameric
+
+alphanumeric
+
+analog (not analogue)
+
+appendixes
+
+arc-back (n, adj)
+
+arc-over (n, adj)
+
+axle
+
+B
+
+back EMF
+
+back-end (adj)
+
+backscatter
+
+[band-letter(s)]-band (adj.)
+
+(e.g., X-band)
+
+band-limited (adj)
+
+bandpass
+
+band-shared (adj)
+
+bandwidth
+
+bang-bang
+
+base–emitter [en dash]
+
+base–collector [en dash]
+
+baseband
+
+baseline
+
+Bayes’ rule
+
+beamwidth
+
+Bernoulli polynomial
+
+Bessel function
+
+bimetallic
+
+biomedical
+
+blackbody
+
+Boltzmann’s constant
+
+Boolean algebra
+
+broadband 
+
+bulk–source [en dash]
+
+bus (not buss)
+
+bypass
+
+C
+
+Cartesian
+
+Cascade
+
+cascode
+
+Cauchy’s inequality
+
+Chebyshev 
+
+(not Tchebbycheff)
+
+chi-square
+
+Clebsch–Gordan coefficient
+
+coauthor (also, coworker)
+
+coax (coaxial)
+
+collinear (not colinear)
+
+continuous-time (adj)
+
+coset
+
+costate
+
+Coulomb wave function
+
+counterclockwise
+
+counterexample
+
+coworker
+
+coupled-mode (adj)
+
+cross correlation
+
+crossover
+
+cross section
+
+cross-sectional (adj)
+
+crosstalk
+
+cutoff
+
+cybersecurity
+
+D
+
+database
+
+deadtime (or dead time)
+
+debug, debugged
+
+Debye temperature
+
+Dewar
+
+diagramed
+
+dielectric
+
+diesel
+
+digamma function
+
+Dirac
+
+discretization
+
+discusser
+
+Doppler
+
+drain–source [en dash]
+
+dropout
+
+dyadic
+
+E
+
+eccentricity
+
+eigenfunction
+
+eigenvalue
+
+eigenvector
+
+elastance
+
+elastooptical
+
+electrooptic
+
+elliptical coordinates
+
+elliptic integrals
+
+emitter–bulk [en dash]
+
+end-effector
+
+endfire
+
+endpoint
+
+et al.
+
+Euler function
+
+exponentiate
+
+F
+
+fan-in
+
+fan-out
+
+far-field (adj)
+
+fast Fourier transform
+
+feedback
+
+feedback-free (adj)
+
+first-order (adj)
+
+flat-band
+
+flip-flop
+
+flowchart
+
+flowmeter
+
+flowthrough
+
+fold (twofold, n-fold)
+
+foreword
+
+formulas (not formulae)
+
+forward scatter
+
+4-vector
+
+front-end (adj)
+
+Fresnel
+
+G
+
+gate–source [en dash]
+
+gate–drain [en dash]
+
+gauge (not gage)
+
+Gaussian distribution
+
+Gegenbauer
+
+gimbaled
+
+gradient
+
+(the) Green’s function
+
+Gudermannian
+
+H
+
+half-angle
+
+half-plane
+
+half-space
+
+half-wave
+
+halfway
+
+Hankel function
+
+Heaviside
+
+Hermite
+
+Hermitian
+
+Hertzian
+
+higher order (adj)
+
+high-order (adj)
+
+high-pass (adj)
+
+hookup
+
+hydroelectric
+
+I
+
+iff (if and only if)
+
+imbalance (n)
+
+inasmuch as
+
+indexes (plural of index)
+
+indices (plural used in math)
+
+infrared
+
+inhomogeneous
+
+input, inputted
+
+input–output [en dash]
+
+in situ
+
+insofar as
+
+in vitro
+
+in vivo
+
+integer
+
+integral
+
+integrand
+
+integrator
+
+integro-differential
+
+Internet
+
+Itô
+
+J
+
+Jacobian
+
+Jacobi’s polynomials
+
+K
+
+Kronecker delta
+
+L
+
+Lagrange
+
+Lagrangian
+
+Laguerre polynomial
+
+Lame’s transform
+
+Laplace transform
+
+Laplacian
+
+Laurent series
+
+left-hand side
+
+leftmost
+
+Legendre
+
+Leibnitz (or Leibniz)
+
+leveled
+
+lightweight
+
+like (suffix, close up)
+
+line shape
+
+lineup
+
+linewidth
+
+lockout
+
+log-likelihood (adj)
+
+lookup table
+
+loudspeaker
+
+lower order (adj)
+
+low-order (adj)
+
+low-pass (adj)
+
+Lur’e
+
+Lurie
+
+Lyapunov (not Liapunov)
+
+M
+
+macro (noun)
+
+magnetohydrodynamics
+
+magnetooptic
+
+main lobe
+
+makeup
+
+manhole
+
+man-hour
+
+man-made
+
+manpower
+
+Markov process
+
+m-ary
+
+Mathieu’s equation
+
+matrices
+
+mean-square
+
+mid (prefix) close up
+
+midband
+
+midline
+
+midplane
+
+midpoint
+
+miniscule
+
+missile
+
+modem
+
+modulo (mod)
+
+modulus
+
+monotonic 
+
+monotonically
+
+monotonicity
+
+Mossbauer
+
+m-sequence (noun)
+
+multi (prefix) usually one word
+
+multithreshold
+
+Mylar
+
+N
+
+narrowband (adj)
+
+n-ary
+
+nearby
+
+near-field (adj)
+
+neoprene
+
+Neumann
+
+n-junction
+
+n-layer
+
+non (prefix) one word
+
+non-Euclidean
+
+non-Gaussian
+
+non-Hermitiannonnegative
+
+non-Stokes’
+
+nonzero
+
+NP-hard
+
+nth-order (adj)
+
+n-tuple
+
+n-type
+
+n-well
+
+O
+
+ohmmeter
+
+one-dimensional (adj)
+
+ored, oring
+
+on-off
+
+output, outputted
+
+overall (adj)
+
+P
+
+parameterization
+
+particle
+
+passband
+
+percent
+
+Permalloy
+
+Perspex
+
+phaselength
+
+phase shift
+
+phasewidth
+
+photoelectric
+
+photoetch
+
+photoresist
+
+pickup
+
+piecewise linear
+
+piezoelectricity
+
+p-i-n
+
+pinchoff
+
+p-junction
+
+Planck’s constant
+
+p-n junction
+
+p-n-p (not PNP)
+
+p^+-n-p^++
+
+Poisson distribution
+
+positive definite
+
+postmultiplication
+
+pothead
+
+potline
+
+powerhouse
+
+power plant
+
+preceding
+
+premultiplication
+
+printout
+
+proceeding
+
+programmed
+
+proof (suffix) one word
+
+propagation
+
+pseudo (prefix) one word
+
+pseudorandom
+
+p-type
+
+pull-in
+
+pull-out
+
+pulselength
+
+pulse shape
+
+pulsewidth
+
+punchthrough
+
+p-well
+
+Q
+
+quadratic
+
+quarter-wave
+
+quartic
+
+quasi- (prefix) hyphen
+
+quaternary
+
+Q value
+
+R
+
+radioactive
+
+radio-astronomic
+
+radio astronomy
+
+radio frequency
+
+random access (adj)
+
+readback
+
+read head
+
+readin (noun)
+
+readout (noun)
+
+real-valued (adj)
+
+reentry
+
+reexamine
+
+Riccati
+
+Riemann
+
+right-hand side
+
+rise time
+
+root-mean-square (adj)
+
+roundoff (adj)
+
+Runge–Kutta
+
+S
+
+saddle point
+
+scalar (magnitude)
+
+scaler (machine)
+
+scalor (rare)
+
+self- (prefix) hyphen
+
+self-adjoint
+
+semi (prefix) usually one word
+
+semi-infinite
+
+servo (servomechanism)
+
+servo amplifier
+
+-shaped (hyphen)
+
+sideband
+
+sidelobe
+
+signaling
+
+slip ring
+
+slow wave
+
+so-called
+
+solid-state (adj)
+
+space-time
+
+special-purpose (adj)
+
+spirule
+
+state of the art (noun)
+
+state-variable (adj)
+
+step-down
+
+step-up
+
+Stirling numbers
+
+Stokes’
+
+stopband
+
+straightforward
+
+strain gauge
+
+Struve’s function
+
+Sturm–Liouville [en dash]
+
+suboptimum
+
+subproblem
+
+succeeding
+
+successive
+
+summable, asummable
+
+supercoding
+
+supermartingale
+
+supersede
+
+switchgear
+
+switchyard
+
+T
+
+table lookup
+
+takeoff
+
+Taylor expansion
+
+Tchebbyscheff 
+
+(use Chebyshev)
+
+Teflon
+
+Teletype
+
+teletypewriter
+
+tensor
+
+thin-film (adj)
+
+threefold
+
+3-space
+
+throughput
+
+time dependence
+
+time-varying (adj)
+
+tradeoff
+
+traveling
+
+two-port (or 2-port)
+
+two’s complement
+
+-type (hyphen)
+
+U
+
+ultrahigh frequency
+
+ultrasonic
+
+ultraviolet
+
+unbalance (verb)
+
+V
+
+Van de Graaf
+
+van der Waals
+
+vector
+
+versus
+
+vertical
+
+vertices
+
+W
+
+watthour meter
+
+wattmeter
+
+waveband
+
+waveform
+
+wavefront
+
+wave function
+
+waveguide
+
+wavelength
+
+wavenumber
+
+wave shape
+
+wave vector
+
+wideband
+
+wide-sense (adj)
+
+widespread
+
+wise (suffix) one word
+
+worldwide
+
+worst case (adj)
+
+write head
+
+X
+
+x-axis
+
+x-direction
+
+X-ray (adj)
+
+xy plane
+
+Y
+
+Yagi
+
+Z
+
+Zener diode
+
+zero-input (adj)
+
+zero-sum (adj)
+
+zeroth-order (adj)
+
+z transform
+
+C. Table of Units and Quantity Symbols
+
+NOTE: Asterisks (*) indicate SI units, preferred multiples of SI units, or other units acceptable for use with SI.
+
+Unit
+
+Unit
+
+Symbol
+
+Sometimes Occur as: 
+
+(do not use)
+
+Applications and Notes
+
+Quantity Symbol 
+
+(for use as variables, etc.)
+
+*ampere
+
+A
+
+amp, a
+
+SI unit of electric current.
+
+I
+
+U
+
+F
+
+ampere-hour
+
+Ah
+
+amp-hr
+
+Also A · h.
+
+*ampere (turn)
+
+A
+
+At
+
+SI unit of magnetomotive force.
+
+F
+
+*ampere per meter
+
+A/m
+
+SI unit of magnetic fieldstrength.
+
+A
+
+H
+
+ångström
+
+Å
+
+Å
+
+Å Δ 10-10 m.
+
+Deprecated (see ANSI/IEEEStd 268-1992).
+
+atmosphere, standard
+
+atm
+
+atm Δ 101 325 Pa.
+
+Deprecated (see ANSI/IEEEStd 268-1992).
+
+atmosphere, technical
+
+at
+
+at Δ kgf/cm2.
+
+Deprecated (see ANSI/IEEE Std 268-1992).
+
+*atomic mass unit (unified)
+
+u
+
+The (unified) atomic mass unit is defined as one-twelfth of the mass of an atom of the carbon-12 nuclide. Use of the old atomic mass unit (amu), defined by reference to oxygen, is deprecated.
+
+*atto
+
+a
+
+SI prefix for 10-18.
+
+*attoampere
+
+aA
+
+bar
+
+bar
+
+b, barye
+
+bar Δ 100 kPa. Use of the bar is strongly discouraged (see ANSI/IEEE Std 268-1992). Except for limited use in meteorology.
+
+barn
+
+b
+
+b Δ 10-28 m2.
+
+barrel
+
+bbl
+
+bbl = 42 galUS = 158.99 L.
+
+This is the standard barrel used for petroleum and petroleum products. Different standard barrels are used for other commodities.
+
+barrel per day
+
+bbl/d
+
+baud
+
+Bd
+
+baud (w/prefix)
+
+In telecommunications, a unit of signaling speed equal to one element per second. The signaling speed in bauds is equal to the reciprocal of the signal element length in seconds.
+
+1/τ
+
+bel
+
+B
+
+b
+
+*becquerel
+
+Bq
+
+SI unit of activity of a radionuclide.
+
+billion electronvolts
+
+GeV
+
+bev, BeV
+
+The name gigaelectronvolt is preferred for this unit.
+
+bit
+
+b
+
+In information theory, the bit is a unit of information content equal to the information content of a message, the a priori probability of which is one-half. In computer science, the name bit is used as a short form of binary digit.
+
+bit per second
+
+b/s
+
+British thermal unit
+
+Btu
+
+byte
+
+B
+
+A byte is a string of bits, usually eight bits long, operated on as a unit. A byte is capable of holding one character set.
+
+calorie (International Table)
+
+calIT
+
+Δ calIT 4.1868 J. Deprecated (see ANSI/IEEE Std 268-1992).
+
+calorie (thermochemical)
+
+cal
+
+Δ cal 4.1840 J. Deprecated (see ANSI/IEEE Std 268-1992).
+
+*candela
+
+cd
+
+SI unit of luminous intensity.
+
+I
+
+candela per square inch
+
+cd/in2
+
+Use of the SI unit cd/m2 is preferred.
+
+*candela per square meter
+
+cd/m2
+
+nit
+
+SI unit of luminance.
+
+L
+
+candle
+
+cd
+
+The unit of luminous intensity has been given the name candela. Use of the name candle for this unit is deprecated.
+
+*centi
+
+c (prefix)
+
+SI prefix for 10-2.
+
+*centimeter
+
+cm
+
+centipoise
+
+cP
+
+cP Δ mPa · s. The name centipoise is deprecated (see ANSI/IEEE Std 268-1992).
+
+centistokes
+
+cSt
+
+cSt Δ mm2/s. The name centistokes is deprecated (see ANSI/IEEE Std 268-1992).
+
+*circular mil
+
+cmil
+
+cmil Δ (π/4) · 10-6in2.
+
+*coulomb
+
+C
+
+c
+
+SI unit of electric charge.
+
+Q
+
+*cubic centimeter
+
+cm3
+
+cc
+
+Volume. (Preferred SI unit multiple.)
+
+cubic foot
+
+ft3
+
+cubic foot per minute
+
+ft3/min
+
+cfm
+
+cubic foot per second
+
+ft3/s
+
+cubic inch
+
+in3
+
+*cubic meter
+
+m3
+
+*cubic meter per second
+
+m3/s
+
+cubic yard
+
+yd3
+
+curie
+
+Ci
+
+C
+
+Ci Δ 3.7 x1010 Bq. A unit of activity of a radionuclide. Use of the SI unit, the becquerel, is preferred.
+
+cycle per second
+
+Hz
+
+c/s, cps, c/sec, cycle
+
+See hertz.
+
+darcy
+
+D
+
+D Δ cP·(cm/s)·(cm/atm) = 0.986923 µm2. A unit of permeability of a porous medium. By traditional definition, a permeability of one darcy will permit a flow of 1 cm3/s of fluid of 
+
+1 cP viscosity through an area of 1 cm2 under a pressure gradient of 1 atm/cm. Deprecated (see ANSI/IEEE Std 268-1992).
+
+day
+
+d
+
+day Δ 24 h.
+
+deci
+
+d (prefix)
+
+SI prefix for 10-1.
+
+decibel
+
+dB
+
+db, DB
+
+degree (plane angle)
+
+···°
+
+deg
+
+degree (temperature)
+
+degree Celsius
+
+°C
+
+degree centigrade
+
+SI unit of Celsius temperature. The degree Celsius is a special name for the kelvin, used in expressing Celsius temperatures or temperature intervals.
+
+t
+
+degree Fahrenheit
+
+°F
+
+Note that the symbols for °C, °F, and °R are comprised of two elements, written with no space between the ° and the letter that follows. The two elements that make the complete symbol are not to be separated.
+
+degree kelvin
+
+K
+
+See kelvin.
+
+degree Rankine
+
+°R
+
+deka
+
+da
+
+SI prefix for 10.
+
+dyne
+
+dyn
+
+dyne
+
+dyn Δ 10-5 N. Deprecated (see ANSI/IEEE Std 268-1992).
+
+F
+
+*electronvolt
+
+eV
+
+ev
+
+erg
+
+erg
+
+erg Δ 10-7 J. Deprecated (see ANSI/IEEE Std 268-1992).
+
+exa
+
+E
+
+SI prefix for 1018.
+
+exbi
+
+Ei
+
+Prefix for 260.
+
+*farad
+
+F
+
+f, fd
+
+SI unit of capacitance.
+
+C
+
+*femto
+
+f
+
+SI prefix for 10-15.
+
+femtometer
+
+fm
+
+foot
+
+ft
+
+ft Δ 0.3048 m.
+
+foot of water
+
+ftH2O
+
+ftH2O = 2989.1 Pa. (ISO).1
+
+foot per minute
+
+ft/min
+
+fpm
+
+foot per second
+
+ft/s
+
+fps, ft/sec
+
+foot per second squared
+
+ft/s2
+
+foot pound-force
+
+ft · lbf
+
+footcandle
+
+fc
+
+fc Δ lm/ft2. The name lumen per square foot is also used for this unit. Use of the SI unit of illuminance, the lux (lumen) per square meter, is preferred.
+
+footlambert
+
+fL
+
+fL Δ (1/π) cd/ft2. A unit of luminance. One lumen per square foot leaves a surface whose luminance is one footlambert in all directions within a hemisphere. Use of the SI unit, the candela per square meter, is preferred.
+
+gal
+
+Gal
+
+Gal Δ cm/s. Deprecated (see ANSI/IEEE Std 268-1992).
+
+gallon
+
+gal
+
+1 galUK = 4.5461 L.
+
+1 galUS Δ 231 in3 = 3.7854 L.
+
+gauss
+
+G
+
+The gauss is the electromagnetic CGS unit of magnetic flux density. Deprecated (see ANSI/IEEE Std. 268-1992).
+
+B
+
+gibi
+
+Gi
+
+Prefix for 230.
+
+*giga
+
+G
+
+kM
+
+SI prefix for 109.
+
+gigabyte
+
+GB
+
+GB Δ 109 B.
+
+*gigaelectronvolt
+
+GeV
+
+bev, BeV
+
+*gigahertz
+
+GHz
+
+kMHz, KMC, Gc/s
+
+1The term “(ISO)” means that the definition is from ISO 31.
+
+gilbert
+
+Gb
+
+The gilbert is the electromagnetic CGS unit of magnetomotive force. Deprecated (see ANSI/IEEE Std 268-1992).
+
+grain
+
+gr
+
+gr Δ lb/7000.
+
+*gram
+
+g
+
+gm
+
+m
+
+gram per cubic centimeter
+
+g/cm3
+
+*gray
+
+Gy
+
+SI unit of absorbed dose in the field of radiation dosimetry.
+
+*hecto
+
+h
+
+SI prefix for 102.
+
+*henry
+
+H
+
+Hy, hy
+
+SI unit of inductance.
+
+LP, Pm
+
+*hertz
+
+Hz
+
+cps, c/s, cycle
+
+SI unit of frequency.
+
+f , νB
+
+horsepower
+
+hp
+
+hp Δ 550 ft · lbf/s = 746 W. The horsepower is an anachronism in science and technology. Use of the SI unit of power, the watt, is preferred.
+
+*hour
+
+h
+
+hr
+
+inch
+
+in
+
+in.
+
+in Δ 2.54 cm.
+
+inch of mercury
+
+inHg
+
+inHg = 3386.4 Pa (ISO).
+
+inch of water
+
+inH2O
+
+inH2O = 249.09 Pa (ISO).
+
+inch per second
+
+in/s
+
+ips
+
+*joule
+
+J
+
+SI unit of energy,work,and quantity of heat.
+
+EWQ
+
+*joule per kelvin
+
+J/K
+
+SI unit of heat capacity and of entropy.
+
+S
+
+kelvin
+
+K
+
+In 1967, the CPGM gave the name kelvin to the SI unit of temperature, which had formerly been called degree kelvin, and assigned it the symbol K (without the symbol °).
+
+kibi
+
+Ki
+
+Prefix for 210.
+
+*kilo
+
+k
+
+SI prefix for 103. The symbol k shall not be used for kilo. The prefix kilo shall not be used to mean 210 (that is, 1024).
+
+*kilobit per second
+
+kb/s
+
+*kilobyte
+
+kB
+
+kB Δ 1000 bytes.
+
+kilogauss
+
+kG
+
+Deprecated (see ANSI/IEEE Std 268-1992).
+
+*kilogram
+
+kg
+
+SI unit of mass.
+
+kilogram-force
+
+kgf
+
+Deprecated (see ANSI/IEEE Std 268-1992). In some countries the name kilopond (kp) has been used for this unit.
+
+*kilohertz
+
+kHz
+
+*kilohm
+
+kΩ
+
+R
+
+*kilometer
+
+km
+
+*kilometer per hour
+
+km/h
+
+kilopound-force
+
+klbf
+
+Kilopound-force should not be misinterpreted as kilopond (see kilogram-force).
+
+*kilovar
+
+kvar
+
+Q
+
+*kilovolt
+
+kV
+
+*kilovoltampere
+
+kVA
+
+KVA, kva
+
+*kilowatt
+
+kW
+
+kilowatthour
+
+kWh
+
+Also kW·h.
+
+knot
+
+kn
+
+kn Δ nmi/h. 0.514 m/s.
+
+lambert
+
+L
+
+L Δ (1/π)cd/cm2. A CGS unit of luminance. One lumen per square centimeter leaves a surface whose luminance is one lambert in all directions within a hemisphere. Deprecated (see ANSI/IEEE Std 268-1992).
+
+*liter
+
+L
+
+L Δ 10-3 m3. In 1979, the CGPM approved L and l as alternative symbols for the liter. Because of frequent confusion with the numeral 1, the letter symbol l is not recommended for U.S. use (see Federal Register notice of December 20, 1990, vol. 55, no. 245, p. 52242). The script l shall not be used as a symbol for liter.
+
+V, v
+
+liter per second
+
+L/s
+
+*lumen
+
+lm
+
+SI unit of luminous flux.
+
+Φ
+
+lumen per square foot
+
+lm/ft2
+
+A unit of illuminance and also a unit of luminous exitance. Use of the SI unit, lumen per square meter, is preferred.
+
+*lumen per square meter
+
+lm/m2
+
+SI unit of luminous exitance.
+
+M
+
+*lumen per watt
+
+lm/W
+
+SI unit of luminous efficacy.
+
+K(λ)K, Kt
+
+*lumen second
+
+lm·s
+
+SI unit of quantity of light.
+
+Q
+
+*lux
+
+lx
+
+1x/lm Δ /m2. SI unit of illuminance.
+
+E
+
+maxwell
+
+Mx
+
+The maxwell is the electromagnetic CGS unit of magnetic flux. Deprecated (see ANSI/IEEE Std 268-1992).
+
+mebi
+
+Mi
+
+Prefix for 220.
+
+*mega
+
+M
+
+SI prefix for 106. The prefix mega shall not be used to mean 220 (that is, 1 048 576).
+
+megabit per second
+
+Mb/s
+
+*megabyte
+
+MB
+
+MB Δ 1 000 000 bytes.
+
+*megaelectronvolt
+
+MeV
+
+*megahertz
+
+MHz
+
+*megohm
+
+MΩ
+
+M
+
+*meter
+
+m
+
+SI unit of length.
+
+L
+
+metric ton
+
+t
+
+t Δ 1000 kg. Use of the name tonne is deprecated in the U.S. (see ANSI/IEEE Std 268-1992).
+
+mho
+
+S
+
+Ω-1. The name mho was formerly given to the reciprocal ohm. Deprecated; see siemens (S).
+
+*micro
+
+µ
+
+SI prefix for 10-6.
+
+*microampere
+
+µA
+
+*microfarad
+
+µF
+
+*microgram
+
+µg
+
+*microhenry
+
+µH
+
+microinch
+
+µin
+
+*microliter
+
+µL
+
+See note for liter.
+
+*micrometer
+
+µm
+
+µ
+
+micron
+
+µm
+
+µ
+
+The name micron is deprecated.
+
+Use micrometer.
+
+*microsecond
+
+µs
+
+*microwatt
+
+µW
+
+mil
+
+mil
+
+mil Δ 0.001 in.
+
+mile (statute)
+
+mi
+
+mi Δ 5280 ft = 1609 m.
+
+mile per hour
+
+mi/h
+
+mph
+
+Although use of mph as an abbreviation is common, it should not be used as a symbol.
+
+*milli
+
+m
+
+SI prefix for 10-3.
+
+*milliampere
+
+mA
+
+millibar
+
+mbar
+
+Use of the bar is strongly discouraged in ANSI/IEEE Std 268-1992, except for limited use in meteorology.
+
+*milligram
+
+mg
+
+*millihenry
+
+mH
+
+*milliliter
+
+mL
+
+See liter.
+
+*millimeter
+
+mm
+
+millimeter of mercury
+
+mmHg
+
+mmHg = 133.322 Pa. Deprecated (see ANSI/IEEE Std 268-1992).
+
+millimicron
+
+nm
+
+Use of the name millimicron for the nanometer is deprecated.
+
+*millipascal second
+
+mPa · s
+
+SI unit-multiple of dynamic viscosity.
+
+*millisecond
+
+ms
+
+*millivolt
+
+mV
+
+*milliwatt
+
+mW
+
+*minute (plane angle)
+
+′
+
+*minute (time)
+
+min
+
+Time may also be designated by means of superscripts as in the following example: 9h46m30s.
+
+*mole
+
+mol
+
+SI unit of amount of substance. The mole is the amount of substance of a system that contains as many elementary entities as there are atoms in 0.012 kg of carbon 12. When the mole is used, the elementary entities shall be specified and may be atoms, molecules, ions, electrons, other particles, or specified groups of such particles.
+
+month       
+
+mo
+
+*nano
+
+n
+
+SI prefix for 10-9.
+
+*nanoampere
+
+nA
+
+*nanofarad
+
+nF
+
+*nanometer
+
+nm
+
+*nanosecond
+
+ns
+
+nautical mile
+
+nmi
+
+nmi Δ 1852 m.
+
+*neper
+
+Np
+
+*newton
+
+N
+
+SI unit of force.
+
+*newton meter
+
+N · m
+
+*newton per square meter
+
+N/m2
+
+SI unit of pressure or stress. See pascal.
+
+oersted
+
+Oe
+
+oe
+
+The oersted is the electromagnetic CGS unit of magnetic field strength. Deprecated (see ANSI/IEEE Std 268-1992).
+
+*ohm
+
+Ω
+
+SI unit of resistance.
+
+ounce (avoirdupois)
+
+oz
+
+oz Δ 1/16 lb = 28.350 g.
+
+*pascal
+
+Pa
+
+Pa Δ N/m2. SI unit of pressure or stress.
+
+*pascal second
+
+Pa · s
+
+SI unit of dynamic viscosity.
+
+pebi
+
+Pi
+
+Prefix for 250.
+
+*peta
+
+P
+
+SI prefix for 1015.
+
+phot
+
+ph
+
+ph Δ lm/cm2. CGS unit of illuminance. Deprecated (see ANSI/IEEE Std 268-1992).
+
+*pico
+
+p
+
+SI prefix for 10-12.
+
+*picofarad
+
+pF
+
+*picowatt
+
+pW
+
+pint
+
+pt
+
+pt (U.K.) = 0.568 26 L.
+
+pt (U.S. dry) = 0.550 6 L.
+
+pt (U.S. liquid) = 0.473 18 L.
+
+poise
+
+P
+
+Deprecated (see ANSI/IEEE Std 268-1992).
+
+pound (avoirdupois)
+
+lb
+
+lb Δ 0.453 592 37 kg.
+
+pound per cubic foot
+
+lb/ft3
+
+pound-force
+
+lbf
+
+lbf = 4.4482 N.
+
+pound-force foot
+
+lbf · ft
+
+pound-force per square foot
+
+lbf/ft2
+
+pound-force per square inch
+
+lbf/in2
+
+psi
+
+Although use of the abbreviation psi is common, it should not be used as a symbol.
+
+poundal
+
+pdl
+
+pdl Δ lb · ft/s2 = 0.1383 N
+
+quart
+
+qt
+
+qt (U.K.) = 1.1365 L.
+
+qt (U.S. dry) = 1.1012 L.
+
+qt (U.S. liquid) = 0.946 35 L.
+
+rad
+
+rd
+
+rd Δ 0.01 Gy. A unit of absorbed dose in the field of radiation dosimetry. Use of the SI unit, the gray, is preferred.
+
+*radian
+
+rad
+
+SI unit of plane angle.
+
+rem
+
+rem
+
+rem Δ 0.01 Sv. A unit of dose equivalent in the field of radiation dosimetry. Use of the SI unit, the sievert, is preferred. 1  rem = 0.01 Sv.
+
+revolution per minute
+
+r/min
+
+Although use of rpm as an abbreviation is common, it should not be used as a symbol.
+
+revolution per second
+
+r/s
+
+roentgen
+
+R
+
+A unit of exposure in the field of radiation dosimetry.
+
+*second (plane angle)
+
+''
+
+1'' = 4.848 · 10-6 rad.
+
+*second (time)
+
+s
+
+SI unit of time.
+
+*siemens
+
+S
+
+S Δ Ω-1. SI unit of conductance.
+
+*sievert
+
+Sv
+
+SI unit of dose equivalent in the field of radiation dosimetry.
+
+slug
+
+slug
+
+slug Δ lbf · s2/ft = 14.594 kg.
+
+square foot
+
+ft2
+
+square inch
+
+in2
+
+*square meter
+
+m2
+
+*square meter per second
+
+m2/s
+
+SI unit of kinematic viscosity.
+
+*square millimeter per second
+
+mm2/s
+
+SI unit-multiple of kinematic viscosity.
+
+square yard
+
+yd2
+
+*steradian
+
+sr
+
+SI unit of solid angle.
+
+stilb
+
+sb
+
+sb Δ cd/cm2. A CGS unit of luminance. Deprecated (see ANSI/IEEE Std 268-1992).
+
+stokes
+
+St
+
+Deprecated (see ANSI/IEEE Std 268-1992).
+
+tebi
+
+Ti
+
+Prefix for 240.
+
+*tera
+
+T
+
+SI prefix for 1012.
+
+terabyte
+
+TB
+
+TB Δ 1012 B.
+
+*tesla
+
+T
+
+T Δ N/(A · m)2 Δ Wb/m2. SI unit of magnetic flux density (magnetic induction).
+
+therm
+
+thm
+
+thm Δ 100 000 Btu.
+
+ton (short)
+
+ton
+
+ton Δ 2000 lb.
+
+ton, metric
+
+T
+
+t Δ 1000 kg. Use of the tonne for this unit is deprecated in the U.S. (see ANSI/IEEE Std 268-1992).
+
+torr
+
+torr
+
+A unit of pressure equal to 0.001316 atmosphere; named after Torricelli.
+
+*(unified) atomic mass unit
+
+u
+
+The (unified) atomic mass unit is defined as one-twelfth of the mass of an atom of the carbon- 12 nuclide. Use of the old atomic mass unit (amu), defined by reference to oxygen, is deprecated.
+
+*var
+
+var
+
+IEC name and symbol for SI unit of reactive power.
+
+*volt
+
+V
+
+SI unit of voltage.
+
+*volt per meter
+
+V/m
+
+SI unit of electric field strength.
+
+*voltampere
+
+VA
+
+va
+
+IEC name and symbol for SI unit of apparent power.
+
+*watt
+
+W
+
+SI unit of power.
+
+*watt per meter kelvin
+
+W/(m · K)
+
+SI unit of thermal conductivity.
+
+*watt per steradian
+
+W/sr
+
+SI unit of radiant intensity.
+
+*watt per steradian square meter
+
+(W/sr · m2)
+
+SI unit of radiance.
+
+watthour
+
+Wh
+
+*weber
+
+Wb
+
+Wb Δ V·s. SI unit of magnetic flux.
+
+yard
+
+yd
+
+yd Δ 0.9144 m.
+
+year
+
+a
+
+Also W·h.
+
+yobi
+
+Yi
+
+Prefix for 280.
+
+yocto
+
+y
+
+SI prefix for 10-24.
+
+yotta
+
+Y
+
+SI prefix for 1024.
+
+zebi
+
+Zi
+
+Prefix for 270.
+
+zepto
+
+z
+
+SI prefix for 10-21.
+
+zetta
+
+Z
+
+SI prefix for 1021.
+
+D. Miscellaneous Alphabetical Abbreviations, Acronyms, and Symbols
+
+NOTE: Key: fn—function name (roman); s—symbol (italic); u—unit abbreviation (roman); *—acronyms that must be defined in text.
+
+A
+
+A
+
+(s) Hermitian conjugate of A
+
+Å 
+
+(u) angstrom
+
+ab 
+
+(prefix) denotes absolute system of (CGS) units. Abampere, abcoulomb, abvolt, abohm, abfarad, abmho, abhenry (use not recommended, see units list)
+
+abs
+
+absolute
+
+ABS
+
+air-bearing surface
+
+Ac
+
+alternating current
+
+ACB
+
+air circuit breaker*
+
+ACSR 
+
+steel-reinforced aluminum cable*
+
+AD
+
+attention display*
+
+A–D, A/D 
+
+analog-to-digital
+
+ADF 
+
+automatic direction finder*
+
+a.e.
+
+almost everywhere (in equations)
+
+AEW
+
+airborne early warning*
+
+AF
+
+audio frequency*
+
+AFB 
+
+Air Force Base
+
+AFC 
+
+automatic frequency control*
+
+AFM 
+
+atomic force microscopy
+
+AGC 
+
+automatic gain control*
+
+AGFM
+
+alternating gradient force magnetometer
+
+AGM 
+
+arithmetical–geometric mean*
+
+A∙h (u)
+
+ampere hour
+
+Ai (fn)
+
+Airy integral
+
+AM
+
+amplitude modulation
+
+a.m. 
+
+ante meridiem (morning)
+
+ama
+
+automatic message accounting*
+
+and 
+
+(small caps) logical and operation
+
+ANI 
+
+automatic number identification
+
+ANN
+
+artificial neural network*
+
+antilog (fn) 
+
+antilogarithm
+
+AOGM 
+
+accelerated optimum gradient method*
+
+AOPT 
+
+air-operated press type*
+
+APD 
+
+avalanche photodiode
+
+API
+
+air position indicator*
+
+AQL 
+
+acceptable quality level
+
+AR 
+
+antireflection*; autoregressive*
+
+arcsin
+
+arccos
+
+arctan
+
+arccot
+
+arcsec
+
+arccsc
+
+(fn) inverse trigonometric functions
+
+arg
+
+(fn) argument
+
+ARMA 
+
+autoregressive moving average*
+
+a.s. 
+
+almost surely (in equations)
+
+ASE 
+
+amplified spontaneous emission*
+
+ASIC 
+
+application specified integrated circuit*
+
+ASK 
+
+amplitude-shift keying
+
+ASW 
+
+antisubmarine warfare* (note: for acoustic surface wave use SAW)
+
+at (u) 
+
+technical atmosphere: 1 kgf/cm
+
+At (u)
+
+ampere turn (note: no longer in use; change to A)
+
+ATM 
+
+asynchronous transfer mode*
+
+atm (u) 
+
+atmosphere
+
+ATR 
+
+antitransmit receive*
+
+ATT 
+
+avalanche transit time*
+
+av 
+
+average (subscript)
+
+AVC
+
+automatic volume control*
+
+avg (fn) 
+
+average (use av as subscript)
+
+AWE 
+
+asymptotic wave evaluation*
+
+AWG 
+
+American wire gauge
+
+AWGN 
+
+additive white Gaussian noise*
+
+B
+
+bar (u) 
+
+bar
+
+barye (u) 
+
+barye: microbar (use not recommended; see units list)
+
+bbl (u) 
+
+barrel (see units list)
+
+bcc 
+
+body-centered cubic (of crystals)
+
+BCD 
+
+binary coded decimal
+
+BCH 
+
+Bose–Chaudhuri–Hocquenghen (codes)
+
+BCT 
+
+bushing current transformer*
+
+Bd (u) 
+
+baud* (see units list)
+
+B–E 
+
+base–emitter source
+
+Be 
+
+Baume
+
+bei, ber (fn) 
+
+Kelvin forms of Bessel function
+
+BEM  
+
+boundary-element method
+
+BER 
+
+bit error rate*
+
+BeV, bev (u) 
+
+use GeV
+
+BFO
+
+beat-frequency oscillator*
+
+B–H B–H curve: 
+
+curve of magnetic induction (magnetic flux–density) versus magnetic intensity (field intensity) B–H relationship. B–H loop: hysteresis loop
+
+Bhp
+
+brake horsepower*
+
+Bi (fn) 
+
+Airy integral: (u) bit: = 10 A*
+
+BIL 
+
+basic impulse insulation level*
+
+BJT 
+
+bipolar junction transistor*
+
+BMEP 
+
+brake mean effective pressure*
+
+bpi (u) 
+
+bit per inch: use b/in
+
+bps (u)
+
+bit per second: use b/s
+
+BPSK 
+
+binary phase-shift keying
+
+BRA
+
+biased rectifier amplifier*
+
+BS 
+
+breaking strength*
+
+BS 
+
+British Standards*
+
+B&S 
+
+Brown and Sharpe gauge*
+
+BSF 
+
+bulk shielding facility*
+
+BSL 
+
+basic switching surge insulation level*
+
+BTU
+
+(u) British thermal unit
+
+BWG 
+
+Birmingham wire gauge*
+
+BWK 
+
+Brillouin–Wentzel–Kramers (method)*
+
+BWO 
+
+backward-wave oscillator*
+
+BWR 
+
+boiling water reactor*
+
+C
+
+C (u) 
+
+coulomb
+
+°C (o) 
+
+degree Celsius
+
+c (u) 
+
+cycle: use Hz; centi- (prefix to unit abbreviation)
+
+c (s) 
+
+speed of light in a vacuum
+
+cal (u) 
+
+calorie (use not recommended; see units list)
+
+CATV 
+
+community antenna television system
+
+cc (u) 
+
+cubic centimeter: use cm3
+
+c.c. 
+
+complex conjugate (in equations)
+
+CCB 
+
+coin collecting box (British telephones)*
+
+CCD 
+
+charge-coupled device*
+
+CCR 
+
+closed-cycle refrigerator*
+
+cd (u) 
+
+candela
+
+cdf
+
+cumulative distribution function*
+
+CDMA 
+
+code division multiple access*
+
+CDO 
+
+community dial offices*
+
+CD-ROM 
+
+compact disk read-only memory
+
+cdrx 
+
+external critical damping resistance: use caps*
+
+CEMF 
+
+counterelectromotive force*
+
+cf. 
+
+compare
+
+cfm (u) 
+
+cubic feet per minute: use ft3/min
+
+cfs (u)
+
+cubic feet per second: use ft3/s
+
+CGS
+
+centimeter-gram-second (system of units)
+
+Ci (fn) 
+
+cosine integral; (u) curie
+
+CIM
+
+computer integrated manufacturing*
+
+CIR 
+
+carrier-to-interference ratio*
+
+ckVA 
+
+capacitive kilovoltamperes (write out)
+
+cmil (u) 
+
+circular mil
+
+CMOS 
+
+complementary metal–oxide–semiconductor
+
+CNN 
+
+cellular neural network
+
+COP 
+
+coefficient of performance*
+
+cos
+
+cosec
+
+cosh
+
+cot
+
+coth
+
+covers
+
+(fn) cosine
+
+(fn) cosecant: use csc
+
+(fn) hyperbolic cosine
+
+(fn) cotangent
+
+(fn) hyperbolic cotangent
+
+(fn) coversine
+
+cP (o)
+
+centipoise (see units list)
+
+CPFSK 
+
+continuous phase frequency-shift keying*
+
+CPM 
+
+continuous phase modulation*
+
+CPSK
+
+continuous phase-shift keying; coherent phase-shift keying*
+
+CPU
+
+central processing unit
+
+CRO 
+
+cathode-ray oscilloscope
+
+CRS 
+
+cold-rolled steel*
+
+CRT 
+
+cathode-ray tube
+
+c/s (u) 
+
+cycle per second: use Hz
+
+csc (fn) 
+
+cosecant
+
+csch (fn)
+
+hyperbolic cosecant cs (u) centistokes: use cSt or write out (see units list)
+
+CSP 
+
+completely self-protected
+
+cSt (u) 
+
+centistokes (see units list)
+
+CSV 
+
+corona-starting voltage
+
+CT 
+
+current transformer*
+
+CTC 
+
+centralized traffic control
+
+ctn (fn) 
+
+cotangent: use cot
+
+curl (fn) 
+
+curl 
+
+CV 
+
+capacitance–voltage
+
+CVD 
+
+chemical vapor deposited
+
+CW 
+
+continuous wave*
+
+D
+
+DA 
+
+design automation
+
+dB (u) 
+
+decibel
+
+dc 
+
+direct current (DC at start of sentence or in article title)
+
+DC 
+
+directional coupler
+
+DDA 
+
+digital differential analyzer*
+
+DDD 
+
+direct distance dialing*
+
+DE 
+
+disruptive effect*
+
+det (fn) 
+
+determinant
+
+DF 
+
+direction finder*; deuterium fluoride; degree of freedom*
+
+DFB 
+
+distributed feedback
+
+DFT 
+
+discrete Fourier transform*
+
+diag 
+
+(diagonal)
+
+diam 
+
+diameter
+
+DIC 
+
+Diploma of membership in Imperial College of Science and Technology
+
+div (fn) 
+
+divergence; division (u) in charts
+
+DMA 
+
+direct memory access*
+
+DME 
+
+distance-measuring equipment*
+
+DOD 
+
+diameter over dielectric; Department of Defense
+
+DOF 
+
+degree of freedom (unit)
+
+DP 
+
+dial pulse*
+
+DPCM 
+
+differential pulse code modulation*
+
+DPDT 
+
+double-pole double-throw switch*
+
+DPH 
+
+diamond pool hardness*
+
+DPQSK 
+
+differential quadrature phase-shift keying*
+
+DPSK 
+
+differential phase-shift keying*
+
+DRCPR 
+
+differential reactive current protective relay*
+
+DRO 
+
+destructive readout*; doubly resonant oscillator
+
+DS
+
+dielectric strength*; direct sequence*
+
+DSB
+
+double sideband*
+
+DSP 
+
+digital signal processor
+
+DVP
+
+differential vapor pressure*
+
+DWT 
+
+discrete wavelet transform*
+
+dyn (u) 
+
+dyne
+
+E
+
+EB 
+
+emergency bank*
+
+EC 
+
+eddy current; electrical conductivity* (grade of Al)
+
+ECG 
+
+electrocardiogram
+
+ECL 
+
+emitter-coupled logic*
+
+ECM
+
+electronic countermeasures
+
+ECT 
+
+eddy current testing
+
+ED 
+
+enforced draft
+
+EDFA 
+
+erbium-doped fiber amplifiers*
+
+EDP 
+
+electronic data processing
+
+EDS 
+
+energy dispersive spectrometer
+
+EDX 
+
+energy dispersive X-ray
+
+EEG 
+
+electroencephalogram
+
+EHD 
+
+electrohydrodynamic*
+
+EHF 
+
+extremely high frequency*
+
+EHIPS 
+
+extra heavy iron pipe size*
+
+EHV 
+
+extra high voltage
+
+Ei (fn) 
+
+exponential integral
+
+ELF 
+
+extremely low frequency*
+
+EM 
+
+electromagnetic*
+
+EMC 
+
+electromagnetic compatibility*
+
+EMF 
+
+electromotive force*
+
+EMI 
+
+electromagnetic interference*
+
+ems 
+
+expected value of mean square*
+
+EMU 
+
+electromagnetic units
+
+EOF 
+
+end of file
+
+erf (fn) 
+
+error function
+
+erfc (fn) 
+
+complementary error function
+
+erg (u) 
+
+erg
+
+ERP 
+
+effective radiated power*
+
+ESS
+
+electrical sheet steel*
+
+ESU 
+
+electrostatic units
+
+eV (u) 
+
+electronvolt
+
+exor 
+
+exclusive-or circuit (small caps)
+
+exp (fn) 
+
+exponential function
+
+exsec (fn) 
+
+exsecant
+
+F
+
+f (f-stop, f/22) 
+
+ratio of focal length to aperture
+
+F (u) 
+
+farad
+
+°F (u) 
+
+degree Fahrenheit
+
+FA 
+
+forced-air-cooled transformer*
+
+fcc 
+
+face-centered cubic (of crystals)
+
+FCC 
+
+Federal Communications Commission
+
+FD
+
+flux density*
+
+FDA
+
+finite difference approximations*
+
+FDM 
+
+frequency-division multiplexing*
+
+FDMA 
+
+frequency-division multiple access*
+
+FDTD 
+
+finite-difference time domain*
+
+FEA  
+
+finite-element analysis
+
+FET 
+
+field-effect transistor
+
+ff. 
+
+following pages
+
+FFT 
+
+fast Fourier transform*
+
+FIFO 
+
+first-in first-out
+
+FIM 
+
+field intensity meter*
+
+FIR 
+
+finite-impulse response*
+
+fL (u) 
+
+footlambert
+
+FL 
+
+full load
+
+FM 
+
+frequency modulation
+
+FMFB 
+
+FM feedback receiver*
+
+FMR 
+
+frequency of maximum reliability*; ferromagnetic resonance
+
+FPGA 
+
+field-programmable gate array*
+
+fpm, fps (u)
+
+feet per minute: use ft/min; feet per second: use ft/s
+
+FS 
+
+full scale
+
+FSK 
+
+frequency-shift keying*
+
+FSM
+
+finite-state machine*
+
+ft (u) 
+
+foot
+
+FTL 
+
+flat tie-line*
+
+FTP 
+
+file transfer protocol
+
+FW 
+
+full wave
+
+FWHM 
+
+full-width at half-maximum*
+
+FWM 
+
+four-wave mixing*
+
+G
+
+G 
+
+giga- (prefix to unit abbreviations) = 109
+
+G (u) 
+
+gauss
+
+g 
+
+acceleration of gravity, “gee force”; use as unit with metric prefix, as in 3 mg
+
+G (s) 
+
+gravitational constant
+
+Gal (u) 
+
+gal (gravitational unit)
+
+gal (u) 
+
+gallon
+
+Gb (u) 
+
+gilbert
+
+GCA 
+
+ground-controlled approach*
+
+gcd 
+
+greatest common denominator (may be function name)
+
+GenAI
+
+generative artificial intelligence
+
+GLB 
+
+greatest lower bound*
+
+GMD 
+
+geometric mean distance*
+
+GMEC 
+
+generalized minimum effort control*
+
+GMF 
+
+geometric mean frequency
+
+GMR 
+
+geometric mean radius
+
+GMT 
+
+Greenwich mean time
+
+gpd (u) 
+
+gallon per day: use gal/day
+
+GPS 
+
+Global Positioning System
+
+GPU 
+
+graphical processing unit, General Public Utilities*
+
+grad (fn) 
+
+gradient
+
+GSE 
+
+ground support equipment*
+
+GTD 
+
+geometrical theory of diffraction
+
+GUI
+
+graphical user interface
+
+GW 
+
+ground wire
+
+H
+
+h (s) 
+
+Planck’s constant
+
+H (u)
+
+henry
+
+H (s) 
+
+magnetic intensity; magnetic field strength
+
+hav, havers (fn) 
+
+haversine
+
+HBT 
+
+heterojunction bipolar transistor
+
+hcp 
+
+hexagonal close-packed (of crystals)
+
+HD 
+
+hard-drawn*
+
+HDBC 
+
+hard-drawn bare copper*
+
+HDC 
+
+hard-drawn copper*
+
+HDD  
+
+hard disk drive
+
+HDT 
+
+hard-drawn tubing*
+
+HEMT 
+
+high-electron mobility transistor
+
+HF
+
+high frequency; hydrogen fluoride
+
+HFET 
+
+heterojunction FET
+
+HG 
+
+mercury
+
+hipot 
+
+high potential (write out)
+
+hp (u) 
+
+horsepower
+
+HTC 
+
+high-tension cable*
+
+HTML 
+
+hypertext markup language
+
+HV 
+
+high voltage
+
+HVdc 
+
+high voltage direct current
+
+Hz (u)
+
+hertz
+
+I
+
+I (s) current (fn) 
+
+imaginary part of: use Im
+
+IACS 
+
+International Annealed Copper Standard*
+
+IC
+
+impedance compensation*; integrated circuit
+
+ICW 
+
+interrupted continuous wave*
+
+ID 
+
+inside diameter; induced draft*; interdigital*
+
+IDP 
+
+integrated data processing*
+
+IF 
+
+intermediate frequency
+
+iff 
+
+if and only if
+
+IFT 
+
+interfacial tension*
+
+IGFET
+
+insulated-gate field-effect transistor
+
+i.i.d. 
+
+independent identically distributed*
+
+IIR 
+
+infinite-impulse response
+
+ILS 
+
+instrument landing system*
+
+Im (fn) 
+
+imaginary part of
+
+IM 
+
+intermediate modulation
+
+IMPATT 
+
+impact ionization avalanche transit time (diode)
+
+INE 
+
+irredundant normal equivalent*
+
+inf (fn) 
+
+infimum
+
+int (fn) 
+
+integer value of
+
+I/O, I–O 
+
+input–output
+
+IoT 
+
+Internet of Things*
+
+IP 
+
+Internet Protocol
+
+ips (u) 
+
+inch per second: use in/s
+
+IPS 
+
+iron pipe size; international pipe standard*
+
+IR 
+
+infrared
+
+IR 
+
+current–resistance
+
+ISB 
+
+independent sideband*
+
+ISE
+
+integral of squared error*
+
+ISI 
+
+intersymbol interference
+
+itae 
+
+integral of time-multiplied absolute value of error
+
+ITI  
+
+inter-track interference
+
+I–V (s) 
+
+current–voltage (characteristic or curve)
+
+IVA
+
+induced voltamperes
+
+IX 
+
+current–reactance (drop)
+
+IZ 
+
+current–impedance
+
+J
+
+J (u) 
+
+joule
+
+JFET 
+
+junction field-effect transistor
+
+JPEG
+
+Joint Photographers Expert Group
+
+K
+
+k 
+
+kilo (prefix to unit abbreviations) = 103
+
+K (u) 
+
+Kelvin
+
+Kayser (u) 
+
+= cm-1 (wavenumber)
+
+kbps (u) 
+
+kilobits per second: use kb/s
+
+KCL 
+
+Kirchhoff’s current law
+
+kcm, KCM (u) 
+
+thousand circular mils: use kcmil
+
+kg (u) 
+
+kilogram
+
+KGO, KGOe, KGoe, KgOe (u) 
+
+use kO·Oe
+
+kgp (u) 
+
+kilogrampois (French): use kg
+
+kG.Oe (u) 
+
+kilogauss oersted
+
+kip 
+
+thousand pounds
+
+kn (u)
+
+knot (nautical mile per hour)
+
+KOH
+
+potassium hydroxide
+
+kp (u) 
+
+kilopound (German): use kg
+
+kt (s) 
+
+Boltzmann’s constant × time
+
+KVL 
+
+Kirchhoff’s voltage law
+
+kVp (u) 
+
+kilovolt peak*
+
+L
+
+l (u)
+
+liter
+
+L (u) 
+
+lambert
+
+LAN 
+
+local area network
+
+lb (u) 
+
+pound
+
+lbf (u) 
+
+pound-force
+
+LC 
+
+inductance–capacitance
+
+lcm 
+
+least common multiple (may be function name)
+
+LCR 
+
+inductance–capacitance–resistance
+
+LCS 
+
+load current substation*
+
+LDC 
+
+line drop compensator*; load division circulation
+
+LED
+
+light-emitting diode
+
+LF 
+
+low-frequency
+
+LHP 
+
+left-half plane*
+
+LHS
+
+left-hand side*
+
+Li (fn) 
+
+logarithmic integral
+
+lim (fn) 
+
+limit
+
+l.i.m. (fn) 
+
+limit in the mean
+
+L–L
+
+line to line*
+
+lm (u)
+
+lumen
+
+LMLT
+
+locus of major loop tips*
+
+LMS 
+
+least mean square
+
+LMT 
+
+local mean time*
+
+ln (fn) 
+
+natural logarithm (base e)
+
+L–N 
+
+line to neutral*
+
+LNA 
+
+low noise amplifier
+
+LO 
+
+local oscillator*
+
+log, logn (fn) 
+
+logarithm, logarithm base n (where n = 2, 10, etc.)
+
+LP 
+
+linear programming*
+
+LPE 
+
+liquid phase epitaxy*
+
+LR 
+
+inductance–resistance
+
+LRC 
+
+load ratio control*
+
+LSB 
+
+least significant bit
+
+LSI 
+
+large-scale integration*; large-scale integrated*
+
+LST 
+
+local standard time
+
+LTC 
+
+load tap-changing*
+
+LTE 
+
+long-term evolution
+
+LTS 
+
+laser-triggered switching*
+
+LUF
+
+lowest usable frequency*
+
+lx (u) 
+
+lux
+
+M
+
+m (u) 
+
+meter; milli- (prefix to unit abbreviations) = 10-3
+
+M 
+
+mega- (prefix to unit abbreviations) = 106; mole
+
+MAG 
+
+maximum available gain
+
+MAP 
+
+maximum a posteriori
+
+max (fn) 
+
+maximum; also used as subscript
+
+MC  
+
+Monte Carlo
+
+mcm, MCM (u) 
+
+thousand circular mils: use kcmil
+
+mc/mM (u) 
+
+millicuries per millimole: use mCi/mM
+
+MCS 
+
+multicircuit substation*
+
+MCT 
+
+movable core transformer*
+
+MCW 
+
+modulated continuous wave*
+
+MDF 
+
+manual direction finder*
+
+MDS 
+
+minimum detectable signal
+
+MEMS  
+
+micro-electromechanical systems
+
+MESFET 
+
+metal–semiconductor field-effect transistor
+
+MEW 
+
+microwave early warning*
+
+MF 
+
+medium frequency*
+
+MFM  
+
+magnetic force microscopy
+
+MFSK 
+
+minimum frequency-shift keying
+
+MGO (u) 
+
+megagauss oersted: use MG·Oe
+
+MG·Oe (u) 
+
+megagauss oersted
+
+MHD 
+
+magnetohydrodynamics
+
+mho (u) 
+
+mho (also Ω^{-1})
+
+mi (u) 
+
+mile
+
+MIM 
+
+metal–insulator–metal
+
+MIMO 
+
+multi-in multi-out*
+
+mio (fn) 
+
+minimum; also used as subscript
+
+MIS 
+
+metal–insulator–semiconductor*
+
+MKS 
+
+meter–kilogram–second (system of units)
+
+ml 
+
+milliliter
+
+MLE 
+
+maximum-likelihood estimation*
+
+MLSD 
+
+maximum-likelihood sequence detector
+
+MLSE 
+
+maximum-likelihood sequence estimator*
+
+MMF 
+
+magnetomotive force
+
+mmHg (u) 
+
+millimeter of mercury
+
+MMIC 
+
+monolithic microwave integrated circuit*
+
+mm2O (u) 
+
+millimeter of water
+
+mmse 
+
+minimum mean square error
+
+MOCVD 
+
+metal–organic chemical vapor deposition*
+
+mod 
+
+modulo
+
+MOKE  
+
+magnetooptic Kerr effect
+
+MoM 
+
+method of moments*
+
+MOS 
+
+metal–oxide–semiconductor
+
+MOSFET 
+
+MOS field-effect transistor
+
+MOST 
+
+MOS transistor
+
+MOVPE 
+
+metal–organic vapor phase epitaxy*
+
+MPEG 
+
+Moving Pictures Expert Group
+
+MPIE 
+
+mixed potential integral equation
+
+MRAM  
+
+magnetic random access memory
+
+MRI 
+
+magnetic resonance imaging
+
+MSB 
+
+most significant bit
+
+mse 
+
+mean square error
+
+MSIC 
+
+medium scale integrated circuits*
+
+MTBE 
+
+mean time between explosions
+
+MTBF 
+
+mean time between failures*
+
+MTI 
+
+multiple target indicator*; moving target indicator
+
+MTJ  
+
+magnetic tunnel junction
+
+MTL  
+
+multiconductor transmission line
+
+MU 
+
+multiple unit*
+
+MUF
+
+maximum usable frequency*
+
+MVQE 
+
+minimum variance quantum estimator
+
+Mx (u) 
+
+maxwell
+
+MZI 
+
+Mach–Zehnder interferometric*
+
+N
+
+n 
+
+nano (prefix to unit abbreviations) = 10-9
+
+N (u)
+
+newton
+
+NA 
+
+numerical aperture*
+
+nand 
+
+not-and circuit (small caps)
+
+nat (u) 
+
+nat
+
+NC 
+
+diode negative-conductance diode*
+
+NDRO 
+
+nondestructive readout
+
+NDT 
+
+nondestructive testing*
+
+NIC 
+
+negative impedance converter*
+
+NIR 
+
+near infrared response*
+
+nit (u) 
+
+nit
+
+Nkw-hr (u) 
+
+net kilowatthour: use net kW·h
+
+NL
+
+no load
+
+nmi (u)
+
+nautical mile
+
+NMR 
+
+nuclear magnetic resonance*
+
+nor 
+
+not-or circuit (small caps)
+
+NP
+
+nameplate (rating)
+
+Np (u) 
+
+neper
+
+n-p-n 
+
+semiconductor forms: Roman, lowercase, hyphens
+
+NRZ 
+
+nonreturn to zero*
+
+NTC 
+
+negative temperature coefficient*
+
+NWP 
+
+network protector
+
+O
+
+OCB 
+
+oil circuit breaker*
+
+OCR 
+
+oil circuit recloser*
+
+OD 
+
+outside diameter
+
+Oe (u) 
+
+oersted
+
+OEIC 
+
+optoelectronic integrated circuit*
+
+OFDA
+
+optical-fiber frequency-domain analysis*
+
+OGM 
+
+optimum gradient method
+
+OOK 
+
+on–off keying
+
+OOP 
+
+object-oriented programming*
+
+opt (fn) 
+
+optimum: also used as subscript
+
+or 
+
+or circuit (small caps)
+
+OSM 
+
+omni spectra miniature
+
+OTDM 
+
+optical time-division multiplexing*
+
+O-wave 
+
+ordinary-wave (ionogram)
+
+oz (u) 
+
+ounce
+
+P
+
+p 
+
+pico- (prefix to unit abbreviations) = 10-12
+
+P (u)
+
+poise
+
+Pa (u) 
+
+pascal
+
+PAE 
+
+power-added efficiency
+
+PAM 
+
+pulse-amplitude modulation*
+
+PAX 
+
+private automatic exchange*
+
+PBX 
+
+private branch exchange*
+
+pc (u) 
+
+parsec
+
+PC 
+
+personal computer
+
+PCM 
+
+pulse-code modulation*; pulse-count modulation*
+
+PD 
+
+potential difference*
+
+pdf 
+
+probability density function*
+
+pdl (u) 
+
+poundal (see units list)
+
+PDM 
+
+pulse-duration modulation*
+
+Pe (s) 
+
+probability of error
+
+PER 
+
+probability of error
+
+PES 
+
+position error signal
+
+PF 
+
+power factor*
+
+ph (fn) 
+
+phase
+
+pH 
+
+power of hydrogen (acidity or alkalinity of solution)
+
+PI 
+
+polarization index
+
+PID 
+
+proportional–integral–differential*
+
+PILC 
+
+paper-insulated lead-covered*
+
+PIN 
+
+use p-i-n for diodes, etc.
+
+p-i-n 
+
+semiconductor forms: Roman, lowercase, hyphens
+
+PL/1 
+
+a programming language
+
+PLC 
+
+power line carrier*
+
+PLL 
+
+phase-locked loop*
+
+PM 
+
+phase modulation*
+
+p.m.
+
+post meridiem (small caps)
+
+PML 
+
+perfectly matched layer
+
+PMMA 
+
+polymethyl methacrylate*
+
+PMR  
+
+perpendicular magnetic recording
+
+p-n-i-p 
+
+semiconductor forms: Roman, lowercase, hyphens
+
+p-n-p 
+
+semiconductor forms: Roman, lowercase, hyphens
+
+POD 
+
+para-operational device*
+
+POWp (u) 
+
+picowatts psophometrically weighted at a point of zero relative level*
+
+pp, p-p
+
+peak to peak*
+
+PPI 
+
+plan-position indicator*
+
+ppm (u) 
+
+parts per million; pulse per minute*
+
+PPM 
+
+pulse-position modulation*
+
+pps (u) 
+
+pulse per second*
+
+Pr (fn)
+
+probability (appears as Pr x | x = U)
+
+PRA 
+
+pulse relaxation amplifier
+
+PRF 
+
+pulse-repetition frequency*
+
+PRML  
+
+partial response maximum likelihood
+
+Prob., 
+
+Pr x|· use Pr (usually)
+
+PRR 
+
+pulse-repetition rate*
+
+PSD  
+
+power spectral density
+
+PSF 
+
+power separation filter*
+
+psi (u) 
+
+pounds per square inch: change to lb/in2 unless paper also contains psia and/or psig
+
+psia (u) 
+
+pound-force per square inch absolute (stet)
+
+psig (u) 
+
+pound-force per square inch gauge (stet)
+
+PSK 
+
+phase-shift keying*
+
+PTM 
+
+pulse–time modulation
+
+p.u. 
+
+per unit
+
+PVC 
+
+polyvinyl chloride*
+
+PWL  
+
+piecewise linear
+
+PWM 
+
+pulse width modulation*
+
+PWR 
+
+pressurized water reactor*
+
+PZT 
+
+lead zirconate titanate
+
+Q
+
+Q 
+
+quality factor; figure of merit
+
+QAM 
+
+quadrature-amplitude modulation*
+
+Q.E.D. 
+
+quod erat demonstrandum (end of proof) (set flush right)
+
+QoS 
+
+quality of service
+
+QP 
+
+quasi-peak*
+
+QPSK 
+
+quaternary phase-shift keying
+
+QW 
+
+quantum well*
+
+R
+
+R (u) 
+
+roentgen
+
+R (fn) 
+
+real part of: use Re
+
+°R (u) 
+
+degrees Rankine
+
+rad (u) 
+
+radian
+
+RAM 
+
+random access memory
+
+RB 
+
+circuit transient blocking relay circuit*
+
+RC 
+
+resistance–capacitance
+
+RCF 
+
+radar cross section*
+
+R&D 
+
+research and development
+
+Re (fn) 
+
+real part of: use Re (be sure of this meaning before changing)
+
+redox 
+
+reduction–oxidation
+
+rem (u)
+
+Roentgen equivalent, man
+
+RF 
+
+radio frequency
+
+RFI 
+
+radio frequency interference*
+
+RFU 
+
+reclosing fuses*
+
+RH 
+
+relative humidity*
+
+RHS
+
+right-hand side*
+
+RI 
+
+radio interference*
+
+RIFI 
+
+radio interference and field intensity*
+
+RIL 
+
+radio interference level*
+
+RIN
+
+relative intensity noise*
+
+RL 
+
+resistance–inductance
+
+RMI 
+
+radiomagnetic indicator*
+
+rms 
+
+root-mean-square (error); root mean square
+
+ROM 
+
+read-only memory
+
+rpm (u) 
+
+revolution per minute: use r/min
+
+rps (u) 
+
+revolution per second: use r/s
+
+RSG 
+
+recurrent surge generator*
+
+RTD 
+
+resistance temperature detectors
+
+RV 
+
+random variable
+
+RX 
+
+resistance–reactance
+
+S
+
+s (u) 
+
+second
+
+S (u) 
+
+siemens
+
+SAR 
+
+specific absorption rate
+
+SATT 
+
+Strowger Automatic Toll Ticket*
+
+SAW 
+
+surface acoustic wave*
+
+SC 
+
+switched-capacitor*(adj)
+
+SCA 
+
+steel-reinforced aluminum cable*
+
+SCC 
+
+signal component control*
+
+scfm 
+
+standard cubic feet per minute*
+
+SCL 
+
+space-charge limited*
+
+scr 
+
+short-circuit ratio*
+
+SCR 
+
+silicon-controlled rectifier
+
+sec (fn) 
+
+secant; (u) second: use s; second of arc*
+
+sech (fn) 
+
+hyperbolic secant
+
+SEM 
+
+scanning electron microscope
+
+SF 
+
+single frequency*
+
+SGML 
+
+standard generalized markup language
+
+sgn (fn) 
+
+signum function
+
+SHF s
+
+upper high frequency*
+
+SI 
+
+severity index*; Systeme International d’Unites (International System of Units)
+
+Si, si (fn) 
+
+sine integral
+
+sin (fn) 
+
+sine
+
+sinc (fn) 
+
+sinc x = (sin x) / x
+
+sinh (fn) 
+
+hyperbolic sine
+
+SINR 
+
+signal-to-interference-plus-noise ratio*
+
+SIR 
+
+signal-to-interference ratio
+
+SISO 
+
+single-in, single-out*
+
+SLAR 
+
+side looking airborne radar
+
+SLG
+
+single line to ground
+
+SMSA 
+
+standard metropolitan statistical area
+
+S/N  
+
+signal-to-noise ratio
+
+SNR 
+
+signal-to-noise ratio
+
+SoC 
+
+system-on-chip*
+
+SPDT 
+
+single-pole double-throw (switch)*
+
+SPICE 
+
+Simulation Program with Integrated Circuit Emphasis
+
+SPT  
+
+single-pole type
+
+sq square: 
+
+if on a unit, change to 2
+
+SQUID  
+
+superconducting quantum interference device
+
+sr (u) 
+
+steradian
+
+SR 
+
+saturable reactor*
+
+SS 
+
+subsystems*
+
+SSB 
+
+single sideband*
+
+s.t. 
+
+subject to
+
+St (u)
+
+stokes
+
+sterad (u) 
+
+steradian: use sr
+
+SUL  
+
+soft underlayer
+
+SUMT 
+
+sequential unconstrained minimization techniques
+
+sup (fn)
+
+supremum
+
+sus 
+
+Saybolt universal seconds (oil viscosity)*
+
+sw 
+
+sine wave*
+
+SW 
+
+short wave*
+
+SWG 
+
+standard wire gauge*
+
+SWR 
+
+standing-wave ratio*
+
+T
+
+t (u) 
+
+tonne
+
+T (u) 
+
+tesla
+
+tan (fn)
+
+tangent
+
+tanh (fn) hyperbolic tangent
+
+TCUL 
+
+tap-changing under load*
+
+TDM 
+
+time-division modulation*; time-division multiplexing*
+
+TDMA
+
+time-division multiple access*
+
+TE 
+
+transverse electric (appears as TE001 and TE01)
+
+TEFC 
+
+totally enclosed fan-cooled*
+
+Telex
+
+teleprinter exchange*
+
+TEM 
+
+transverse electromagnetic
+
+TFT 
+
+thin-film transistor*
+
+tg (fn) 
+
+tangent: use tan
+
+th (u) 
+
+thermie
+
+TIF 
+
+telephone influence factor*
+
+TLM 
+
+transmission-line matrix
+
+TM 
+
+transverse magnetic
+
+tof 
+
+thermal ohms per foot (spell out)
+
+torr (u)
+
+torr
+
+tpc (u) 
+
+turns per centimeter: turns/cm
+
+TPC 
+
+turns per coil*
+
+tr (fn)
+
+trace
+
+Tr
+
+transpose
+
+TSS 
+
+time sharing system
+
+TTL 
+
+transistor–transistor logic
+
+TTY 
+
+teleprinter
+
+tu 
+
+traffic units*
+
+TVI 
+
+television interference*
+
+TWA 
+
+traveling-wave amplifier*
+
+TWM 
+
+traveling-wave maser*
+
+TWP 
+
+traveling-wave phototube*
+
+TWT 
+
+traveling-wave tube
+
+U
+
+UHF 
+
+ultrahigh frequency
+
+ult (fn) 
+
+ultimate
+
+UPS 
+
+uninterruptible power system*
+
+uniform RC sections (stet overbar)
+
+URL 
+
+uniform resource locator
+
+XRD  
+
+X-ray diffraction
+
+UT 
+
+universal time
+
+UTS 
+
+ultimate tensile strength
+
+UV 
+
+ultraviolet
+
+V
+
+V (u) 
+
+volt
+
+V (s) 
+
+voltage
+
+VA (u) 
+
+voltampere; Viterbi algorithm*
+
+var (u) 
+
+var
+
+VCL 
+
+varnished-cambric lead-covered*
+
+VCO 
+
+voltage-controlled oscillator*
+
+VCW 
+
+type V copper weld*
+
+VDS 
+
+voltage divider switching*
+
+ver, vers (fn) 
+
+versine
+
+VF 
+
+voice frequency*
+
+VFO 
+
+variable-frequency oscillator*
+
+VHF 
+
+very high frequency*
+
+V–I 
+
+voltage–current (characteristic of curve)
+
+VLF 
+
+very low frequency*
+
+VLSI 
+
+very large scale integration*
+
+VOR 
+
+very high-frequency omnidirectional radio
+
+VR 
+
+voltage regulator*
+
+VSB 
+
+vestigial sideband*
+
+VSWR 
+
+voltage standing-wave ratio
+
+VTB 
+
+voltage time to breakdown*
+
+VTVM 
+
+vacuum-tube voltmeter
+
+vu 
+
+volume units*
+
+W
+
+W (u) 
+
+watt
+
+WAN 
+
+wide area network
+
+Wb (u) 
+
+weber
+
+WDM
+
+wavelength-division multiplexing*
+
+WDMA 
+
+wavelength-division multiple access*
+
+WKB 
+
+Wentzel–Kramer–Brillouin*
+
+wpl, w.p.l. 
+
+with probability 1*
+
+wrt, w.r.t. 
+
+with respect to
+
+WT 
+
+watertight*
+
+wt% 
+
+weight percent
+
+X
+
+XPM c
+
+ross-phase modulation
+
+xor 
+
+exclusive-or circuit (small caps)
+
+X-wave 
+
+extraordinary-wave (ionogram)
+
+Y
+
+YAG 
+
+yttrium aluminum garnet
+
+yd (u) 
+
+yard
+
+YIG 
+
+yttrium iron garnet
+
+Factor by Which the Unit Is Modified
+
+Prefix
+
+Symbol
+
+1000000000000 = 1012
+
+tera
+
+T
+
+1000000000 = 109
+
+giga
+
+G
+
+1000000 = 106
+
+mega
+
+M
+
+1000 = 103
+
+kilo
+
+k
+
+100 = 102
+
+hecto
+
+h
+
+10 = 101
+
+deka
+
+da
+
+0.1 = 10-1
+
+deci
+
+d
+
+0.01 = 10-2
+
+centi
+
+c
+
+0.001 = 10-3
+
+milli
+
+m
+
+0.000001 =10-6
+
+micro
+
+μ
+
+0.000000001 = 10-9
+
+nano
+
+n
+
+0.000000000001 = 10-12
+
+pico
+
+p
+
+0.000000000000001 = 10-15
+
+femto
+
+f
+
+0.000000000000000001 = 10-18
+
+atto
+
+a
+
+For prefixes indicating powers of 2, see Table 7 at the NIST site.
+
+E. Inclusive Language Guide
+
+Requirements:
+
+Use “people-first language,” i.e., the person has X; has been diagnosed with X; uses a/n X; etc.
+
+Do not spell out the acronyms LGBTQIA+, LGBT, LGBTQ, LGBTQIA.
+
+Highlighted terms must be avoided at all times.
+
+Insensitive Term/Phrase
+
+Replace With
+
+Definition/Background
+
+Additional Notes
+
+A.D. (when referencing history/time)
+
+C.E., common era
+
+Abbreviation of the Latin phrase anno Domini, translated as “the year of the Lord.” Traditionally, it is used to date years after the birth of Jesus
+
+This contradicts AP style.
+
+Able-bodied
+
+non-disabled/does not have a disability
+
+Afro-American/Negro/
+
+Colored/Nigger (in reference to race)
+
+Avoid in all instances; African American*; Black†
+
+People of African descent have widely varied cultural backgrounds, family histories, and family experiences. Some will be from Caribbean islands, Latin America, various regions in the United States, countries in Africa, or elsewhere. Some American people of African ancestry prefer “Black,” and others prefer “African American”; both terms are acceptable.
+
+* Specific to people of specific African descent; not to be used as an umbrella for people of African ancestry worldwide.
+
+† Widely accepted to encompass multiple ethnicities and/or national origins.
+
+B.C. (when referencing history/time)
+
+B.C.E., before common era
+
+Literally, before Christ or the Christian era.
+
+This contradicts AP style.
+
+Black box
+
+Closed box
+
+Preferred term from IEEE Thesaurus
+
+Blacklist; black list
+
+Blocklist; block list
+
+The Hollywood blacklist was instituted by the House Un-American Activities Committee in 1947 to block screenwriters and other Hollywood professionals who were purported to have Communist sympathies from obtaining employment. A list or compilation that identifies entities that are denied, unrecognized, or ostracized. The term's racist connotations derive from the idea that black equates to negative; this view can be controversial.
+
+Preferred term from IEEE Thesaurus
+
+Blind
+
+blind*; limited vision; low vision; partially sighted†
+
+According to the American Foundation for the Blind, the term “legally blind” denotes a person with 20/200 visual acuity or less. Therefore, “blind” or “legally blind” is acceptable for people with almost complete vision loss. Many people with vision loss are not considered blind.
+
+* Use only with people who are “legally blind” (a person with 20/200 visual acuity or less)
+
+† Used most often in British publications
+
+Blind channel estimation
+
+Source channel estimation
+
+Preferred term from IEEE Thesaurus
+
+Blind equalizers
+
+Source equalizers
+
+Preferred term from IEEE Thesaurus
+
+Blind signal separation
+
+Mix signal separation
+
+Preferred term from IEEE Thesaurus
+
+Blind source separation
+
+Mix source separation
+
+Preferred term from IEEE Thesaurus
+
+Caretaker
+
+caregiver
+
+A caregiver is an individual who assists another, including a person with a disability, with his or her daily life, according to Merriam-Webster.
+
+Caretaker denotes taking care of property; Caregiver denotes giving care to people.
+
+Caucasian
+
+European American*; White
+
+The use of the term “Caucasian” as an alternative to “White” or “European” is discouraged because it originated as a way of classifying White people as a race to be favorably compared with other races. As with all discussions of race and ethnicity, it is preferable to be more specific about regional (e.g., Southern European, Scandinavian) or national (e.g., Italian, Irish, Swedish, French, Polish) origin when possible.
+
+* Adjust as needed for location (i.e., European, European American, European Australian, etc.)
+
+Chairman/woman
+
+chairperson
+
+Committed suicide
+
+died by suicide
+
+Crazy/loony/mad/
+
+psycho/nuts/deranged/
+
+insane/insanity/
+
+mentally deranged/
+
+psychopathology
+
+mental illness*; mental disorder*; psychopathology(ical)
+
+Once commonly used to describe people with mental illness; commonly used informally to denote mental instability or mental illness.
+
+* Except in a quote or when referring to a criminal defense.
+
+Cripple
+
+Avoid in all instances*; use people first language and their diagnosis, i.e., “person with X”
+
+Merriam-Webster defines the noun “cripple” as “a lame or partly disabled person or animal” and as “something flawed or imperfect.” It is also used as a verb. The word dates back to Old English, where it was related to words that meant to creep or bend over.
+
+Deaf
+
+D(d)eaf*; hard of hearing
+
+Having total or partial hearing loss.
+
+* NCDJ Recommendation: Lowercase when referring to a hearing-loss condition or to a deaf person who prefers lowercase. Capitalize for those who identify as members of the Deaf community or when they capitalize Deaf when describing themselves. “D(d)eaf” should be used as an adjective, not as a noun; it describes a person with profound or complete hearing loss. Other acceptable phrases include “woman who is deaf” or “boy who is hard of hearing.” When quoting or paraphrasing a person who has signed their responses, it’s appropriate on first reference to indicate that the responses were signed. It’s acceptable to use the word “said” in subsequent references. Per the National Association of the Deaf, "D(d)eaf" is acceptable.
+
+Deformed/deformity (when referencing a person)
+
+Avoid in all instances*; refer to specifics description rather than generalized term of deformity
+
+Merriam-Webster defines as a part of the body that does not have the typical or expected shape
+
+Dumb (mute)
+
+nonverbal
+
+Once widely used to describe a person who could not speak and also implied the inability to express oneself; however, someone who does not use speech still may have the ability of expression.
+
+Dwarf/vertically challenged/midget
+
+Dwarf*; short stature; little person
+
+Dwarfism is a medical or genetic condition that results in a stature below 4’10,” according to Little People of America. The terms “little people” and “little person” refer to people of short stature and have come into common use since the founding of the Little People of America organization in 1957.
+
+* Use only when applied to a medical diagnosis or in a quote.
+
+Gay marriage/same-sex marriage
+
+Marriage*
+
+* When writing about the inability to legally marry, use “exclusion from Marriage” or “denial of marriage.”
+
+Handicap
+
+Use people first language; refer to the person's condition
+
+The Oxford English dictionary defines a handicap as “a condition that restricts a person’s ability to function physically, mentally or socially.”
+
+Homesexual/Gay
+
+gay*; lesbian, bi(sexual)†
+
+Short form term to reference gay, lesbian, and bisexual orientations, though not transgender people or gender identity. Anti-gay activists use “homosexual” as a slur to stigmatize gay people by reducing their lives to purely sexual terms.
+
+* Only when used as an adjective (i.e., gay people); 
+
+† Use bisexual as an adj. and as needed on first reference for clarity, otherwise default to bi.
+
+Indian (when referencing Indigenous People)
+
+Indigenous People; specific tribe
+
+The Oxford English dictionary defines Indian in two ways: 
+
+1) a native or inhabitant of India;* and 2) a member of any of the indigenous peoples of North, Central, and South America, especially those of North America.
+
+* Acceptable use for Indian in this instance
+
+Invalid (noun: in·​va·​lid)
+
+Avoid in all instances*; use people first language and their diagnosis, ie, “person with X”
+
+The Oxford English dictionary defines an invalid as “a person made weak or disabled by illness or injury.” It is probably the oldest term for someone living with physical conditions that are considered seriously limiting.
+
+* Except when used in a direct quote
+
+Lame
+
+“difficulty walking”
+
+Commonly used to describe difficulty walking as the result of an injury to the leg.
+
+LGBT (when talking with those who are unfamiliar with the issues or are not supportive of the issues)
+
+Gay and transgender; lesbian, gay, bisexual, and transgender*
+
+Per “The Ally's Guide to Terminology”: Reference sexual orientation and gender identity when talking about issues pertaining to both. (See Transgender for more information.) The abbreviation “LGBT” can be confusing and alienating for those who are unfamiliar with the issues or not yet supportive—though it is essential when talking to LGBT and strongly supportive audiences. Use the term that allows your audience to stay focused on the message without creating confusion about your intended meaning.
+
+* If needed for clarity
+
+Man hours
+
+Work hours
+
+Man hours/man weeks
+
+Work hours/work weeks
+
+Man week
+
+Work week
+
+  Manned
+
+Crewed; piloted; human
+
+Manned aircraft
+
+Crewed aircraft; piloted aircraft; human aircraft
+
+Preferred gender inclusive terms by NASA
+
+Manpower
+
+Workforce; laborforce
+
+Master/Slave
+
+leader/follower; parent/child; primary/secondary; main/secondary*
+
+* Preferred term from IEEE Thesaurus
+
+Mentally ill/
+
+emotionally disturbed
+
+Person with a psychiatric disability
+
+Minorities
+
+People of color*; underrepresented groups†; 
+
+marginalized
+
+The use of “minority” may be viewed pejoratively because it is usually equated with being less than, oppressed, or deficient in comparison with the majority (i.e., White people).
+
+* POC (people of color). 
+
+† When possible, use the specific name of the group or groups to which you are referring.
+
+Normal People
+
+Person without X; 
+
+the majority
+
+Oriental (when referencing race)
+
+Asian*; 
+
+Asian American†
+
+Avoid in all instances when referring to race
+
+“Orientals” is considered pejorative; be more specific by providing nation and region of origin (Japanese, Chinese, Vietnamese, etc.).
+
+* For people from Asia; 
+
+† People of Asian descent in North America
+
+Retarded/Slow learner
+
+Learning disability*
+
+Avoid in all instances
+
+According to the University of Kansas Research & Training Center on Independent Living: “...describes a neurologically based condition that may manifest itself as difficulty learning and using skills in reading (called dyslexia), writing (dysgraphia), mathematics (dyscalculia) and other cognitive processes due to differences in how the brain processes information. Individuals with learning disabilities have average or above average intelligence, and the term does not include a learning problem that is primarily the result of another cause, such as intellectual disabilities or lack of educational opportunity.”
+
+* Only when the condition has been medically diagnosed
+
+Schizophrenic/Schizo
+
+Person with schizophrenia
+
+Sex change (operation)
+
+Transition
+
+Per hrc.org: The process by which some people strive to more closely align their internal knowledge of gender with its outward appearance. Some people socially transition, whereby they might begin dressing, using names and pronouns, and/or be socially recognized as another gender. Others undergo physical transitions in which they modify their bodies through medical interventions.
+
+Transition is the accurate term that does not fixate on surgeries, which many transgender people do not or cannot undergo. Terms like “pre-op” or “postop” unnecessarily fixate on a person’s anatomy and should be avoided.
+
+Sexual identity/
+
+transgender identity
+
+Gender identity/gender expression
+
+Gender identity is one’s internal sense of gender.
+
+Gender expression is how a person outwardly expresses their gender.
+
+(Terms are not interchangeable.)
+
+Many transgender people identify as male or female and not simply transgender. Pronouns express this identity: He/him; She/her; They/them.
+
+Sexual Preference/Gay lifestyle/homosexual lifestyle/same-sex attractions/sexual identity
+
+sexual orientation
+
+“Sexual preference” is used by anti-gay activists to suggest that being gay is a choice; therefore, being gay can be changed. Using “lifestyle” insinuates much the same and stigmatizes gay people suggesting their lives should be viewed strictly as sexual.
+
+Single/double-blind
+
+Single/double-
+
+anonymous
+
+Preferred term from IEEE Thesaurus
+
+Transgendered/
+
+a transgender (n.)/
+
+transgenders (n.)/
+
+transvestite/tranny
+
+Transgender
+
+Transgender is an adjective, not a noun. “Trans” as shorthand is often used within the LGBTQ+ community, but not generally understood by general audiences.
+
+Always use a transgender person’s chosen name. Also, a person who identifies as a certain gender should be referred to using pronouns consistent with that gender (he/him, she/her, they/them).
+
+Unmanned
+
+autonomous; uncrewed; remote
+
+Unmanned aerial vehicles
+
+Autonomous aerial vehicles (AAV)*; remote aerial vehicles (RAV); uncrewed aerial vehicles (UAV)
+
+* Preferred term from IEEE Thesaurus
+
+Unmanned automobiles or cars
+
+Autonomous automobiles; remote automobiles
+
+Preferred term from IEEE Thesaurus
+
+Unmanned underwater vehicles
+
+Autonomous underwater vehicles (AUV); remote underwater vehicles (RUV)
+
+Preferred term from IEEE Thesaurus
+
+Unmanned vehicles
+
+Autonomous vehicles; remote vehicles
+
+Preferred term from IEEE Thesaurus
+
+Unsuccessful suicide
+
+Attempted suicide
+
+Wheelchair-bound
+
+Wheelchair user/Uses a wheelchair
+
+White box
+
+Glass box
+
+Preferred term from IEEE Thesaurus
+
+Whitelist; white list
+
+Access list
+
+A whitelist (or white list) is a list or register of entities that, for one reason or another, are being provided a particular privilege, service, mobility, access or recognition. This can be a controversial view for some.
+
+Preferred term from IEEE Thesaurus
