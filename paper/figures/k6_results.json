@@ -1,0 +1,47 @@
+{
+  "captured": "2026-06-01",
+  "source": "packages/simulator/k6/bid-throughput.js",
+  "raw_console_logs": "docs/rp/rp-audit-01-plan-phase1A-k6.md",
+  "environment": {
+    "postgres": "15",
+    "redis": "7-alpine",
+    "host": "single developer workstation",
+    "vus": "constant-vus k6 executor",
+    "duration_s": 15,
+    "note": "All runs against a single instance of the AuctionHaus backend with the in-memory Socket.io adapter."
+  },
+  "modes": {
+    "direct": {
+      "description": "Standard placeBid path: HTTP POST -> Express -> Prisma -> Postgres FOR UPDATE row lock -> commit.",
+      "endpoint": "/api/bids/auctions/{id}",
+      "runs": [
+        { "vus": 1,   "p95_ms": 236.0,  "iter": 53,  "iter_per_s": 3.5 },
+        { "vus": 10,  "p95_ms": 1284.4, "iter": 143, "iter_per_s": 9.0 },
+        { "vus": 100, "p95_ms": 5771.7, "iter": 570, "iter_per_s": 29.8 }
+      ]
+    },
+    "stream": {
+      "description": "Redis Stream sequencer path: HTTP POST -> XADD to auction:{id}:bids stream -> consumer group worker -> placeBid -> Postgres.",
+      "endpoint": "/api/bids/auctions/{id}/stream",
+      "runs": [
+        { "vus": 1,   "p95_ms": 133.9, "iter": 86,    "iter_per_s": 5.7 },
+        { "vus": 10,  "p95_ms": 47.9,  "iter": 1392,  "iter_per_s": 92.1 },
+        { "vus": 100, "p95_ms": 8.1,   "iter": 14626, "iter_per_s": 975.1 }
+      ]
+    }
+  },
+  "gains_at_100_vus": {
+    "throughput_iter_per_s": { "direct": 29.8, "stream": 975.1, "ratio": 32.7 },
+    "latency_p95_ms": { "direct": 5771.7, "stream": 8.1, "speedup": 712.6 }
+  },
+  "paper_references": {
+    "main_table_3": {
+      "claim_at_100_vus": { "direct_p95_ms": 5785.8, "direct_iter_per_s": 27.7, "stream_p95_ms": 29.8, "stream_iter_per_s": 788.6, "gain_x": 28.5 },
+      "note": "These numbers in paper/main.tex Table III do not exactly match the raw k6 console logs preserved at docs/rp/rp-audit-01-plan-phase1A-k6.md. They appear to be from a slightly earlier set of runs that was not preserved. Treat supplementary Table XII as the canonical artefact."
+    },
+    "supplementary_table_12": {
+      "matches_this_file": true,
+      "note": "paper/supplementary.tex Table XII matches the runs[] values above verbatim. This file is the canonical record."
+    }
+  }
+}
