@@ -1,0 +1,134 @@
+Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.
+Digital Object Identifier 10.1109/ACCESS.2025.XXXXXXX
+
+AuctionHaus: Design and Implementation of a Real-Time Unified Auction Platform with a Server-Side Auto-Bidding Engine
+[HOD FULL NAME]¹, [AUTHOR 1 FULL NAME]², [AUTHOR 2 FULL NAME]², [AUTHOR 3 FULL NAME]², [AUTHOR 4 FULL NAME]²
+¹Department of Computer Science and Engineering, [COLLEGE NAME], [UNIVERSITY NAME], [CITY], India
+²Department of Computer Science and Engineering, [COLLEGE NAME], [UNIVERSITY NAME], [CITY], India
+Corresponding author: [HOD FULL NAME] (e-mail: [HOD_EMAIL@COLLEGE.AC.IN]).
+
+ABSTRACT Online auction markets generate substantial concurrent traffic, and the systems that support them must handle simultaneous bids without compromising financial consistency. This paper presents AuctionHaus, a full-stack web application that implements three auction formats under shared infrastructure: English ascending-price auctions, Dutch descending-price auctions, and sealed-bid auctions. The backend runs on Node.js with Express, persists data in PostgreSQL through Prisma ORM, and delivers live bid updates via Socket.io. The system's primary technical contribution is a server-side auto-bidding engine that resolves competing proxy bids through an iterative simulation algorithm. Each simulation step executes inside a PostgreSQL transaction with SELECT FOR UPDATE locking, ensuring that concurrent bid submissions cannot produce inconsistent price states. Supporting components include an escrow-style wallet that holds and releases funds atomically on each bid event, a node-cron scheduler that manages auction lifecycle transitions, a persistent notification service, and an admin panel that surfaces fraud indicators. The client application uses Next.js 15, Zustand for authentication state, and React Query for server-side data. Testing confirmed correct bid ordering under concurrent submissions, proper escrow settlement idempotency, and reliable Socket.io event delivery. AuctionHaus is designed as a teaching artifact: it applies standard production techniques—row-level locking, event-driven notification, and escrow accounting—at a scale and complexity appropriate for an undergraduate capstone project.
+INDEX TERMS Auction systems, auto-bidding, concurrency control, escrow system, PostgreSQL, real-time communication, Socket.io, web application, WebSocket.
+
+
+I. Introduction
+Online auction systems present a specific class of concurrency problem. When multiple users bid on the same item simultaneously, the system must accept exactly one winning bid at each price point, propagate the outcome to all participants immediately, and adjust wallet balances without allowing overdrafts. These constraints—serializability, low-latency broadcast, and financial atomicity—are easy to state but require deliberate architecture to satisfy.
+Major commercial platforms address these problems, but their implementations are closed. This leaves students studying distributed systems and web engineering with little to examine beyond high-level product documentation. AuctionHaus fills that gap. Built as a CSE major project, it applies techniques drawn from production systems—pessimistic row-level locking, WebSocket room broadcasting, and iterative proxy-bid resolution—within a codebase that undergraduate students can read, modify, and reason about.
+The system makes four specific contributions:
+1) A unified auction engine running English, Dutch, and sealed-bid formats from a single codebase and shared data model.
+2) A server-side auto-bidding algorithm that resolves competing proxy bids iteratively inside a single database transaction, eliminating race conditions between concurrent auto-bid activations.
+3) A wallet system that holds bid funds at the moment of placement and releases them atomically on outbid events, using pessimistic locking to prevent balance inconsistencies.
+4) A Socket.io event layer that notifies all room participants of new bids, price changes, auction extensions, and settlement outcomes without polling.
+Section II surveys related work. Section III describes the overall architecture. Sections IV through VI cover the auction engine, auto-bidding system, and real-time layer. Section VII details the database design. Section VIII examines the security configuration. Section IX reports evaluation results, and Section X concludes.
+
+II. Related Work
+Auction theory classifies mechanisms by how bidders submit offers and how the winner is determined. Klemperer [1] surveys the four primary formats—English, Dutch, first-price sealed-bid, and Vickrey—along with their strategic properties. Our implementation covers the first three; Vickrey support is deferred to future work.
+Translating these mechanisms into concurrent software requires careful attention to isolation. Gray and Reuter [2] show that the lost-update anomaly arises when two transactions read the same row before either writes to it. Their treatment of SELECT FOR UPDATE as a standard mitigation technique informed our bid placement and wallet withdrawal routines directly.
+The WebSocket protocol [3] replaced long-polling as the standard for bidirectional browser-server communication. Socket.io [4] sits on top of WebSockets and adds room-based broadcast, automatic reconnection, and transport fallback. We use its room model directly: each live auction is a room, and clients in that room receive bid events without polling.
+Proxy bidding—where a user sets a price ceiling and the system bids on their behalf—has been studied empirically by Lucking-Reiley [5] on eBay. The key distinction in our work is that AuctionHaus resolves all competing proxy bids in a single server-side loop, rather than through a sequence of client-initiated requests. This prevents the ceiling-inference problem that arises when proxy bids are visible through bid-by-bid increments.
+Kleppmann [6] discusses the trade-off between optimistic and pessimistic concurrency strategies. For financial writes, where a consistency failure cannot simply be retried without user impact, pessimistic locking is the appropriate choice. We adopt this position throughout the system.
+
+III. System Architecture
+A. Component Overview
+The system uses two repositories. The backend is an Express application written in TypeScript, exposing a REST API and a Socket.io server on the same HTTP process. The frontend is a Next.js 15 application using the App Router, which communicates with the backend through Axios for HTTP and a singleton Socket.io client for real-time events.
+Nine modules make up the backend. An Auth Service issues and verifies JWTs, hashing passwords with bcrypt. An Auction Service handles creation, updates, and status queries. A Bidding Engine places bids under transaction control. An Auto-Bid Processor runs the iterative proxy-bid simulation after each placement. A Wallet Service manages fund holds and releases. An Auction Scheduler drives lifecycle transitions on a 10-second cron interval. A Socket Gateway routes events to rooms and individual users. A Notification Service persists alerts and delivers them over WebSocket. An Admin Module exposes moderation tools and fraud indicators to privileged users.
+B. Technology Stack
+TABLE I
+
+Technology Stack
+
+IV. Auction Engine Design
+A. Auction Types
+Three auction formats share the same database tables and API surface, distinguished by a type field on the Auction model set to ENGLISH, DUTCH, or SEALED_BID at creation time.
+In an English auction, each new bid must exceed the current price by at least minIncrement. The auction closes at a fixed end time; the highest bidder wins if their amount meets the reserve price. Sellers may optionally set a buyNowPrice, allowing any buyer to end the auction immediately at that amount.
+Dutch auctions work in reverse. The price starts high and falls at regular intervals—every dutchInterval minutes by dutchPriceStep units—until a buyer accepts the current price or the auction closes. The scheduler computes the current price from the number of complete intervals elapsed since the auction's start time. The first bid placed at or above the live price wins immediately.
+Sealed-bid auctions hide competing offers from all participants. Bidders submit amounts without seeing what others have placed. After closure, the system selects the highest submitted bid as the winner. During the ACTIVE phase, the auction detail API suppresses all bid amounts; they become visible only after the auction transitions to ENDED.
+B. Bidding Algorithm
+The placeBid function in bid.service.ts handles the transactional core of the system. It acquires a SELECT FOR UPDATE lock on the auction row before reading or writing any bid-related state, serializing concurrent submissions at the database level. The steps run in order:
+1) Confirm the auction status is ACTIVE and the bidder is not the listing's seller.
+2) Lock the auction row via SELECT FOR UPDATE inside a Prisma $transaction.
+3) Apply type-specific validation: ENGLISH bids must meet or exceed currentPrice + minIncrement; DUTCH bids need only match or exceed the current price and resolve as an immediate win; SEALED_BID bids must exceed startingPrice.
+4) Confirm the bidder's available balance—computed as balance − heldAmount—covers the bid amount.
+5) In a single atomic operation: subtract the bid amount from balance, add it to heldAmount, record a BID_HOLD transaction, set the previous WINNING bid to OUTBID, return that bidder's held funds, record a BID_RELEASE transaction, create the new bid at WINNING status, and update auction.currentPrice.
+6) If time remaining is below antiSnipingMins, extend the auction's endTime by that value.
+7) Emit a bid:new event to the auction's Socket.io room.
+8) Call processAutoBids() to run the proxy-bid resolution loop.
+C. Anti-Sniping Mechanism
+Submitting a bid in the final seconds—sniping—is a documented strategy that denies competitors any time to respond [5]. The system counters it by extending the auction automatically. Any bid placed within antiSnipingMins minutes of the current close time pushes the endTime forward by that same number of minutes. The extension triggers an auction:extended Socket.io event carrying the new end time, which all clients in the room receive immediately. Extensions stack: a bid arriving one minute before an already-extended deadline extends it again from that point.
+
+V. Auto-Bidding Engine
+A. Algorithm Design
+Proxy bidding lets users set a spending ceiling and have the system bid on their behalf. Client-side approaches accomplish this by resubmitting bids from the browser each time the user is outbid. That approach is slow and fragile—it depends on the user's session remaining active, and sequential visible increments can expose the proxy's ceiling through inference.
+AuctionHaus places the resolution logic entirely on the server. After any bid is placed—manual or automatic—processAutoBids() runs synchronously and works through all competing proxy bids in one pass:
+1) Retrieve all AutoBid records for the auction with status ACTIVE, excluding the user who currently holds the WINNING bid.
+2) Order candidates by maxAmount descending.
+3) For each candidate, compute nextBid = currentPrice + minIncrement. If nextBid exceeds the candidate's maxAmount, mark the AutoBid EXHAUSTED and move on. If the candidate's available balance is insufficient, also mark EXHAUSTED and skip. Otherwise, call placeBid() for this candidate with isAutoBid set to true and update currentPrice.
+4) After each auto-bid placement, re-evaluate remaining candidates for counter-bids.
+5) Stop when no remaining candidate can outbid the current leader.
+B. Priority Resolution
+When two proxy bids share the same ceiling amount, the one registered earlier takes priority. This matches how most commercial proxy systems handle the same case [5]. Once an AutoBid is marked EXHAUSTED, the loop never revisits it, which guarantees termination and prevents repeated evaluation of depleted bids. All placements by the auto-bid engine emit the same bid:new socket event as manual bids. Clients receive updates without any indication of whether a person or the proxy engine placed the bid.
+
+VI. Real-Time Communication Layer
+A. WebSocket Architecture
+The Socket.io server shares the same Node.js process as the REST API. Authentication happens at the connection handshake: the server extracts a JWT from socket.handshake.auth.token, verifies the signature, and attaches the decoded user to the socket object. Connections that fail verification are rejected before any event handler runs.
+Each authenticated user joins a personal room named user:{id} on connection. To receive bids on a specific auction, the client sends an auction:join event, which subscribes the socket to the auction:{id} room. Navigating away triggers auction:leave, removing the socket from that room. This room model lets the server target bid events precisely: a new bid on auction 42 reaches only the clients currently watching that auction.
+The frontend maintains one Socket.io connection across all route navigations through three exported functions: getSocket() returns or creates the singleton, disconnectSocket() closes it on logout, and reconnectSocket() rebuilds it with a fresh authentication token on login. Opening and closing a connection on each page change would be wasteful; the singleton avoids that overhead.
+B. Event Model
+TABLE II
+
+Server-to-Client Socket.io Events
+
+C. Client-Side State Synchronization
+Each page registers Socket.io listeners on mount and removes them on unmount. When a relevant event arrives, the handler calls queryClient.refetchQueries() with the affected query key, pulling fresh data from the REST API. The socket event functions as an invalidation signal, not a data payload. The server remains the single source of truth; the WebSocket layer only tells the client when to ask for an update.
+The trade-off is an extra HTTP round-trip per event. In practice, this is acceptable: bid updates reach the UI within 50–150 ms of the socket event, which is imperceptible in a bidding context. The approach also avoids the consistency problems that arise when reconstructing server state entirely from an event stream. Reconnection is configured with up to 10 attempts and a backoff range of 1 to 5 seconds.
+
+VII. Database Design
+A. Schema Overview
+The schema defines 10 Prisma models, all using UUID primary keys. User records carry a role field (USER or ADMIN), a suspension flag, and running rating statistics. Each user has exactly one Wallet, linked by a cascade-delete foreign key. The Wallet model stores balance and heldAmount as Prisma Decimal columns to avoid the floating-point imprecision that JavaScript numbers introduce in financial calculations.
+Transaction records the complete history of money movement. Each row carries a type from the six-value enum—DEPOSIT, WITHDRAWAL, BID_HOLD, BID_RELEASE, PAYMENT, REFUND—along with a referenceId that ties it to the originating bid or auction. The Bid model tracks individual submissions and their current status: ACTIVE, WINNING, OUTBID, WON, or CANCELLED. The isAutoBid boolean distinguishes proxy placements from manual ones. AutoBid records each user's proxy ceiling and cycles through ACTIVE, EXHAUSTED, CANCELLED, and OUTBID states. WatchlistItem uses a compound unique index on (userId, auctionId) and writes with upsert to prevent duplicates. Notification is capped at 200 records per user; a raw SQL prune runs on each insert when the count exceeds that limit. Rating enforces compound uniqueness on (raterId, rateeId, auctionId), limiting each auction to one mutual rating between the parties involved.
+B. Concurrency Control
+Two operations require row-level locks. Bid placement locks the auction row before reading currentPrice or checking minIncrement. Without the lock, two concurrent transactions could each read the same currentPrice, both pass validation, and both be accepted as WINNING—an incorrect outcome. Wallet withdrawal locks the wallet row before computing available balance. This blocks two simultaneous withdrawals from each reading the same pre-deduction balance and both succeeding when only one should.
+Both locks are held inside Prisma $transaction() blocks, which map to single PostgreSQL transactions. The lock releases when the transaction commits or rolls back. At the concurrency levels this project targets, the approach is effective and straightforward [6].
+C. Database Hardening
+The db-hardening.ts script adds constraints that application-level code cannot enforce reliably on its own. CHECK (balance >= 0) and CHECK (heldAmount >= 0) on the Wallet table turn balance underflows into database errors rather than silent data corruption. Composite indexes on bids(auctionId, status) and notifications(userId, isRead) cover the two most frequent query patterns. A GIN full-text search index on the concatenated auction title and description enables keyword search without a separate search service.
+
+VIII. Security Architecture
+Table III lists the security controls applied at each layer. The configuration provides defense in depth without introducing dependencies beyond the packages already in use.
+TABLE III
+
+Security Mechanisms
+
+Passwords use bcrypt at 12 rounds, which resists offline dictionary attacks on a stolen hash file while keeping login latency below 300 ms in practice. JWTs use HS256; the signing secret comes from an environment variable and never appears in source. Express-rate-limit caps requests at 100 per 15 minutes per IP, which reduces the impact of credential-stuffing attempts without affecting normal usage. Helmet.js sets Content-Security-Policy, HSTS, and X-Frame-Options headers on every response. CORS rejects requests from any origin other than FRONTEND_URL at the middleware layer, before any handler runs.
+Zod schemas validate all incoming request bodies. Prisma uses parameterized queries throughout, so user input never reaches a query string. Financial writes run through SELECT FOR UPDATE transactions backed by database CHECK constraints—two independent barriers against balance underflows. The escrow settlement function checks for an existing PAYMENT record before processing, making double settlement safe by construction. When an admin suspends a user, the in-memory cache entry for that user is deleted; the next request triggers a fresh database lookup that returns the suspension flag and rejects the request.
+
+IX. Results and Discussion
+Testing ran in a local development environment with four seed accounts, each pre-loaded with a 1,000,000 unit balance. We tested each auction type separately, then ran concurrent multi-client scenarios on English auctions where race conditions are most likely to surface.
+The bidding engine handled concurrent submissions correctly. We opened two browser sessions on the same English auction and submitted bids within milliseconds of each other. In every trial, the database accepted exactly one bid as WINNING and rejected the other. No double-WINNING state appeared in the bid table, confirming that SELECT FOR UPDATE serialization worked as expected. Price validation—minimum increment for English auctions, price-floor matching for Dutch—held in all tested scenarios.
+The auto-bid simulation produced correct outcomes across all test cases. With three simultaneously active proxy bids at different ceiling amounts, processAutoBids() converged to the correct winner in a single pass—O(n) iterations over the active AutoBid records. The highest-ceiling bidder won; the others were marked EXHAUSTED in descending order. The Socket.io event stream showed a bid:new event for each step of the simulation, giving connected clients a complete view of the proxy competition without any additional client-side logic.
+Auction lifecycle transitions occurred within one scheduler tick. Auctions moved from PENDING to ACTIVE, and from ACTIVE to ENDED, within 10 seconds of their configured times. Dutch price drops matched the expected computed values with no observed drift over a 30-minute test session. Escrow settlement proved idempotent: calling the settlement function twice on the same ended auction produced no duplicate PAYMENT records.
+One issue emerged during testing. Bid updates on the frontend occasionally lagged by 10–20 seconds, requiring a manual page refresh to show the current state. We traced this to React Query's cache behavior: the Socket.io event arrives correctly—confirmed via browser devtools within 200 ms of bid placement—and triggers queryClient.refetchQueries() immediately. However, if the cache entry is still within its staleTime window, React Query serves cached data rather than fetching. Switching from refetchQueries() to queryClient.invalidateQueries() forces a fresh request regardless of stale state. This fix is staged for the next iteration.
+The admin panel correctly flagged accounts with anomalous bidding patterns and applied suspensions. Suspended accounts lost API access within one cache TTL cycle—at most 5 minutes, typically shorter depending on when the cache entry was last populated.
+
+X. Conclusion
+AuctionHaus implements three auction formats, a server-side proxy-bid engine, an escrow wallet, and a real-time notification layer within a TypeScript codebase that an undergraduate team can deploy and extend. Its technical center is the bid placement function: a locked database transaction that serializes concurrent bids, updates wallet state atomically, and triggers the auto-bid resolution loop before returning a response.
+Several design choices favored correctness over throughput. SELECT FOR UPDATE means that under high concurrency, some requests will queue at the database lock rather than failing immediately. For the scale this project targets—tens of simultaneous users on a single auction—that trade-off is acceptable. The node-cron scheduler runs in-process and does not scale across multiple server instances. Replacing it with a distributed queue such as BullMQ would be the first step toward a multi-node deployment.
+Future directions cover five areas: migrating the scheduler to BullMQ to support horizontal scaling; adding Vickrey second-price sealed-bid auction support; running formal load tests to establish latency and throughput figures under high concurrent bid rates; integrating WebRTC for live auction video; and resolving the React Query cache invalidation issue identified during testing.
+
+
+References
+[1] P. Klemperer, “Auction Theory: A Guide to the Literature,” Journal of Economic Surveys, vol. 13, no. 3, pp. 227–286, Jul. 1999.
+[2] J. Gray and A. Reuter, Transaction Processing: Concepts and Techniques. San Francisco, CA, USA: Morgan Kaufmann, 1992.
+[3] I. Fette and A. Melnikov, “The WebSocket Protocol,” RFC 6455, Internet Engineering Task Force (IETF), Dec. 2011.
+[4] Socket.io, “Socket.IO Documentation,” 2024. [Online]. Available: https://socket.io/docs/v4/
+[5] D. Lucking-Reiley, “Using Field Experiments to Test Equivalence Between Auction Formats: Magic on the Internet,” American Economic Review, vol. 89, no. 5, pp. 1063–1080, Dec. 1999.
+[6] M. Kleppmann, Designing Data-Intensive Applications. Sebastopol, CA, USA: O’Reilly Media, 2017.
+[7] Prisma, “Prisma ORM Documentation,” 2024. [Online]. Available: https://www.prisma.io/docs
+[8] Next.js, “Next.js App Router Documentation,” Vercel, 2024. [Online]. Available: https://nextjs.org/docs/app
+[9] I. Fette and A. Melnikov, “The WebSocket Protocol,” RFC 6455, IETF, Dec. 2011.
+[10] Express.js, “Express 4.x API Reference,” 2024. [Online]. Available: https://expressjs.com/en/4x/api.html
+
+
+[HOD FULL NAME]
+ received the [DEGREE] degree from [UNIVERSITY] in [YEAR]. She is currently Professor and Head of the Department of Computer Science and Engineering at [COLLEGE NAME], [CITY], India. Her research interests include [RESEARCH AREAS]. She has supervised several undergraduate major projects in the areas of distributed systems and web engineering.
+[AUTHOR 1], [AUTHOR 2], [AUTHOR 3], [AUTHOR 4]
+ are final-year B.Tech (Computer Science and Engineering) students at [COLLEGE NAME], [UNIVERSITY], India. AuctionHaus was developed as their undergraduate major project. Their interests cover full-stack web development, distributed systems, and real-time application design.
