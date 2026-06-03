@@ -1,0 +1,75 @@
+{
+  "runId": "7adb7e19-0964-4347-888c-03a8261ffadc",
+  "startedAt": "2026-06-01T08:23:29.657Z",
+  "endedAt": "2026-06-01T08:24:33.526Z",
+  "config": {
+    "auctionCount": 1,
+    "agents": [
+      {
+        "type": "truthful",
+        "email": "sim-truthful-7adb7e19-1@ah.test",
+        "password": ""
+      },
+      {
+        "type": "truthful",
+        "email": "sim-truthful-7adb7e19-2@ah.test",
+        "password": ""
+      },
+      {
+        "type": "sniper",
+        "email": "sim-sniper-7adb7e19-1@ah.test",
+        "password": ""
+      },
+      {
+        "type": "shill",
+        "email": "sim-shill-7adb7e19-1@ah.test",
+        "password": ""
+      },
+      {
+        "type": "collusion",
+        "email": "sim-col-7adb7e19-1@ah.test",
+        "password": ""
+      },
+      {
+        "type": "collusion",
+        "email": "sim-col-7adb7e19-2@ah.test",
+        "password": ""
+      }
+    ],
+    "auctionDurationSec": 60,
+    "startingPrice": 1000,
+    "minIncrement": 100,
+    "backendUrl": "http://localhost:5000/api"
+  },
+  "auctionIds": [
+    "5d8b8b41-03c4-44f9-824e-8f387f7f2b5d"
+  ],
+  "agentMap": {
+    "f9e92e38-9f36-4ac0-9612-37f3527aaaf4": {
+      "userId": "f9e92e38-9f36-4ac0-9612-37f3527aaaf4",
+      "agentType": "truthful"
+    },
+    "14ce9143-c48a-43d7-81d9-b97213273e2e": {
+      "userId": "14ce9143-c48a-43d7-81d9-b97213273e2e",
+      "agentType": "truthful"
+    },
+    "bf73bd59-43f7-421b-8706-1b26231b7582": {
+      "userId": "bf73bd59-43f7-421b-8706-1b26231b7582",
+      "agentType": "sniper"
+    },
+    "acb47f42-6004-44ae-8fb1-41bf8a2146a5": {
+      "userId": "acb47f42-6004-44ae-8fb1-41bf8a2146a5",
+      "agentType": "shill"
+    },
+    "b1832c3b-3b6d-4603-a6be-61219ad535d7": {
+      "userId": "b1832c3b-3b6d-4603-a6be-61219ad535d7",
+      "agentType": "collusion"
+    },
+    "1013f56f-1100-4088-8994-17fa349bfa33": {
+      "userId": "1013f56f-1100-4088-8994-17fa349bfa33",
+      "agentType": "collusion"
+    }
+  },
+  "totalBids": 24,
+  "shillBids": 21
+}
