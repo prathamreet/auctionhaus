@@ -1,47 +1,18 @@
 {
-  "captured": "2026-06-01",
-  "source": "packages/simulator/k6/bid-throughput.js",
-  "raw_console_logs": "docs/rp/rp-audit-01-plan-phase1A-k6.md",
-  "environment": {
-    "postgres": "15",
-    "redis": "7-alpine",
-    "host": "single developer workstation",
-    "vus": "constant-vus k6 executor",
-    "duration_s": 15,
-    "note": "All runs against a single instance of the AuctionHaus backend with the in-memory Socket.io adapter."
-  },
-  "modes": {
-    "direct": {
-      "description": "Standard placeBid path: HTTP POST -> Express -> Prisma -> Postgres FOR UPDATE row lock -> commit.",
-      "endpoint": "/api/bids/auctions/{id}",
-      "runs": [
-        { "vus": 1,   "p95_ms": 236.0,  "iter": 53,  "iter_per_s": 3.5 },
-        { "vus": 10,  "p95_ms": 1284.4, "iter": 143, "iter_per_s": 9.0 },
-        { "vus": 100, "p95_ms": 5771.7, "iter": 570, "iter_per_s": 29.8 }
-      ]
-    },
-    "stream": {
-      "description": "Redis Stream sequencer path: HTTP POST -> XADD to auction:{id}:bids stream -> consumer group worker -> placeBid -> Postgres.",
-      "endpoint": "/api/bids/auctions/{id}/stream",
-      "runs": [
-        { "vus": 1,   "p95_ms": 133.9, "iter": 86,    "iter_per_s": 5.7 },
-        { "vus": 10,  "p95_ms": 47.9,  "iter": 1392,  "iter_per_s": 92.1 },
-        { "vus": 100, "p95_ms": 8.1,   "iter": 14626, "iter_per_s": 975.1 }
-      ]
-    }
-  },
-  "gains_at_100_vus": {
-    "throughput_iter_per_s": { "direct": 29.8, "stream": 975.1, "ratio": 32.7 },
-    "latency_p95_ms": { "direct": 5771.7, "stream": 8.1, "speedup": 712.6 }
-  },
-  "paper_references": {
-    "main_table_3": {
-      "claim_at_100_vus": { "direct_p95_ms": 5785.8, "direct_iter_per_s": 27.7, "stream_p95_ms": 29.8, "stream_iter_per_s": 788.6, "gain_x": 28.5 },
-      "note": "These numbers in paper/main.tex Table III do not exactly match the raw k6 console logs preserved at docs/rp/rp-audit-01-plan-phase1A-k6.md. They appear to be from a slightly earlier set of runs that was not preserved. Treat supplementary Table XII as the canonical artefact."
-    },
-    "supplementary_table_12": {
-      "matches_this_file": true,
-      "note": "paper/supplementary.tex Table XII matches the runs[] values above verbatim. This file is the canonical record."
-    }
+  "_comment": "Canonical k6 bid-throughput sweep. 15s runs, single hot auction, local PostgreSQL 16 + Redis 7 (Docker), backend with RATE_LIMIT_MAX=100000000 BID_SEQUENCER=true BID_STREAM_BACKPRESSURE=100000. Direct = committed bids (201); Stream = enqueue acceptance (202). Latency percentiles over accepted requests only. Source: paper/figures/k6_<mode>_<vus>.json.",
+  "date": "2026-06-10",
+  "runs": [
+    { "mode": "direct", "vus": 1,   "accepted": 126,   "accepted_per_s": 8.3,   "rejected_400": 0,   "errored_5xx": 0, "p50_ms": 18.8,  "p95_ms": 21.7,    "p99_ms": 28.3 },
+    { "mode": "direct", "vus": 10,  "accepted": 882,   "accepted_per_s": 58.1,  "rejected_400": 71,  "errored_5xx": 0, "p50_ms": 59.5,  "p95_ms": 85.7,    "p99_ms": 103.2 },
+    { "mode": "direct", "vus": 100, "accepted": 883,   "accepted_per_s": 56.5,  "rejected_400": 959, "errored_5xx": 0, "p50_ms": 948.3, "p95_ms": 1227.7,  "p99_ms": 1384.0 },
+    { "mode": "stream", "vus": 1,   "accepted": 143,   "accepted_per_s": 9.5,   "rejected_400": 0,   "errored_5xx": 0, "p50_ms": 4.5,   "p95_ms": 5.7,     "p99_ms": 6.0 },
+    { "mode": "stream", "vus": 10,  "accepted": 1416,  "accepted_per_s": 93.8,  "rejected_400": 0,   "errored_5xx": 0, "p50_ms": 5.5,   "p95_ms": 10.0,    "p99_ms": 13.5 },
+    { "mode": "stream", "vus": 100, "accepted": 10930, "accepted_per_s": 725.1, "rejected_400": 0,   "errored_5xx": 0, "p50_ms": 36.7,  "p95_ms": 45.8,    "p99_ms": 54.4 }
+  ],
+  "headline": {
+    "concurrency": 100,
+    "throughput_gain": "12.8x (725.1 enqueue/s vs 56.5 commit/s)",
+    "p95_latency_gain": "26.8x (1227.7ms vs 45.8ms)",
+    "note": "Direct saturates: throughput plateaus ~57/s, p95 -> 1.23s, ~52% stale-400 rejections, 0 errors. Stream scales near-linearly with flat low latency and zero rejections/errors."
   }
 }
