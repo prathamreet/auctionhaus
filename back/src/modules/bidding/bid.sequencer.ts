@@ -143,7 +143,14 @@ export class BidSequencer {
     // ioredis types xreadgroup with many overloads that don't accept a spread
     // string[] cleanly. Bind once and narrow to the exact reply shape we
     // consume via a typed callable cast instead of `any`.
-    const xreadgroup = redis.xreadgroup.bind(redis) as unknown as (
+    // Blocking XREADGROUP must run on its OWN connection. ioredis serialises
+    // commands on a single connection, so sharing the producer's `redis` client
+    // makes every XADD (enqueue) wait behind a BLOCK that sits idle for up to
+    // BLOCK_MS whenever the stream is empty -- which inflated low-concurrency
+    // enqueue latency to ~2s. A dedicated duplicate connection decouples the
+    // consumer's blocking read from the producer's appends.
+    const blockingRedis = redis.duplicate();
+    const xreadgroup = blockingRedis.xreadgroup.bind(blockingRedis) as unknown as (
       ...a: string[]
     ) => Promise<XReadGroupReply>;
 
