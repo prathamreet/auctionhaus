@@ -28,6 +28,7 @@
     "db:seed": "npm run db:seed-users --workspace=back",
     "db:seed-demo": "npm run db:seed-demo --workspace=back",
     "db:reset-auctions": "npm run db:clear-auctions --workspace=back",
+    "db:prepare-bench": "npm run db:prepare-bench --workspace=back",
     "sim:run": "npm run sim:run --workspace=back",
     "train:fraud": "npm run train:fraud --workspace=back",
     "eval:fraud": "npm run eval:fraud --workspace=back",
