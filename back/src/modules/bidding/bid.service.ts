@@ -1,4 +1,4 @@
-import { AuctionStatus, AuctionType, Prisma } from '@prisma/client';
+import { AuctionStatus, AuctionType, Prisma, SettlementKind } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
 import { notifyUser } from '../notifications/notification.service';
@@ -6,6 +6,7 @@ import { autoBidQueue } from '../../queues/auction.queue';
 import { io } from '../../index';
 import { D, neg, toNum } from '../../lib/decimal';
 import { FraudEngine } from '../fraud/fraud.engine';
+import { settleWithinTx } from '../escrow/escrow.service';
 
 /**
  * Place a bid on an auction.
@@ -230,6 +231,25 @@ export const placeBid = async (data: {
     // bids with no anti-sniping path, auctionUpdateData stays empty.
     if (Object.keys(auctionUpdateData).length > 0) {
       await tx.auction.update({ where: { id: auctionId }, data: auctionUpdateData });
+    }
+
+    // Dutch settles on accept. A Dutch bid both wins and ends the auction in
+    // this same transaction, so the seller is paid immediately rather than
+    // waiting for the end-auction job. settleWithinTx releases the funds we
+    // just held (heldAmount -> seller balance) and writes the idempotent
+    // Settlement row, so the later end-auction job is a no-op for this auction.
+    // The auction row is already FOR UPDATE locked above, satisfying the
+    // settleWithinTx lock-order precondition.
+    if (auction.type === AuctionType.DUTCH) {
+      await settleWithinTx(tx, {
+        auctionId,
+        auctionTitle: auction.title,
+        payerId: bidderId,
+        sellerId: auction.sellerId,
+        amount: amountD,
+        kind: SettlementKind.WON_AUCTION,
+      });
+      await tx.bid.update({ where: { id: bid.id }, data: { status: 'WON' } });
     }
 
     // Return a number-typed amount so callers (controller, socket emit, the

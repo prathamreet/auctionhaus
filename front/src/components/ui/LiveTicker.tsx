@@ -72,7 +72,12 @@ export function LiveTickerProvider({
   const [events, setEvents] = React.useState<InternalEvent[]>([]);
   const [hovered, setHovered] = React.useState<string | null>(null);
   const hoveredRef = React.useRef<string | null>(null);
-  hoveredRef.current = hovered;
+  // Keep the ref in sync with the hovered state from an effect (not in render).
+  // The ref is only read inside the auto-dismiss interval callback below, which
+  // runs after commit, so an effect-time write is always current there.
+  React.useEffect(() => {
+    hoveredRef.current = hovered;
+  }, [hovered]);
 
   const push = React.useCallback(
     (e: LiveTickerEvent) => {

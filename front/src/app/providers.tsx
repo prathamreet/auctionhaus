@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthProvider from "@/components/AuthProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { LiveTickerProvider } from "@/components/ui/LiveTicker";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -16,7 +17,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             renders nothing). */}
         <LiveTickerProvider>
           <Navbar />
-          {children}
+          {/* App-wide ErrorBoundary sits inside the navbar so a crashing
+              page still leaves the nav clickable (back to home, switch
+              theme). A render error past this point is captured and
+              shown as a recovery card instead of a blank document. */}
+          <ErrorBoundary>{children}</ErrorBoundary>
         </LiveTickerProvider>
       </AuthProvider>
     </QueryClientProvider>

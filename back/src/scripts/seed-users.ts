@@ -3,7 +3,7 @@ import { Role } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 
 async function main() {
-  console.log('🌱 Seeding specific users...');
+  console.log('[seed] Seeding specific users...');
 
   const password = '123123';
   const hashedPassword = await bcrypt.hash(password, 12);
@@ -13,13 +13,14 @@ async function main() {
     { email: 'one@x.com', name: 'One', role: 'USER' },
     { email: 'two@x.com', name: 'Two', role: 'USER' },
     { email: 'three@x.com', name: 'Three', role: 'USER' },
+    { email: 'hoster@x.com', name: 'Hoster', role: 'USER' },
   ];
 
   for (const u of users) {
     try {
       const existing = await prisma.user.findUnique({ where: { email: u.email } });
       if (existing) {
-        console.log(`- User ${u.email} already exists, skipping.`);
+        console.log(`[skip] User ${u.email} already exists.`);
         continue;
       }
 
@@ -32,13 +33,14 @@ async function main() {
           wallet: { create: { balance: 1000000 } }, // Starter balance
         },
       });
-      console.log(`+ Created user: ${u.email} (${u.role})`);
+      console.log(`[add]  ${u.email} (${u.role})`);
     } catch (error) {
-      console.error(`❌ Error creating user ${u.email}:`, error);
+      console.error(`[fail] Error creating user ${u.email}:`, error);
     }
   }
 
-  console.log('✅ Seeding complete.');
+  console.log('[done] Seeding complete.');
+  console.log('[info] All users password: 123123');
 }
 
 main()

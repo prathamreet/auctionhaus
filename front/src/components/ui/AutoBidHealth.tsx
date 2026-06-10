@@ -52,11 +52,11 @@ export function AutoBidHealth({
   //   winning. The proxy ran up to its limit and was outbid by a higher limit.
   // - Winning: viewer is the current winning bidder. Could be because the
   //   ladder placed them there, or because they manually bid.
-  // - Contested: someone else is winning at < maxAmount; the auto-bid is
-  //   still armed and will fire on the next manual bid against them.
+  // - Armed (the implicit third state): someone else is winning at
+  //   < maxAmount; the auto-bid is still armed and will fire on the next
+  //   manual bid against them. It is the fall-through "warning" tone below.
   const capReached = currentPrice >= maxAmount && !isViewerWinning;
   const winning = isViewerWinning;
-  const contested = !winning && !capReached;
 
   const tone = winning
     ? "success"

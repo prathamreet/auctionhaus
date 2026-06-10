@@ -91,14 +91,14 @@ const PORT = process.env.PORT || 5000;
 async function bootstrap() {
   try {
     await prisma.$connect();
-    console.log('✅ Database connected');
+    console.log('[ok] Database connected');
 
     try {
       await Promise.race([
         redis.ping(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
       ]);
-      console.log('✅ Redis connected');
+      console.log('[ok] Redis connected');
 
       // Phase A8: wire the Socket.io Redis adapter so a multi-instance deploy
       // can broadcast across nodes. Single-instance dev keeps working since
@@ -106,7 +106,7 @@ async function bootstrap() {
       // The two redisPub / redisSub connections were already allocated in
       // lib/redis.ts and unused -- they earn their keep here.
       io.adapter(createAdapter(redisPub, redisSub));
-      console.log('✅ Socket.io Redis adapter connected');
+      console.log('[ok] Socket.io Redis adapter connected');
 
       // Phase A9.x: cross-instance auth-cache invalidation. admin.suspendUser
       // publishes the suspended userId on 'user:invalidate'; every instance
@@ -118,29 +118,29 @@ async function bootstrap() {
       redisInvalidateSub.on('message', (channel, message) => {
         if (channel === 'user:invalidate' && message) invalidateUser(message);
       });
-      console.log('✅ Auth-cache invalidation channel subscribed');
+      console.log('[ok] Auth-cache invalidation channel subscribed');
 
       initWorkers();
-      console.log('✅ BullMQ workers started');
+      console.log('[ok] BullMQ workers started');
     } catch (_redisErr) {
-      console.warn('⚠️ Could not connect to Redis on startup. Real-time features and scheduled jobs will be disabled.');
+      console.warn('[warn] Could not connect to Redis on startup. Real-time features and scheduled jobs will be disabled.');
       // Proceed without crashing the server. Socket.io falls back to its
       // in-memory adapter (single-instance only).
     }
 
     initSocketGateway(io);
-    console.log('✅ Socket.io gateway initialized');
+    console.log('[ok] Socket.io gateway initialized');
 
     // Phase C2/C3: wire the fraud detection engine so it can emit fraud:flag
     // events to the admin socket room after each bid commits.
     FraudEngine.getInstance().init(io);
-    console.log('✅ Fraud detection engine initialised');
+    console.log('[ok] Fraud detection engine initialised');
 
     httpServer.listen(PORT, () => {
-      console.log(`🚀 AuctionHaus backend running on http://localhost:${PORT}`);
+      console.log(`[ready] AuctionHaus backend running on http://localhost:${PORT}`);
     });
   } catch (err) {
-    console.error('❌ Failed to start server:', err);
+    console.error('[fail] Failed to start server:', err);
     process.exit(1);
   }
 }

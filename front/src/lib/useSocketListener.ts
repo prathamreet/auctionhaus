@@ -38,9 +38,9 @@ export function useConnectionState(): ConnectionState {
     sock.io.on("reconnect_attempt", onReconnectAttempt);
     sock.io.on("reconnect", onReconnect);
 
-    // Sync once more in case events fired between the initial state read and
-    // the effect attaching.
-    setState(sock.connected ? "connected" : "reconnecting");
+    // The lazy useState initializer already captured the connection state at
+    // mount; the four listeners above carry every transition afterwards. No
+    // synchronous re-sync is needed here.
 
     return () => {
       sock.off("connect", onConnect);
@@ -71,9 +71,15 @@ export function useSocketListener(
   onReconnect?: () => void
 ) {
   const handlerRef = useRef(handler);
-  handlerRef.current = handler;
   const reconnectRef = useRef(onReconnect);
-  reconnectRef.current = onReconnect;
+  // Keep the latest handler/onReconnect in refs without re-subscribing.
+  // Writing a ref during render is disallowed (react-hooks/refs); an unkeyed
+  // effect runs after every commit, and the refs are only read inside socket
+  // callbacks (which fire post-commit), so the values are always current.
+  useEffect(() => {
+    handlerRef.current = handler;
+    reconnectRef.current = onReconnect;
+  });
 
   useEffect(() => {
     if (!enabled) return;
@@ -89,7 +95,7 @@ export function useSocketListener(
       sock.io.off("reconnect", onR);
     };
     // Re-run only when event or enabled changes, not handler / onReconnect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // (both are held in refs above).
   }, [event, enabled]);
 }
 
@@ -104,9 +110,13 @@ export function useSocketListeners(
   onReconnect?: () => void
 ) {
   const listenersRef = useRef(listeners);
-  listenersRef.current = listeners;
   const reconnectRef = useRef(onReconnect);
-  reconnectRef.current = onReconnect;
+  // Sync the latest listeners/onReconnect into refs from an effect (writing a
+  // ref during render is disallowed). Reads happen only in socket callbacks.
+  useEffect(() => {
+    listenersRef.current = listeners;
+    reconnectRef.current = onReconnect;
+  });
 
   useEffect(() => {
     if (!enabled) return;
@@ -127,7 +137,7 @@ export function useSocketListeners(
       }
       sock.io.off("reconnect", onR);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Re-run only when `enabled` changes; listeners are read through a ref.
   }, [enabled]);
 }
 
@@ -147,9 +157,13 @@ export function useAuctionRoom(
   onReconnect?: () => void
 ) {
   const listenersRef = useRef(listeners);
-  listenersRef.current = listeners;
   const reconnectRef = useRef(onReconnect);
-  reconnectRef.current = onReconnect;
+  // Sync the latest listeners/onReconnect into refs from an effect (writing a
+  // ref during render is disallowed). Reads happen only in socket callbacks.
+  useEffect(() => {
+    listenersRef.current = listeners;
+    reconnectRef.current = onReconnect;
+  });
 
   useEffect(() => {
     if (!auctionId) return;
@@ -177,7 +191,6 @@ export function useAuctionRoom(
       }
       sock.io.off("reconnect", onR);
     };
-    // Re-run only when auctionId changes, not the listener object
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Re-run only when auctionId changes; the listener object is read via a ref.
   }, [auctionId]);
 }

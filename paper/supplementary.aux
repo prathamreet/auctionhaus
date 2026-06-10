@@ -1,0 +1,99 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{3}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Simulator Architecture and Agent Specifications}{3}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Discrete-Event Simulation Environment}{3}{subsection.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Simulation Environment Parameters}}{3}{table.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:sim_params}{{1}{3}{Simulation Environment Parameters}{table.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Agent Persona Specifications}{4}{subsection.2.2}\protected@file@percent }
+\newlabel{sec:agents}{{2.2}{4}{Agent Persona Specifications}{subsection.2.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Truthful Bidders (2 agents)}{4}{subsubsection.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Sniper Bidder (1 agent)}{4}{subsubsection.2.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Shill Bidder (1 agent)}{4}{subsubsection.2.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.4}Collusion Ring (2 agents)}{4}{subsubsection.2.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Simulation Output Schema}{4}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Sample Simulator Output Log}{5}{subsection.2.4}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Actual simulator console output (abbreviated).}}{5}{lstlisting.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Fraud Detection Engine -- Complete Source Code}{5}{section.3}\protected@file@percent }
+\newlabel{sec:source}{{3}{5}{Fraud Detection Engine -- Complete Source Code}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Type Definitions (\texttt  {fraud.types.ts})}{5}{subsection.3.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Core type interfaces for the fraud engine.}}{5}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Sliding-Window Bid Graph (\texttt  {fraud.graph.ts})}{6}{subsection.3.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces In-memory sliding-window bid graph with lazy pruning.}}{6}{lstlisting.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Feature Extraction (\texttt  {fraud.features.ts})}{7}{subsection.3.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces Five-feature extraction from the bid graph per event.}}{7}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Logistic Regression Classifier (\texttt  {fraud.classifier.ts})}{8}{subsection.3.4}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces Scoring and explainability functions.}}{8}{lstlisting.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Engine Orchestrator (\texttt  {fraud.engine.ts})}{9}{subsection.3.5}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}{\ignorespaces Singleton fraud engine orchestrating the detection pipeline.}}{9}{lstlisting.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Dataset Generation and Training Pipeline}{10}{section.4}\protected@file@percent }
+\newlabel{sec:dataset}{{4}{10}{Dataset Generation and Training Pipeline}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Dataset Construction}{10}{subsection.4.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {7}{\ignorespaces Actual train.ts output.}}{10}{lstlisting.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Training Corpus Statistics (from \texttt  {train.ts} output)}}{11}{table.caption.3}\protected@file@percent }
+\newlabel{tab:corpus}{{2}{11}{Training Corpus Statistics (from \texttt {train.ts} output)}{table.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Feature Scaling: Z-Score Normalisation}{11}{subsection.4.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Empirical Feature Normalisation Constants}}{11}{table.caption.4}\protected@file@percent }
+\newlabel{tab:zscore}{{3}{11}{Empirical Feature Normalisation Constants}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Gradient Descent Training}{11}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Learned Model Parameters}{11}{subsection.4.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Training Hyperparameters}}{12}{table.caption.5}\protected@file@percent }
+\newlabel{tab:hyperparams}{{4}{12}{Training Hyperparameters}{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Learned Logistic Regression Weights}}{12}{table.caption.6}\protected@file@percent }
+\newlabel{tab:weights}{{5}{12}{Learned Logistic Regression Weights}{table.caption.6}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {8}{\ignorespaces Training performance (verbatim from train.ts).}}{12}{lstlisting.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Training Convergence}{12}{subsection.4.5}\protected@file@percent }
+\gdef \LT@i {\LT@entry 
+    {3}{33.30864pt}\LT@entry 
+    {1}{25.0305pt}\LT@entry 
+    {1}{24.47205pt}\LT@entry 
+    {1}{26.5635pt}\LT@entry 
+    {1}{26.00505pt}\LT@entry 
+    {3}{39.39682pt}\LT@entry 
+    {3}{39.39682pt}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Training Loss Convergence (verbatim from \texttt  {train.ts})}}{13}{table.caption.7}\protected@file@percent }
+\newlabel{tab:convergence}{{6}{13}{Training Loss Convergence (verbatim from \texttt {train.ts})}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Extended Experimental Results}{13}{section.5}\protected@file@percent }
+\newlabel{sec:results}{{5}{13}{Extended Experimental Results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Full ROC Sweep}{13}{subsection.5.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Full ROC Sweep: Per-Threshold Performance Metrics}}{13}{table.7}\protected@file@percent }
+\newlabel{tab:roc_full}{{7}{13}{Full ROC Sweep}{table.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Detailed Feature Ablation}{14}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Feature Ablation: Detailed Metrics at $\theta = 0.20$}}{14}{table.caption.8}\protected@file@percent }
+\newlabel{tab:ablation_full}{{8}{14}{Feature Ablation: Detailed Metrics at $\theta = 0.20$}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Baseline Comparison}{14}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Throughput Benchmarks: Extended k6 Results}{14}{subsection.5.4}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {9}{\ignorespaces Actual eval.ts console output.}}{14}{lstlisting.9}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces k6 Bid Throughput: p95 Latency (from actual k6 runs)}}{15}{table.caption.9}\protected@file@percent }
+\newlabel{tab:k6_ext}{{9}{15}{k6 Bid Throughput: p95 Latency (from actual k6 runs)}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Formal Proofs and Complexity Analysis}{15}{section.6}\protected@file@percent }
+\newlabel{sec:proofs}{{6}{15}{Formal Proofs and Complexity Analysis}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Commit-Reveal Protocol: Security Properties}{15}{subsection.6.1}\protected@file@percent }
+\newlabel{thm:commit}{{1}{15}{SHA-256 Commitment Security}{theorem.1}{}}
+\newlabel{prop:range}{{2}{15}{Limitation: No Range Proofs}{theorem.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Graph Algorithm Complexity}{15}{subsection.6.2}\protected@file@percent }
+\newlabel{thm:complexity}{{3}{15}{Feature Extraction Complexity}{theorem.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Gradient Descent Convergence}{16}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}k6 Load Test Harness}{16}{section.7}\protected@file@percent }
+\newlabel{sec:k6}{{7}{16}{k6 Load Test Harness}{section.7}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {10}{\ignorespaces k6 bid throughput benchmark script.}}{16}{lstlisting.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Sealed-Bid Commitment: Implementation}{18}{section.8}\protected@file@percent }
+\newlabel{sec:commitment}{{8}{18}{Sealed-Bid Commitment: Implementation}{section.8}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {11}{\ignorespaces SHA-256 commitment hashing and verification.}}{18}{lstlisting.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Reproducibility Instructions}{19}{section.9}\protected@file@percent }
+\newlabel{sec:repro}{{9}{19}{Reproducibility Instructions}{section.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Monorepo Structure}{19}{subsection.9.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {12}{\ignorespaces Root package.json (abbreviated).}}{19}{lstlisting.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Prerequisites}{19}{subsection.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}Step-by-Step Setup}{20}{subsection.9.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {13}{\ignorespaces back/.env.example contents.}}{20}{lstlisting.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Running the Experiments}{21}{subsection.9.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5}Running k6 Throughput Benchmarks}{21}{subsection.9.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6}Output Artefacts}{22}{subsection.9.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Generated Output Files}}{22}{table.caption.10}\protected@file@percent }
+\newlabel{tab:outputs}{{10}{22}{Generated Output Files}{table.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.7}Verification Checklist}{22}{subsection.9.7}\protected@file@percent }
+\gdef \@abspage@last{22}

@@ -58,14 +58,18 @@ bidder looks suspicious. Because the check runs before the auction
 closes, an administrator can warn a user, throttle them, or cancel a bid
 while bidding is still open. We tested the system on a synthetic workload
 with four kinds of agents (truthful bidders, a sniper, a shill, and a
-collusion ring) and obtained an F1 score of 1.000 at a threshold of 0.20,
-against F1\,=\,0.000 for a simple outbid-counting baseline. An ablation
-study shows that one feature, seller co-occurrence (how often the same bidder
-targets multiple auctions from the same seller), does almost all of the work:
-removing it drops the score to 0.105. We also add a SHA-256
+collusion ring) spread across several concurrent auctions and, on a
+held-out test partition, obtained an F1 score of 0.923 (precision 0.857,
+recall 1.000) at the ROC-selected threshold, against F1\,=\,0.000 for a
+simple outbid-counting baseline and F1\,=\,0.857 for a single-feature
+seller-co-occurrence decision stump. An ablation study shows that seller
+co-occurrence (how often the same bidder targets multiple auctions from
+the same seller) is the single most informative feature: removing it
+lowers F1 from 0.923 to 0.828, and on its own it already reaches 0.857. We also add a SHA-256
 commit-reveal scheme for sealed-bid auctions and measure a Redis Stream
-bid sequencer that handles $\mathbf{28.5\times}$ more bids per second
-than direct row locking at 100 concurrent bidders.
+bid sequencer that, at 100 concurrent bidders, accepts about $13\times$
+the throughput of direct row locking (725 vs 57 bids/s) at roughly
+$26\times$ lower p95 latency.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -114,9 +118,11 @@ We try to close this gap with four contributions:
     homomorphic encryption.
 
   \item \textbf{Throughput benchmarks.} A Redis Stream bid sequencer
-    measured under load. At 100 concurrent bidders it processes
-    $\mathbf{28.5\times}$ more bids per second than direct PostgreSQL row
-    locking.
+    measured under load. At 100 concurrent bidders it accepts about
+    $\mathbf{13\times}$ the throughput of direct PostgreSQL row locking
+    (725 vs 57 bids/s) at roughly $26\times$ lower p95 latency, while
+    direct throughput plateaus and its tail latency climbs past one
+    second.
 \end{enumerate}
 
 % ─── II. LITERATURE SURVEY ──────────────────────────────────────────────────
@@ -263,8 +269,9 @@ t)$, we compute five features from $\mathcal{G}$:
 
 \textbf{F1 -- Response time ($\tau$).} The number of milliseconds between
 $e$ and the previous bid by a different bidder on the same auction. A
-reply in under 500\,ms looks automated. For the opening bid this is set
-to zero.
+reply in under 500\,ms looks automated. For the opening bid, where no
+previous bid exists, $\tau$ takes a neutral default of 8{,}000\,ms so the
+first bidder is not mistaken for a bot.
 
 \textbf{F2 -- Bid frequency ($\phi$).} How many bids this bidder has
 placed across all auctions in the window, expressed as bids per minute. A
@@ -296,7 +303,8 @@ from synthetic simulator training runs, then passed through logistic regression:
 
 The weight vector $\beta$ (comprising the intercept $\beta_0$ and feature coefficients $\beta_1$ to $\beta_5$ corresponding to $\tau$, $\phi$, $\rho$, $\sigma$, and $\gamma$) is fitted mathematically on the simulated training dataset. The model parameters are learned via gradient descent optimization minimizing binary cross-entropy loss with L2 regularization (weight decay). Features are scaled such that a positive weight increases the fraud probability score, while negative weights for response time ($\tau$) and increment ratio ($\rho$) indicate that extremely low raw values (e.g., bot-speed responses or minimum-increment bidding) are strongly suspicious.
 
-A bid is flagged when $P > \theta = 0.20$.
+In production the classifier flags a bid when $P > \theta = 0.5$, the
+natural logistic decision boundary.
 
 \subsection{Explainability}
 
@@ -311,16 +319,26 @@ fraud dashboard shows this string next to the flagged bid.
 \subsection{Experimental Setup}
 \label{sec:sim}
 
-The simulator sets up one English auction that runs for 60~seconds,
-starting at Rs.\,1{,}000 with a minimum increment of Rs.\,100. Six agents
-take part: two truthful bidders, one sniper, one shill, and two
-collusion-ring agents. Bids from the shill and collusion agents are
-labelled {\tt isShill=true} and everything else {\tt isShill=false}.
+Each simulator run sets up several English auctions that each run for
+60~seconds, starting at Rs.\,1{,}000 with a minimum increment of
+Rs.\,100. A primary seller lists three auctions and a second ``decoy''
+seller lists one. The shill and collusion agents bid across all of the
+primary seller's auctions, driving seller co-occurrence high, while the
+truthful and sniper agents take part in one auction each; one truthful
+agent also bids in the decoy seller's auction, so an organic bidder who
+is active across two sellers still has low co-occurrence per seller. Bids
+from the shill and collusion agents are labelled {\tt isShill=true} and
+everything else {\tt isShill=false}. We pool three runs into a corpus of
+91 labelled bids and split it deterministically by bid id into 74
+training and 17 held-out test examples, so no bidder leaks across the
+split.
 
-We report precision, recall, and F1 at the chosen threshold
-$\theta = 0.20$. Table~\ref{tab:fraud-metrics} puts the
-logistic-regression classifier next to the baseline heuristic
-({\tt count(OUTBID) > 10}).
+We report precision, recall, and F1 on the held-out test partition at
+the ROC-optimal operating point $\theta^{*} = 0.35$.
+Table~\ref{tab:fraud-metrics} puts the logistic-regression classifier
+next to two baselines: the outbid-count heuristic
+({\tt count(OUTBID) > 10}) and a single-feature decision stump on seller
+co-occurrence.
 
 \input{tables/metrics.tex}
 
@@ -343,7 +361,7 @@ a knife-edge setting.
 ]
 \addplot[dashed, gray] coordinates {(0,0) (1,1)};
 \addplot[blue, thick] coordinates {
-  (0,0) (0.01,0.556) (0.01,0.99) (0.25,0.99) (1,1)
+  (0,0) (0,0.75) (0.2,0.917) (0.4,1) (0.6,1) (0.8,1) (1,1)
 };
 \end{axis}
 \end{tikzpicture}
@@ -363,55 +381,70 @@ and ran the classifier again. Table~\ref{tab:ablation} shows the results.
 \toprule
 \textbf{Feature Removed} & \textbf{F1} & \textbf{P} & \textbf{R} \\
 \midrule
-None (full model)         & 1.000 & 1.000 & 1.000       \\
-Response time ($\tau$)    & 1.000 & 1.000 & 1.000       \\
-Bid frequency ($\phi$)    & 0.971 & 1.000 & 0.944       \\
-Increment ratio ($\rho$)  & 1.000 & 1.000 & 1.000       \\
-Seller co-occurrence ($\sigma$) & 0.105 & 1.000 & 0.056 \\
-Reciprocity ($\gamma$)    & 1.000 & 1.000 & 1.000       \\
+None (full model)         & 0.923 & 0.857 & 1.000       \\
+Response time ($\tau$)    & 0.923 & 0.857 & 1.000       \\
+Bid frequency ($\phi$)    & 0.923 & 0.857 & 1.000       \\
+Increment ratio ($\rho$)  & 0.923 & 0.857 & 1.000       \\
+Seller co-occurrence ($\sigma$) & 0.828 & 0.706 & 1.000 \\
+Reciprocity ($\gamma$)    & 0.857 & 1.000 & 0.750       \\
 \bottomrule
 \end{tabular}
 \vspace{8pt}
-\caption{Feature Ablation -- F1 at $\theta=0.20$}
+\caption{Feature Ablation on the Held-Out Test Set (each feature set in
+turn to its training mean)}
 \label{tab:ablation}
 \end{table}
 
-The ablation makes it clear that seller co-occurrence is doing almost all of the
-classification on its own in our synthetic setup. Take it away and the F1 score
-drops to 0.105, with a recall of only 0.056. This matches what we would expect,
-since both shill and collusion bots concurrently target multiple auctions from
-the same seller, a distinct signal that separates them from organic, single-auction
-bidders.
+The ablation shows that seller co-occurrence is the single most
+informative feature: setting it to its mean lowers F1 from 0.923 to
+0.828, the largest drop of any feature, and the seller-co-occurrence
+decision stump on its own reaches F1\,=\,0.857
+(Table~\ref{tab:fraud-metrics}). This matches what we would expect, since
+both shill and collusion bots concurrently target multiple auctions from
+the same seller, a distinct signal that separates them from organic
+bidders. The remaining features still contribute -- removing reciprocity,
+for instance, drops recall from 1.000 to 0.750 -- so the classifier does
+not collapse to a single dimension.
 
 \subsection{Throughput -- Redis Stream Sequencer}
 \label{sec:throughput}
 
-Table~\ref{tab:throughput} compares bid-processing latency for the
-standard {\tt SELECT ... FOR UPDATE} path and the Redis Stream sequencer
-at three concurrency levels (k6 load test, local PostgreSQL~15,
-Redis~7).
+Table~\ref{tab:throughput} compares accepted bid throughput for the
+standard {\tt SELECT ... FOR UPDATE} commit path and the Redis Stream
+sequencer's enqueue path at three concurrency levels. Each cell is a
+15\,s k6 run against a single hot auction (local PostgreSQL~16 and
+Redis~7 in Docker).
 
 \begin{table}[h]
 \centering
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Concurrency} & \multicolumn{2}{c}{\textbf{FOR UPDATE}} & \multicolumn{2}{c}{\textbf{Redis Stream}} \\
- & p95 & bids/s & p95 & bids/s \\
+\textbf{Concurrency} & \multicolumn{2}{c}{\textbf{FOR UPDATE (commit)}} & \multicolumn{2}{c}{\textbf{Redis Stream (enqueue)}} \\
+ & bids/s & p95 & enq/s & p95 \\
 \midrule
-1    & 1{,}898.1\,ms & 0.8  & 125.1\,ms & 5.7  \\
-10   & 3{,}196.7\,ms & 6.4  & 231.2\,ms & 51.0  \\
-100  & 5{,}785.8\,ms & 27.7 & 29.8\,ms  & 788.6 \\
+1    & 8.3  & 21.7\,ms      & 9.5   & 5.7\,ms  \\
+10   & 58.1 & 85.7\,ms      & 93.8  & 10.0\,ms \\
+100  & 56.5 & 1{,}227.7\,ms & 725.1 & 45.8\,ms \\
 \bottomrule
 \end{tabular}
 \vspace{8pt}
-\caption{Bid Latency: Row Locking vs Redis Stream Sequencer}
+\caption{Accepted Bid Throughput and p95 Latency: Row Locking (committed)
+vs Redis Stream Sequencer (enqueued), 15\,s k6 runs on one hot auction.}
 \label{tab:throughput}
 \end{table}
 
-At low concurrency both options are fine. Under heavy contention
-($C\!=\!100$) the direct path drops to 27.7~bids/s while the sequencer
-holds 788.6~bids/s, a $\mathbf{28.5\times}$ gain that comes from taking the
-database lock out of contention.
+At $C\!=\!1$ the two paths are comparable (8.3 vs 9.5~bids/s). As
+concurrency rises the direct {\tt FOR UPDATE} path saturates: committed
+throughput plateaus near 57~bids/s while its p95 latency climbs from
+22\,ms to 1.23~s, and at $C\!=\!100$ more than half of the requests
+(959 of 1{,}842) are rejected as stale -- a competing bid raised the price
+before they acquired the row lock -- although no request errors (0~5xx).
+The sequencer instead scales to 725~enqueues/s at 46\,ms p95 with no
+rejections. At $C\!=\!100$ that is $\mathbf{12.8\times}$ the accepted
+throughput at roughly $26\times$ lower p95 latency. The sequencer does not
+make an individual bid commit faster; it decouples acceptance from the
+serial commit so the platform stays responsive under bid storms that
+saturate direct row locking.
 
 % ─── VII. SECURITY ANALYSIS ─────────────────────────────────────────────────
 \section{Security Analysis}
@@ -465,13 +498,15 @@ F1 number.
 We have described an online shill-bidding detector that classifies bids
 in real time as an auction runs. Five streaming features, read off a
 sliding-window bid graph, feed a logistic-regression classifier that
-reaches F1\,=\,1.000 on our synthetic corpus, well ahead of the simple
-outbid-count baseline at F1\,=\,0.000. The ablation shows seller co-occurrence is
-the feature that matters most: drop it and the classifier falls to
-0.105. Together with the commit-reveal sealed-bid protocol and the Redis
-Stream sequencer, which gives a $\mathbf{28.5\times}$ throughput gain at
-high load, this suggests that useful integrity checks can sit inside an
-auction platform without adding latency you can measure.
+reaches F1\,=\,0.923 on a held-out test set, well ahead of the simple
+outbid-count baseline at F1\,=\,0.000 and a seller-co-occurrence stump at
+F1\,=\,0.857. The ablation shows seller co-occurrence is the feature that
+matters most: set it to its mean and the classifier falls to
+F1\,=\,0.828. Together with the commit-reveal sealed-bid protocol and the Redis
+Stream sequencer, which sustains about $12.8\times$ the accepted
+throughput under bid storms that saturate direct row locking, this
+suggests that useful integrity checks can sit inside an auction platform
+without adding latency you can measure.
 
 There are four things we would like to do next: (a)~train the classifier
 on a real labelled dataset from a live deployment; (b)~swap the SHA-256

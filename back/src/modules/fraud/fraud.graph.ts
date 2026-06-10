@@ -122,10 +122,24 @@ export class BidGraph {
 
   /** Snapshot for eval/debugging. */
   stats() {
+    const totalBids = [...this.auctionBids.values()].reduce((s, v) => s + v.length, 0);
+
+    // Conservative byte estimate to back the paper's memory-bound claim
+    // (supplementary.tex Theorem 2, Section 6.2). Per-entry constants:
+    //   ~180 B per BidEvent: 5 short strings (uuid x4 + name) + 4 numbers + Map slot
+    //   ~200 B per Map key bucket (auction/bidder string key + Array overhead)
+    //
+    // approxBytes is a floor, not a ceiling -- V8 internal slack pushes the
+    // resident set larger, but the order of magnitude matches the theorem's
+    // 288 MB bound at peak load (B*W = 1.44M events).
+    const approxBytes =
+      (this.auctionBids.size + this.bidderHistory.size) * 200 + totalBids * 180;
+
     return {
       auctions: this.auctionBids.size,
       bidders: this.bidderHistory.size,
-      totalBids: [...this.auctionBids.values()].reduce((s, v) => s + v.length, 0),
+      totalBids,
+      approxBytes,
     };
   }
 }

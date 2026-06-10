@@ -13,6 +13,7 @@
     "db:clear-auctions": "ts-node src/scripts/clear-auctions.ts",
     "db:clear-users": "ts-node src/scripts/clear-users.ts",
     "db:seed-users": "ts-node src/scripts/seed-users.ts",
+    "db:seed-demo": "ts-node src/scripts/seed-demo.ts",
     "db:prepare-bench": "ts-node src/scripts/prepare-bench.ts",
     "docs:generate": "ts-node src/scripts/generate-docs.ts",
     "sim:run": "ts-node ../packages/simulator/src/run.ts",

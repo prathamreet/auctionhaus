@@ -2,7 +2,6 @@
 import { notifyUser, getNotifications, markRead, deleteNotification, deleteAllNotifications } from './notification.service';
 import { prismaMock } from '../../__mocks__/prisma';
 import { notificationQueue } from '../../queues/auction.queue';
-import { io } from '../../index';
 
 jest.mock('../../index', () => ({
   io: {

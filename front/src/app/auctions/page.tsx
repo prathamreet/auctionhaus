@@ -227,7 +227,11 @@ function AuctionCard({
   isOwner: boolean;
   onToggleWatchlist: (e: React.MouseEvent) => void;
 }) {
-  const diff = new Date(auction.endTime).getTime() - Date.now();
+  // Snapshot the clock once at mount via the lazy initializer so the render
+  // stays pure. Catalogue cards do not tick; the countdown granularity lives
+  // on the auction detail page.
+  const [now] = useState(() => Date.now());
+  const diff = new Date(auction.endTime).getTime() - now;
   const urgent = diff > 0 && diff < 3600000;
   const ended = auction.status === "ENDED";
 

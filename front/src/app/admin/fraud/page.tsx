@@ -11,7 +11,6 @@ import {
   Badge,
   Button,
   Card,
-  CardBody,
   CardHeader,
   EmptyState,
   Money,

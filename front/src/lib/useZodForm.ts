@@ -8,6 +8,13 @@ import { zodIssuesToErrors } from "@/lib/contracts";
  * No react-hook-form dependency — we own the state and re-render cost is
  * fine for the form sizes here (max ~12 fields).
  *
+ * Internally the form values are held as a plain `Record<string, unknown>`
+ * so spreads and index access stay well-typed regardless of how the installed
+ * Zod version represents a schema's input type (v3 and v4 differ in their
+ * generic internals). Zod types are only used at the boundaries: `initial`
+ * (call-site checked against the schema input) and the parsed output handed
+ * to `onSubmit` / `validate`.
+ *
  * Usage:
  *   const form = useZodForm(loginSchema, { email: "", password: "" });
  *   <input {...form.register("email")} />
@@ -17,21 +24,18 @@ export function useZodForm<S extends z.ZodTypeAny>(
   schema: S,
   initial: z.input<S>
 ) {
-  type Values = z.input<S>;
   type Output = z.output<S>;
+  type Values = Record<string, unknown>;
 
-  const [values, setValues] = useState<Values>(initial);
+  const [values, setValues] = useState<Values>(initial as unknown as Values);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  const setValue = useCallback(
-    <K extends keyof Values>(name: K, value: Values[K]) => {
-      setValues((p) => ({ ...p, [name]: value }));
-      setErrors((p) => (p[name as string] ? { ...p, [name as string]: "" } : p));
-    },
-    []
-  );
+  const setValue = useCallback((name: string, value: unknown) => {
+    setValues((p) => ({ ...p, [name]: value }));
+    setErrors((p) => (p[name] ? { ...p, [name]: "" } : p));
+  }, []);
 
   const setAllValues = useCallback(
     (updater: (prev: Values) => Values) => {
@@ -41,11 +45,13 @@ export function useZodForm<S extends z.ZodTypeAny>(
   );
 
   const register = useCallback(
-    (name: keyof Values) => ({
-      name: name as string,
-      value: ((values[name] ?? "") as unknown) as string | number,
+    (name: string) => ({
+      name,
+      value: (values[name] ?? "") as string | number,
       onChange: (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+        e: React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
       ) => {
         const target = e.target;
         let next: unknown;
@@ -54,9 +60,9 @@ export function useZodForm<S extends z.ZodTypeAny>(
         } else {
           next = target.value;
         }
-        setValue(name, next as Values[typeof name]);
+        setValue(name, next);
       },
-      invalid: !!errors[name as string],
+      invalid: !!errors[name],
     }),
     [values, errors, setValue]
   );
@@ -86,15 +92,17 @@ export function useZodForm<S extends z.ZodTypeAny>(
         try {
           await handler(parsed.data as Output);
         } catch (err: unknown) {
-          const e = err as {
-            response?: { data?: { message?: string; errors?: Record<string, string> } };
+          const apiErr = err as {
+            response?: {
+              data?: { message?: string; errors?: Record<string, string> };
+            };
             message?: string;
           };
-          if (e.response?.data?.errors) {
-            setErrors(e.response.data.errors);
+          if (apiErr.response?.data?.errors) {
+            setErrors(apiErr.response.data.errors);
           }
           setGlobalError(
-            e.response?.data?.message ?? e.message ?? "Something went wrong"
+            apiErr.response?.data?.message ?? apiErr.message ?? "Something went wrong"
           );
         } finally {
           setSubmitting(false);
@@ -108,8 +116,8 @@ export function useZodForm<S extends z.ZodTypeAny>(
   }, []);
 
   const reset = useCallback(
-    (next?: Partial<Values>) => {
-      setValues({ ...initial, ...(next ?? {}) } as Values);
+    (next?: Values) => {
+      setValues({ ...(initial as unknown as Values), ...(next ?? {}) });
       setErrors({});
       setGlobalError(null);
     },

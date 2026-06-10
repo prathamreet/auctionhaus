@@ -41,6 +41,13 @@ export interface SimRunManifest {
   config: SimulationConfig;
   auctionIds: string[];
   agentMap: Record<string, { userId: string; agentType: AgentType }>;
+  /**
+   * auctionId -> sellerUserId. The dataset loader (dataset.ts) grounds the
+   * sellerCoOccurrence feature in the real auction owner via this map. Runs
+   * missing it (the pre-correction single-auction corpus under
+   * runs/_paper-snapshot) are skipped during training with a console warning.
+   */
+  auctionOwners?: Record<string, string>;
   totalBids: number;
   shillBids: number;
 }

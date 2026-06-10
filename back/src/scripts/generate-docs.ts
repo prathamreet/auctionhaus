@@ -283,7 +283,7 @@ function extractRoutes(prefix: string, file: string): RouteGroup {
     const routeMw = rest.slice(0, -1).map((a) => middlewareName(a, sf));
 
     let ns = '';
-    let fn = '';
+    let fn: string;
     if (ts.isPropertyAccessExpression(handlerArg) && ts.isIdentifier(handlerArg.expression)) {
       ns = handlerArg.expression.text;
       fn = handlerArg.name.text;

@@ -38,18 +38,21 @@ export function Countdown({
   criticalMs?: number;
   style?: React.CSSProperties;
 }) {
-  const [, force] = React.useReducer((x: number) => x + 1, 0);
+  // `now` is held in state and advanced by the interval so the render stays
+  // pure (no Date.now() call in the render body). The lazy initializer is the
+  // sanctioned escape hatch for reading the clock once at mount.
+  const [now, setNow] = React.useState(() => Date.now());
 
   // Adaptive tick rate. Faster ticks when the auction is in its final
   // minute so the displayed seconds are never stale by more than 250 ms.
   React.useEffect(() => {
-    const diff = new Date(endTime).getTime() - Date.now();
-    const fast = diff > 0 && diff < 60_000;
-    const id = setInterval(force, fast ? 250 : 1000);
+    const remaining = new Date(endTime).getTime() - Date.now();
+    const fast = remaining > 0 && remaining < 60_000;
+    const id = setInterval(() => setNow(Date.now()), fast ? 250 : 1000);
     return () => clearInterval(id);
   }, [endTime]);
 
-  const diff = new Date(endTime).getTime() - Date.now();
+  const diff = new Date(endTime).getTime() - now;
   const text = formatRemaining(diff);
   const ended = diff <= 0;
   const critical = !ended && diff < criticalMs;

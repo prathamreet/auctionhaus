@@ -2,17 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Next.js Middleware for Route Protection
+ * Next.js Proxy (formerly "middleware") for Route Protection
  *
- * This runs on the Edge before pages render. It checks for the
- * auth token cookie/header and redirects unauthenticated users
- * away from protected routes, and authenticated users away from
- * auth pages (login/register).
+ * Runs on the Edge before pages render. Checks for the lightweight
+ * "ah_logged_in" cookie (set alongside the localStorage token) and:
+ *   - redirects unauthenticated users away from protected routes
+ *   - redirects authenticated users away from auth pages (login/register)
  *
- * Note: The actual token is stored in localStorage (client-side),
- * so this middleware checks for a lightweight "ah_logged_in" cookie
- * that is set alongside localStorage. This prevents the brief
- * content flash that happens with client-side-only guards.
+ * Next.js 16 renamed the `middleware` file convention to `proxy`; the
+ * function is exported as `proxy` and the file lives at src/proxy.ts.
+ * Behaviour and the `config.matcher` are unchanged from the prior
+ * middleware implementation.
  */
 
 const PROTECTED_ROUTES = [
@@ -27,7 +27,7 @@ const PROTECTED_ROUTES = [
 
 const AUTH_ROUTES = ["/login", "/register"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasToken = request.cookies.get("ah_logged_in")?.value === "1";
 
@@ -59,4 +59,5 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/register",
-  ] };
+  ],
+};

@@ -1,7 +1,7 @@
 import { AuctionStatus, AuctionType, Prisma, SettlementKind } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/error.middleware';
-import { auctionQueue } from '../../queues/auction.queue';
+import { auctionQueue, dutchAuctionQueue } from '../../queues/auction.queue';
 import { D, serializeMoney } from '../../lib/decimal';
 import { settleWithinTx } from '../escrow/escrow.service';
 
@@ -47,6 +47,13 @@ export const createAuction = async (
 
   if (startDelay > 0) {
     await auctionQueue.add('start-auction', { auctionId: auction.id }, { delay: startDelay });
+  } else if (auction.type === AuctionType.DUTCH && auction.dutchInterval && auction.dutchPriceStep) {
+    // If Dutch auction starts immediately, schedule the price-drop repeatable job directly
+    await dutchAuctionQueue.add(
+      'drop-price',
+      { auctionId: auction.id, step: auction.dutchPriceStep },
+      { repeat: { every: auction.dutchInterval * 1000, jobId: auction.id } }
+    );
   }
 
   if (endDelay > 0) {
@@ -223,7 +230,7 @@ export const cancelAuction = async (auctionId: string, userId: string, isAdmin =
       // Phase A1: Decimal-safe per-user refund aggregation.
       // This handles sealed-bid auctions with multiple winning bids cleanly.
       const refunds: Record<string, Prisma.Decimal> = {};
-      const userWallets: Record<string, any> = {};
+      const userWallets: Record<string, { id: string }> = {};
 
       for (const bid of topBids) {
         if (bid.bidder.wallet) {

@@ -12,7 +12,6 @@ import {
   Button,
   Card,
   CardHeader,
-  EmptyState,
   Money,
   PageHeader,
   PageShell,
@@ -93,6 +92,12 @@ export default function DashboardPage() {
   const wonBids: BidRowData[] =
     bidsData?.filter((b: { status: string }) => b.status === "WON") ?? [];
 
+  const totalAuctions = auctionsData?.length ?? 0;
+  const totalBids = bidsData?.length ?? 0;
+  const totalWon = wonData?.length ?? 0;
+  const isBrandNew =
+    !bidsLoading && totalBids === 0 && totalAuctions === 0 && totalWon === 0;
+
   if (!user) return null;
 
   return (
@@ -119,6 +124,61 @@ export default function DashboardPage() {
         <Stat label="My listings" value={auctionsData?.length ?? 0} color="var(--dutch)" />
         <Stat label="Paid out" value={wonBids.length} color="var(--text)" />
       </StatGrid>
+
+      {isBrandNew && (
+        <div
+          style={{
+            marginTop: "1.5rem",
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius)",
+            padding: "1.25rem 1.5rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: "var(--font-xs)",
+                fontWeight: 700,
+                color: "var(--accent)",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                marginBottom: "0.35rem",
+              }}
+            >
+              Welcome aboard
+            </div>
+            <div
+              style={{
+                fontSize: "var(--font-md)",
+                fontWeight: 700,
+                color: "var(--text)",
+                marginBottom: "0.2rem",
+              }}
+            >
+              Two quick steps to your first bid.
+            </div>
+            <div style={{ fontSize: "var(--font-sm)", color: "var(--text-soft)" }}>
+              Fund your wallet, then open any live lot in the catalogue.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Link href="/wallet" style={{ textDecoration: "none" }}>
+              <Button variant="ghost" size="sm">
+                Fund wallet
+              </Button>
+            </Link>
+            <Link href="/auctions" style={{ textDecoration: "none" }}>
+              <Button size="sm">Browse the market →</Button>
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div
         style={{

@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { AuctionStatus, AuctionType, NotificationType, Prisma } from '@prisma/client';
+import { AuctionStatus, AuctionType, NotificationType, Prisma, SettlementKind } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { bullMQConnection } from '../lib/redis';
 import { io } from '../index';
@@ -7,6 +7,8 @@ import { notifyUser } from '../modules/notifications/notification.service';
 import { dutchAuctionQueue } from '../queues/auction.queue';
 import { D, neg, toNum } from '../lib/decimal';
 import { BidSequencer } from '../modules/bidding/bid.sequencer';
+import { settleWithinTx } from '../modules/escrow/escrow.service';
+import { placeBid } from '../modules/bidding/bid.service';
 
 const workerOptions = {
   connection: bullMQConnection as any, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -39,7 +41,7 @@ const auctionWorker = new Worker(
         await dutchAuctionQueue.add(
           'drop-price',
           { auctionId, step: auction.dutchPriceStep },
-          { repeat: { every: auction.dutchInterval * 1000 } }
+          { repeat: { every: auction.dutchInterval * 1000, jobId: auctionId } }
         );
       }
 
@@ -89,10 +91,50 @@ const dutchWorker = new Worker(
         return;
       }
 
+      // Update the auction price in the database first, so that placeBid finds the correct matching price.
       await prisma.auction.update({
         where: { id: auctionId },
         data: { currentPrice: newPriceD },
       });
+
+      // Check if there are any active auto-accept (auto-bid) targets met by this price drop.
+      // Auto-bids on Dutch auctions represent auto-accept thresholds.
+      const matchingAutoBids = await prisma.autoBid.findMany({
+        where: {
+          auctionId,
+          isActive: true,
+          maxAmount: { gte: newPriceD },
+        },
+        orderBy: [
+          { maxAmount: 'desc' },
+          { createdAt: 'asc' },
+        ],
+      });
+
+      let accepted = false;
+      for (const autoBid of matchingAutoBids) {
+        try {
+          await placeBid({
+            auctionId,
+            bidderId: autoBid.bidderId,
+            amount: newPriceD.toNumber(),
+            isAutoBid: true,
+          });
+          accepted = true;
+          break;
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          console.warn(
+            `[Dutch Auto-Accept] Auto-bid ${autoBid.id} for user ${autoBid.bidderId} failed: ${errMsg}`
+          );
+          await prisma.autoBid.update({
+            where: { id: autoBid.id },
+            data: { isActive: false },
+          });
+        }
+      }
+
+      if (accepted) return;
 
       io.to(`auction:${auctionId}`).emit('auction:price-drop', {
         auctionId,
@@ -153,6 +195,7 @@ async function endAuction(auctionId: string) {
           winnerId: w,
           winnerBidId: w ? wb!.id : null,
           actualEndTime: new Date(),
+          currentPrice: w && wb ? wb.amount : a.currentPrice,
         },
       });
 
@@ -239,6 +282,52 @@ async function endAuction(auctionId: string) {
         });
       }
     });
+  }
+
+  // ── Auto-settle the winner -> seller (English + Sealed) ──
+  //
+  // When an auction ends with a valid winner who met the reserve, the winner's
+  // bid amount has been sitting in their wallet's heldAmount since the bid was
+  // placed. Release it to the seller now, automatically -- the platform does
+  // not require the winner to click a separate "confirm payment" step.
+  //
+  // settleWithinTx is idempotent via the Settlement row (uniqued on auctionId),
+  // so this is a no-op for auctions that already settled through buyNow
+  // (DIRECT_SALE) or the Dutch accept path. The manual confirmWinnerPayment
+  // endpoint remains as a backstop and is likewise idempotent.
+  //
+  // Dutch is intentionally excluded here: it settles inside placeBid the moment
+  // a bid is accepted (the auction is already ENDED before this job runs, so
+  // the determination tx above returns committed=false and we never reach here
+  // for Dutch). Errors are caught and logged so a settlement hiccup never
+  // blocks the auction-ended notifications below; confirmWinnerPayment can
+  // complete a missed settlement later.
+  if (winner && winningBid && metReserve && auction.type !== 'DUTCH') {
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM auctions WHERE id = ${auctionId} FOR UPDATE`;
+        await settleWithinTx(tx, {
+          auctionId,
+          auctionTitle: auction.title,
+          payerId: winner,
+          sellerId: auction.sellerId,
+          amount: winningBid.amount,
+          kind: SettlementKind.WON_AUCTION,
+        });
+        await tx.bid.update({ where: { id: winningBid.id }, data: { status: 'WON' } });
+      });
+      notifyUser(auction.sellerId, {
+        type: 'PAYMENT_RECEIVED',
+        title: 'Payment received!',
+        message: `You received ${toNum(winningBid.amount)} for "${auction.title}"`,
+        data: { auctionId, amount: toNum(winningBid.amount) },
+      });
+    } catch (err) {
+      console.warn(
+        `[endAuction] auto-settlement failed for ${auctionId}:`,
+        err instanceof Error ? err.message : err
+      );
+    }
   }
 
   // Phase A1: emit number-typed prices so socket subscribers don't choke on
@@ -667,5 +756,43 @@ export const initWorkers = () => {
     console.log('[BidSequencer] Stream consumer started (BID_SEQUENCER=true)');
   }
 
+  // Run async reconciliation of active Dutch auctions
+  reconcileDutchAuctions();
+
   console.log('BullMQ workers initialized');
 };
+
+async function reconcileDutchAuctions() {
+  try {
+    const activeDutchAuctions = await prisma.auction.findMany({
+      where: {
+        type: AuctionType.DUTCH,
+        status: AuctionStatus.ACTIVE,
+      },
+    });
+
+    if (!activeDutchAuctions || activeDutchAuctions.length === 0) return;
+
+    const repeatableJobs = await dutchAuctionQueue.getRepeatableJobs();
+    const existingJobIds = new Set(
+      repeatableJobs
+        .filter((job) => job.name === 'drop-price')
+        .map((job) => job.id)
+        .filter(Boolean)
+    );
+
+    for (const auction of activeDutchAuctions) {
+      if (!auction.dutchInterval || !auction.dutchPriceStep) continue;
+      if (!existingJobIds.has(auction.id)) {
+        console.log(`[reconcile] Scheduling missing repeatable price-drop job for Dutch auction: ${auction.id}`);
+        await dutchAuctionQueue.add(
+          'drop-price',
+          { auctionId: auction.id, step: auction.dutchPriceStep },
+          { repeat: { every: auction.dutchInterval * 1000, jobId: auction.id } }
+        );
+      }
+    }
+  } catch (err) {
+    console.error('[reconcile] Dutch auction reconciliation failed:', err);
+  }
+}

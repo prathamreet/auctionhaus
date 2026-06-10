@@ -1,0 +1,84 @@
+{
+  "runId": "8d44b3eb-9c62-40a8-bab9-ea48ec247885",
+  "startedAt": "2026-06-10T11:25:41.945Z",
+  "endedAt": "2026-06-10T11:26:47.635Z",
+  "config": {
+    "auctionCount": 4,
+    "agents": [
+      {
+        "type": "shill",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "collusion",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "collusion",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "truthful",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "truthful",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "sniper",
+        "email": "",
+        "password": ""
+      }
+    ],
+    "auctionDurationSec": 60,
+    "startingPrice": 1000,
+    "minIncrement": 100,
+    "backendUrl": "http://localhost:5000/api"
+  },
+  "auctionIds": [
+    "79a62910-d00a-4a65-bb27-fc9fa80072b4",
+    "a9d1c4fb-449c-437a-8d1d-99b6aa0f045b",
+    "3abc02bc-5fd6-461b-83e9-efe384cc10d8",
+    "938abf5d-1be9-4452-baf2-225d8aac9297"
+  ],
+  "agentMap": {
+    "0b76beb9-a4e2-492c-ad99-86be3f775096": {
+      "userId": "0b76beb9-a4e2-492c-ad99-86be3f775096",
+      "agentType": "shill"
+    },
+    "fd382c3e-0eff-4440-ab89-2ef399a91f75": {
+      "userId": "fd382c3e-0eff-4440-ab89-2ef399a91f75",
+      "agentType": "collusion"
+    },
+    "6336e02f-9496-4c95-b585-9c34d5ce0004": {
+      "userId": "6336e02f-9496-4c95-b585-9c34d5ce0004",
+      "agentType": "collusion"
+    },
+    "05da623c-3e3f-4c48-a520-3052079b7978": {
+      "userId": "05da623c-3e3f-4c48-a520-3052079b7978",
+      "agentType": "truthful"
+    },
+    "54a30ef7-b54b-4471-a9c3-58aa3005fc6f": {
+      "userId": "54a30ef7-b54b-4471-a9c3-58aa3005fc6f",
+      "agentType": "truthful"
+    },
+    "8850668e-ea30-452f-8dc3-1704daa0a5d9": {
+      "userId": "8850668e-ea30-452f-8dc3-1704daa0a5d9",
+      "agentType": "sniper"
+    }
+  },
+  "auctionOwners": {
+    "79a62910-d00a-4a65-bb27-fc9fa80072b4": "21420443-776c-4400-80c1-01bd5dbba878",
+    "a9d1c4fb-449c-437a-8d1d-99b6aa0f045b": "21420443-776c-4400-80c1-01bd5dbba878",
+    "3abc02bc-5fd6-461b-83e9-efe384cc10d8": "21420443-776c-4400-80c1-01bd5dbba878",
+    "938abf5d-1be9-4452-baf2-225d8aac9297": "33058798-fb02-4325-8448-03f85e8060b5"
+  },
+  "totalBids": 32,
+  "shillBids": 25
+}
