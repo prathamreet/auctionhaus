@@ -7,17 +7,29 @@ import api, { parseApiError } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import {
   Alert,
+  AuctionImage,
+  Avatar,
   Badge,
   Button,
   Card,
   EmptyState,
   Field,
+  ImageUploader,
   Input,
   Money,
   PageHeader,
   PageShell,
   Tabs,
 } from "@/components/ui";
+
+const isHttpUrl = (v: string) => {
+  try {
+    const u = new URL(v);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
 
 interface WonAuction {
   id: string;
@@ -50,6 +62,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const qc = useQueryClient();
   const [name, setName] = useState(user?.name ?? "");
+  const [avatar, setAvatar] = useState(user?.avatar ?? "");
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -60,7 +73,10 @@ export default function ProfilePage() {
     if (!token) router.push("/login");
   }, [token, router]);
   useEffect(() => {
-    if (user) setName(user.name);
+    if (user) {
+      setName(user.name);
+      setAvatar(user.avatar ?? "");
+    }
   }, [user]);
 
   const { data: wonData } = useQuery({
@@ -87,11 +103,18 @@ export default function ProfilePage() {
       setErr("Name cannot be empty");
       return;
     }
+    const trimmedAvatar = avatar.trim();
+    if (trimmedAvatar && !isHttpUrl(trimmedAvatar)) {
+      setErr("Avatar must be a valid http(s) image URL");
+      return;
+    }
     setMsg("");
     setErr("");
     setUpdating(true);
     try {
-      const res = await api.put("/users/me", { name: name.trim() });
+      const body: { name: string; avatar?: string } = { name: name.trim() };
+      if (trimmedAvatar) body.avatar = trimmedAvatar;
+      const res = await api.put("/users/me", body);
       if (token) setAuth(res.data.user ?? res.data, token);
       setMsg("Profile updated");
       qc.invalidateQueries({ queryKey: ["won-auctions"] });
@@ -112,13 +135,6 @@ export default function ProfilePage() {
       .filter((t) => t.amount < 0 && t.referenceId)
       .map((t) => t.referenceId as string)
   );
-
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 
   return (
     <PageShell>
@@ -148,28 +164,18 @@ export default function ProfilePage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(420px, 100%), 1fr))",
           gap: "1.5rem",
         }}
       >
         <Card padding="lg">
           <div style={{ display: "flex", gap: "1.25rem", alignItems: "center", marginBottom: "1.5rem" }}>
-            <div
-              style={{
-                width: 56,
-                height: 56,
-                background: "var(--text)",
-                color: "var(--bg)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: "1.2rem",
-                borderRadius: 999,
-              }}
-            >
-              {initials}
-            </div>
+            <Avatar
+              name={user.name}
+              src={isHttpUrl(avatar.trim()) ? avatar.trim() : null}
+              size={56}
+              style={{ fontSize: "1.2rem" }}
+            />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: "var(--font-lg)" }}>{user.name}</div>
               <div
@@ -193,15 +199,41 @@ export default function ProfilePage() {
           {msg && <Alert tone="success" style={{ marginBottom: "0.75rem" }}>{msg}</Alert>}
 
           <Field label="Display name">
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && update()}
-              />
-              <Button onClick={update} loading={updating}>Save</Button>
-            </div>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && update()}
+            />
           </Field>
+
+          <Field
+            label="Avatar"
+            hint="Upload a file or paste a link"
+            style={{ marginTop: "1rem" }}
+          >
+            <ImageUploader
+              label="Upload avatar"
+              onUploaded={(url) => setAvatar(url)}
+            />
+            <Input
+              type="url"
+              value={avatar}
+              onChange={(e) => setAvatar(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && update()}
+              placeholder="https://…/photo.jpg"
+              invalid={!!avatar.trim() && !isHttpUrl(avatar.trim())}
+              style={{ marginTop: "0.5rem" }}
+            />
+          </Field>
+
+          <Button
+            onClick={update}
+            loading={updating}
+            fullWidth
+            style={{ marginTop: "1rem" }}
+          >
+            Save changes
+          </Button>
         </Card>
 
         <div>
@@ -241,6 +273,20 @@ export default function ProfilePage() {
                             color: "inherit",
                           }}
                         >
+                          {a.imageUrl && (
+                            <div
+                              style={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: "var(--radius)",
+                                overflow: "hidden",
+                                flexShrink: 0,
+                                border: "1px solid var(--border)",
+                              }}
+                            >
+                              <AuctionImage src={a.imageUrl} alt={a.title} />
+                            </div>
+                          )}
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                               style={{
