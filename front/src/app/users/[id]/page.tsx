@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import {
   AuctionStatusBadge,
+  Avatar,
   Card,
   EmptyState,
   Money,
@@ -70,13 +71,6 @@ export default function PublicProfilePage() {
     );
   }
 
-  const initials = profile.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
   const memberSince = new Date(profile.createdAt).toLocaleDateString([], {
     month: "long",
     year: "numeric",
@@ -89,23 +83,7 @@ export default function PublicProfilePage() {
       <PageHeader eyebrow="Public profile" title={profile.name} subtitle={`Member since ${memberSince}`} />
 
       <Card padding="lg" style={{ display: "flex", gap: "1.25rem", alignItems: "center", marginBottom: "1.5rem" }}>
-        <div
-          style={{
-            width: 72,
-            height: 72,
-            background: "var(--text)",
-            color: "var(--bg)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 700,
-            fontSize: "1.5rem",
-            borderRadius: 999,
-            flexShrink: 0,
-          }}
-        >
-          {initials}
-        </div>
+        <Avatar name={profile.name} src={profile.avatar} size={72} style={{ fontSize: "1.5rem" }} />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.35rem" }}>
           <div style={{ fontWeight: 700, fontSize: "var(--font-lg)" }}>{profile.name}</div>
           <div style={{ fontSize: "var(--font-sm)", color: "var(--muted)" }}>
