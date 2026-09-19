@@ -301,7 +301,7 @@ from synthetic simulator training runs, then passed through logistic regression:
   \beta_i z_i\right), \quad \sigma(x) = \frac{1}{1+e^{-x}}
 \]
 
-The weight vector $\beta$ (comprising the intercept $\beta_0$ and feature coefficients $\beta_1$ to $\beta_5$ corresponding to $\tau$, $\phi$, $\rho$, $\sigma$, and $\gamma$) is fitted mathematically on the simulated training dataset. The model parameters are learned via gradient descent optimization minimizing binary cross-entropy loss with L2 regularization (weight decay). Features are scaled such that a positive weight increases the fraud probability score, while negative weights for response time ($\tau$) and increment ratio ($\rho$) indicate that extremely low raw values (e.g., bot-speed responses or minimum-increment bidding) are strongly suspicious.
+The weight vector $\beta$ (comprising the intercept $\beta_0$ and feature coefficients $\beta_1$ to $\beta_5$ corresponding to $\tau$, $\phi$, $\rho$, $\sigma$, and $\gamma$) is fitted mathematically on the simulated training dataset. The model parameters are learned via gradient descent optimization minimizing binary cross-entropy loss with L2 regularization (weight decay). Features are scaled so that a positive coefficient increases the predicted fraud probability. On our training corpus the weights are dominated by seller co-occurrence ($\sigma$), which receives by far the largest positive coefficient, with a smaller negative coefficient on increment ratio ($\rho$) capturing that a low (minimum-increment) ratio is suspicious. Response time ($\tau$) and bid frequency ($\phi$) converge to near-zero weights and act as weak discriminators on this dataset, consistent with the feature ablation in Table~\ref{tab:ablation}: removing $\tau$, $\phi$, or $\rho$ individually leaves $F_1$ unchanged, removing seller co-occurrence ($\sigma$) is the most damaging, and removing reciprocity ($\gamma$) chiefly reduces recall.
 
 In production the classifier flags a bid when $P > \theta = 0.5$, the
 natural logistic decision boundary.
@@ -475,7 +475,7 @@ for future work.
 \textbf{Internal validity.} The simulator produces fairly clean,
 stylised behaviour. While our model weights are mathematically trained using
 L2 regularization to prevent overfitting, our synthetic corpus is relatively small
-(70 training examples), enabling the classifier to achieve a high separation rate.
+(74 training examples), enabling the classifier to achieve a high separation rate.
 Furthermore, our closed-loop evaluation runs on simulated agent behaviors from
 the same distribution as the training corpus. While this serves as a robust
 validation of our streaming graph feature extraction pipeline, a live deployment
