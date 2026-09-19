@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import api, { parseApiError } from "@/lib/api";
 import {
   Alert,
+  AuctionImage,
   Button,
   Card,
   Field,
+  ImageUploader,
   Input,
   PageHeader,
   PageShell,
@@ -14,9 +16,19 @@ import {
   Textarea,
 } from "@/components/ui";
 
+const isHttpUrl = (v: string) => {
+  try {
+    const u = new URL(v);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 type FormState = {
   title: string;
   description: string;
+  imageUrl: string;
   type: "ENGLISH" | "DUTCH" | "SEALED_BID";
   startingPrice: string;
   reservePrice: string;
@@ -40,6 +52,9 @@ function validate(form: FormState): FieldErrors {
   const descLen = form.description.trim().length;
   if (descLen > 0 && descLen < 10)
     e.description = "Description must be at least 10 characters (or leave it empty).";
+
+  if (form.imageUrl.trim() && !isHttpUrl(form.imageUrl.trim()))
+    e.imageUrl = "Image URL must be a valid http(s) link.";
 
   const price = parseFloat(form.startingPrice);
   if (!form.startingPrice || isNaN(price) || price <= 0)
@@ -93,6 +108,7 @@ export default function CreateAuctionPage() {
   const [form, setForm] = useState<FormState>({
     title: "",
     description: "",
+    imageUrl: "",
     type: "ENGLISH",
     startingPrice: "",
     reservePrice: "",
@@ -149,6 +165,7 @@ export default function CreateAuctionPage() {
         reservePrice: parseFloat(form.reservePrice) || undefined,
         startTime: toISO(form.startTime) ?? new Date().toISOString(),
       };
+      if (form.imageUrl.trim()) body.imageUrl = form.imageUrl.trim();
       if (form.type !== "DUTCH") {
         body.endTime = toISO(form.endTime);
         body.minIncrement = parseFloat(form.minIncrement);
@@ -221,6 +238,39 @@ export default function CreateAuctionPage() {
               placeholder="Condition, history, dimensions…"
               invalid={!!errors.description}
             />
+          </Field>
+
+          <Field
+            label="Image"
+            hint="Upload a file or paste a link"
+            error={errors.imageUrl}
+          >
+            <ImageUploader
+              label="Upload image"
+              onUploaded={(url) => set("imageUrl", url)}
+            />
+            <Input
+              type="url"
+              value={form.imageUrl}
+              onChange={(e) => set("imageUrl", e.target.value)}
+              placeholder="https://…/item.jpg"
+              invalid={!!errors.imageUrl}
+              style={{ marginTop: "0.5rem" }}
+            />
+            {form.imageUrl.trim() && isHttpUrl(form.imageUrl.trim()) && (
+              <div
+                style={{
+                  marginTop: "0.6rem",
+                  maxWidth: 280,
+                  height: 160,
+                  border: "1px solid var(--border)",
+                  borderRadius: "var(--radius)",
+                  overflow: "hidden",
+                }}
+              >
+                <AuctionImage src={form.imageUrl.trim()} alt="Image preview" />
+              </div>
+            )}
           </Field>
 
           <Field label="Auction type">
