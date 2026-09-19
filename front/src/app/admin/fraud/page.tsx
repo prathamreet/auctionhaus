@@ -49,6 +49,25 @@ interface StoredFlag extends FraudFlagEvent {
   auction: { id: string; title: string; status: string };
 }
 
+// Matches FraudEngine.perfStats() in back/src/modules/fraud/fraud.engine.ts
+interface DetectorPerf {
+  latencyMs: {
+    p50: number;
+    p95: number;
+    p99: number;
+    max: number;
+    samples: number;
+    reservoirSize: number;
+  };
+  graph: {
+    auctions: number;
+    bidders: number;
+    totalBids: number;
+    approxBytes: number;
+  };
+  threshold: number;
+}
+
 const LIVE_CAP = 100;
 const SCORE_THRESHOLD = 0.55;
 
@@ -95,7 +114,19 @@ export default function AdminFraudPage() {
     refetchInterval: 30000,
   });
 
+  const { data: perf, isLoading: perfLoading } = useQuery({
+    queryKey: ["fraud-perf"],
+    queryFn: () => api.get("/fraud/perf").then((r) => r.data as DetectorPerf),
+    enabled: !!user && user?.role === "ADMIN",
+    refetchInterval: 15000,
+  });
+
   const storedFlags: StoredFlag[] = storedData ?? [];
+
+  const resetPerf = async () => {
+    await api.post("/fraud/perf/reset").catch(() => {});
+    qc.invalidateQueries({ queryKey: ["fraud-perf"] });
+  };
 
   const dismiss = async (flagId: string) => {
     await api.put(`/fraud/flags/${flagId}/dismiss`);
@@ -156,6 +187,8 @@ export default function AdminFraudPage() {
           <Stat label="Detector" value={detectorOnline ? "Online" : "Offline"} color={detectorOnline ? "var(--success)" : "var(--muted)"} />
         </StatGrid>
       )}
+
+      <DetectorPerfPanel perf={perf} loading={perfLoading} onReset={resetPerf} />
 
       <div className="grid-main-sidebar" style={{ marginTop: "1.5rem" }}>
         {/* LEFT — Live stream */}
@@ -365,6 +398,165 @@ function ScoreBadge({ score, label }: { score: number; label?: string }) {
       <span className="tabular">{score.toFixed(2)}</span>
       {label && <span style={{ marginLeft: 3, opacity: 0.7 }}>{label}</span>}
     </Badge>
+  );
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function DetectorPerfPanel({
+  perf,
+  loading,
+  onReset,
+}: {
+  perf?: DetectorPerf;
+  loading: boolean;
+  onReset: () => void;
+}) {
+  const hasData = !!perf && perf.latencyMs.samples > 0;
+
+  return (
+    <Card padding="none" style={{ marginTop: "1.5rem" }}>
+      <CardHeader
+        right={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            disabled={!hasData}
+          >
+            Reset histogram
+          </Button>
+        }
+      >
+        Detector performance
+      </CardHeader>
+
+      {loading && !perf ? (
+        <div style={{ padding: "1.25rem" }}>
+          <Skeleton width="40%" height={12} />
+          <div style={{ height: 10 }} />
+          <Skeleton width="70%" height={26} />
+        </div>
+      ) : !perf || !hasData ? (
+        <EmptyState
+          title="No scoring events yet"
+          hint="Per-bid latency appears once the detector scores live bids. Run the simulator or place bids on an active auction."
+        />
+      ) : (
+        <PerfData perf={perf} />
+      )}
+    </Card>
+  );
+}
+
+function PerfData({ perf }: { perf: DetectorPerf }) {
+  const lat = perf.latencyMs;
+  const g = perf.graph;
+  return (
+    <div>
+      <PerfGroupTitle>
+        Per-bid scoring latency · {lat.samples.toLocaleString()} samples (last{" "}
+        {lat.reservoirSize.toLocaleString()})
+      </PerfGroupTitle>
+      <PerfMetricGrid>
+        <PerfMetric label="p50" value={`${lat.p50.toFixed(3)} ms`} />
+        <PerfMetric
+          label="p95"
+          value={`${lat.p95.toFixed(3)} ms`}
+          tone={lat.p95 < 1 ? "var(--success)" : "var(--warning)"}
+        />
+        <PerfMetric
+          label="p99"
+          value={`${lat.p99.toFixed(3)} ms`}
+          tone={lat.p99 < 1 ? "var(--success)" : "var(--warning)"}
+        />
+        <PerfMetric label="max" value={`${lat.max.toFixed(3)} ms`} />
+      </PerfMetricGrid>
+
+      <PerfGroupTitle>Bid-graph footprint · sliding window</PerfGroupTitle>
+      <PerfMetricGrid>
+        <PerfMetric label="Auctions" value={g.auctions.toLocaleString()} />
+        <PerfMetric label="Bidders" value={g.bidders.toLocaleString()} />
+        <PerfMetric label="Bids in window" value={g.totalBids.toLocaleString()} />
+        <PerfMetric label="Approx. memory" value={formatBytes(g.approxBytes)} />
+        <PerfMetric label="Flag threshold" value={perf.threshold.toFixed(2)} />
+      </PerfMetricGrid>
+    </div>
+  );
+}
+
+function PerfGroupTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        padding: "0.85rem 1.25rem 0.5rem",
+        fontSize: "var(--font-xs)",
+        fontWeight: 700,
+        color: "var(--muted)",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function PerfMetricGrid({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+        gap: 1,
+        background: "var(--border)",
+        borderTop: "1px solid var(--border)",
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function PerfMetric({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: React.ReactNode;
+  tone?: string;
+}) {
+  return (
+    <div style={{ background: "var(--surface)", padding: "0.85rem 1rem" }}>
+      <div
+        style={{
+          fontSize: "var(--font-xs)",
+          fontWeight: 700,
+          color: "var(--muted)",
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+          marginBottom: 4,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        className="tabular"
+        style={{
+          fontSize: "var(--font-md)",
+          fontWeight: 700,
+          color: tone ?? "var(--text)",
+        }}
+      >
+        {value}
+      </div>
+    </div>
   );
 }
 
