@@ -5,6 +5,9 @@ export type { InputProps, TextareaProps, SelectProps } from "./Input";
 export { Field } from "./Field";
 export { Card, CardHeader, CardBody } from "./Card";
 export { Badge, AuctionTypeBadge, AuctionStatusBadge } from "./Badge";
+export { Avatar } from "./Avatar";
+export { AuctionImage } from "./AuctionImage";
+export { ImageUploader } from "./ImageUploader";
 export {
   Skeleton,
   SkeletonText,
