@@ -10,6 +10,7 @@ import { useSocketListener } from "@/lib/useSocketListener";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 import { ConnectionStatus } from "@/components/ui/ConnectionStatus";
+import { Avatar } from "@/components/ui/Avatar";
 
 export default function Navbar() {
   const { user, logout, isHydrated } = useAuthStore();
@@ -157,12 +158,16 @@ export default function Navbar() {
               <Link
                 href="/profile"
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.45rem",
                   fontSize: "var(--font-xs)",
                   color: "var(--text)",
                   fontWeight: 600,
                   padding: "0 0.5rem",
                 }}
               >
+                <Avatar name={user.name} src={user.avatar} size={24} />
                 {user.name}
               </Link>
 
