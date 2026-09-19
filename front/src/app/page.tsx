@@ -12,10 +12,9 @@ export default function Home() {
       }}
     >
       <section
+        className="home-hero"
         style={{
           flex: 1,
-          display: "grid",
-          gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)",
           borderBottom: "1px solid var(--border)",
         }}
       >

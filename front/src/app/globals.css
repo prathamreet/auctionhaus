@@ -283,3 +283,19 @@ button { cursor: pointer; font-family: inherit; }
     display: none;
   }
 }
+
+/* landing hero two-col → single column on small screens */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+}
+
+@media (max-width: 880px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+  }
+  /* drop the vertical divider between the two panels once stacked */
+  .home-hero > div:first-child {
+    border-right: none !important;
+  }
+}
