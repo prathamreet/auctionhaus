@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
@@ -12,7 +12,9 @@ import {
   EmptyState,
   PageHeader,
   PageShell,
+  Select,
   Skeleton,
+  Toolbar,
 } from "@/components/ui";
 
 interface Notification {
@@ -50,6 +52,8 @@ export default function NotificationsPage() {
   const { user, token } = useAuthStore();
   const router = useRouter();
   const qc = useQueryClient();
+  const [readFilter, setReadFilter] = useState<"all" | "unread" | "read">("all");
+  const [typeFilter, setTypeFilter] = useState("ALL");
 
   useEffect(() => {
     if (!token) router.push("/login");
@@ -59,7 +63,7 @@ export default function NotificationsPage() {
     queryKey: ["notifications"],
     queryFn: () =>
       api
-        .get("/notifications")
+        .get("/notifications", { params: { limit: 100 } })
         .then((r) => r.data)
         .catch(() => ({ notifications: [], unreadCount: 0, total: 0 })),
     enabled: !!user,
@@ -92,6 +96,13 @@ export default function NotificationsPage() {
 
   const notifications: Notification[] = data?.notifications ?? [];
   const unreadCount: number = data?.unreadCount ?? 0;
+  const types = Array.from(new Set(notifications.map((n) => n.type)));
+  const filtered = notifications.filter((n) => {
+    if (readFilter === "unread" && n.isRead) return false;
+    if (readFilter === "read" && !n.isRead) return false;
+    if (typeFilter !== "ALL" && n.type !== typeFilter) return false;
+    return true;
+  });
 
   return (
     <PageShell>
@@ -121,6 +132,44 @@ export default function NotificationsPage() {
         }
       />
 
+      {!isLoading && notifications.length > 0 && (
+        <Toolbar>
+          <Select
+            value={readFilter}
+            onChange={(e) =>
+              setReadFilter(e.target.value as "all" | "unread" | "read")
+            }
+            style={{ maxWidth: 150 }}
+          >
+            <option value="all">All</option>
+            <option value="unread">Unread</option>
+            <option value="read">Read</option>
+          </Select>
+          <Select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{ maxWidth: 220 }}
+          >
+            <option value="ALL">All types</option>
+            {types.map((t) => (
+              <option key={t} value={t}>
+                {t.replace(/_/g, " ")}
+              </option>
+            ))}
+          </Select>
+          <div
+            style={{
+              marginLeft: "auto",
+              fontSize: "var(--font-xs)",
+              color: "var(--muted)",
+              fontWeight: 600,
+            }}
+          >
+            {filtered.length} of {notifications.length}
+          </div>
+        </Toolbar>
+      )}
+
       {isLoading ? (
         <Card padding="none">
           {Array.from({ length: 4 }, (_, i) => (
@@ -144,9 +193,14 @@ export default function NotificationsPage() {
           title="No notifications"
           hint="Activity from your bids and auctions will show up here."
         />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="No matching notifications"
+          hint="Try a different read state or type filter."
+        />
       ) : (
         <Card padding="none">
-          {notifications.map((n, i) => {
+          {filtered.map((n, i) => {
             const tone = TYPE_TONE[n.type] ?? "neutral";
             return (
               <div
@@ -158,7 +212,7 @@ export default function NotificationsPage() {
                   alignItems: "center",
                   padding: "1.25rem 1.5rem",
                   borderBottom:
-                    i < notifications.length - 1
+                    i < filtered.length - 1
                       ? "1px solid var(--border)"
                       : "none",
                   background: n.isRead ? "var(--surface)" : "var(--surface-2)",
