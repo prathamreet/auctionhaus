@@ -17,11 +17,28 @@ import {
   Money,
   PageHeader,
   PageShell,
+  Select,
   Skeleton,
   Stat,
   StatGrid,
   Tabs,
 } from "@/components/ui";
+
+interface RecentUser {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  isSuspended: boolean;
+}
+
+interface RecentAuction {
+  id: string;
+  title: string;
+  status: string;
+  currentPrice: number;
+  createdAt: string;
+}
 
 interface AdminStats {
   totalUsers: number;
@@ -29,6 +46,8 @@ interface AdminStats {
   totalBids: number;
   activeAuctions: number;
   totalRevenue: number;
+  recentUsers?: RecentUser[];
+  recentAuctions?: RecentAuction[];
 }
 
 type Tab = "users" | "auctions" | "fraud";
@@ -39,6 +58,8 @@ export default function AdminPage() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("users");
   const [userSearch, setUserSearch] = useState("");
+  const [auctionStatus, setAuctionStatus] = useState("ALL");
+  const [auctionPage, setAuctionPage] = useState(1);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -78,11 +99,17 @@ export default function AdminPage() {
   });
 
   const { data: adminAuctionsData, isLoading: auctionsLoading } = useQuery({
-    queryKey: ["admin-auctions"],
+    queryKey: ["admin-auctions", auctionStatus, auctionPage],
     queryFn: () =>
       api
-        .get("/admin/auctions", { params: { limit: 50 } })
-        .then((r) => r.data.auctions),
+        .get("/admin/auctions", {
+          params: {
+            limit: 20,
+            page: auctionPage,
+            status: auctionStatus === "ALL" ? undefined : auctionStatus,
+          },
+        })
+        .then((r) => r.data),
     enabled: !!user && user.role === "ADMIN",
   });
 
@@ -163,11 +190,18 @@ export default function AdminPage() {
         </StatGrid>
       )}
 
+      {stats && (stats.recentUsers || stats.recentAuctions) && (
+        <RecentActivity
+          users={stats.recentUsers ?? []}
+          auctions={stats.recentAuctions ?? []}
+        />
+      )}
+
       <div style={{ marginTop: "1.5rem" }}>
         <Tabs
           items={[
             { key: "users", label: "Users", count: usersData?.length ?? 0 },
-            { key: "auctions", label: "Auctions", count: adminAuctionsData?.length ?? 0 },
+            { key: "auctions", label: "Auctions", count: adminAuctionsData?.total ?? 0 },
             { key: "fraud", label: "Fraud", count: fraudCount, countTone: "danger" },
           ]}
           active={tab}
@@ -187,12 +221,29 @@ export default function AdminPage() {
         )}
         {tab === "auctions" && (
           <AuctionsTab
-            auctions={adminAuctionsData}
+            auctions={adminAuctionsData?.auctions}
             loading={auctionsLoading}
             onModerate={moderate}
+            status={auctionStatus}
+            setStatus={(s) => {
+              setAuctionStatus(s);
+              setAuctionPage(1);
+            }}
+            page={adminAuctionsData?.page ?? 1}
+            totalPages={
+              adminAuctionsData
+                ? Math.max(
+                    1,
+                    Math.ceil(adminAuctionsData.total / adminAuctionsData.limit)
+                  )
+                : 1
+            }
+            setPage={setAuctionPage}
           />
         )}
-        {tab === "fraud" && <FraudTab flags={fraudData} />}
+        {tab === "fraud" && (
+          <FraudTab flags={fraudData} onToggleSuspend={toggleSuspend} />
+        )}
       </div>
     </PageShell>
   );
@@ -212,6 +263,9 @@ function UsersTab({
         email: string;
         role: string;
         isSuspended: boolean;
+        rating?: number;
+        createdAt?: string;
+        _count?: { bids: number; auctions: number };
       }[]
     | undefined;
   loading: boolean;
@@ -289,14 +343,46 @@ function UsersTab({
               fontSize: "var(--font-sm)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Link
-                href={`/users/${u.id}`}
-                style={{ fontWeight: 600, color: "var(--text)" }}
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Link
+                  href={`/users/${u.id}`}
+                  style={{ fontWeight: 600, color: "var(--text)" }}
+                >
+                  {u.name}
+                </Link>
+                {u.isSuspended && <Badge tone="danger">Suspended</Badge>}
+              </div>
+              <div
+                style={{
+                  fontSize: "var(--font-xs)",
+                  color: "var(--muted)",
+                  marginTop: 2,
+                  display: "flex",
+                  gap: "0.55rem",
+                  flexWrap: "wrap",
+                }}
               >
-                {u.name}
-              </Link>
-              {u.isSuspended && <Badge tone="danger">Suspended</Badge>}
+                {u._count && (
+                  <span>
+                    {u._count.bids} bids · {u._count.auctions} listings
+                  </span>
+                )}
+                {typeof u.rating === "number" && u.rating > 0 && (
+                  <span style={{ color: "var(--warning)", fontWeight: 700 }}>
+                    ★ {u.rating.toFixed(1)}
+                  </span>
+                )}
+                {u.createdAt && (
+                  <span>
+                    Joined{" "}
+                    {new Date(u.createdAt).toLocaleDateString([], {
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                )}
+              </div>
             </div>
             <span
               style={{ color: "var(--muted)", fontSize: "var(--font-xs)" }}
@@ -330,6 +416,11 @@ function AuctionsTab({
   auctions,
   loading,
   onModerate,
+  status,
+  setStatus,
+  page,
+  totalPages,
+  setPage,
 }: {
   auctions:
     | {
@@ -338,13 +429,41 @@ function AuctionsTab({
         status: string;
         currentPrice: number;
         type: string;
+        seller?: { name: string };
+        _count?: { bids: number };
       }[]
     | undefined;
   loading: boolean;
   onModerate: (id: string, action: "cancel" | "activate") => void;
+  status: string;
+  setStatus: (s: string) => void;
+  page: number;
+  totalPages: number;
+  setPage: (p: number) => void;
 }) {
   return (
     <Card padding="none">
+      <div
+        style={{
+          padding: "1rem 1.25rem",
+          borderBottom: "1px solid var(--border)",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+        }}
+      >
+        <Select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          style={{ maxWidth: 200 }}
+        >
+          <option value="ALL">All statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="ACTIVE">Active</option>
+          <option value="ENDED">Ended</option>
+          <option value="CANCELLED">Cancelled</option>
+        </Select>
+      </div>
       <div
         style={{
           display: "grid",
@@ -403,18 +522,33 @@ function AuctionsTab({
                 fontSize: "var(--font-sm)",
               }}
             >
-              <Link
-                href={`/auctions/${a.id}`}
-                style={{
-                  fontWeight: 600,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  color: "var(--text)",
-                }}
-              >
-                {a.title}
-              </Link>
+              <div style={{ minWidth: 0 }}>
+                <Link
+                  href={`/auctions/${a.id}`}
+                  style={{
+                    fontWeight: 600,
+                    display: "block",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    color: "var(--text)",
+                  }}
+                >
+                  {a.title}
+                </Link>
+                <div
+                  style={{
+                    fontSize: "var(--font-xs)",
+                    color: "var(--muted)",
+                    marginTop: 2,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  by {a.seller?.name ?? "—"} · {a._count?.bids ?? 0} bids
+                </div>
+              </div>
               <Money
                 value={a.currentPrice}
                 size="sm"
@@ -461,26 +595,65 @@ function AuctionsTab({
           );
         })
       )}
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "1rem 1.25rem",
+            borderTop: "1px solid var(--border)",
+          }}
+        >
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={page <= 1}
+            onClick={() => setPage(page - 1)}
+          >
+            ← Prev
+          </Button>
+          <span
+            style={{
+              fontSize: "var(--font-xs)",
+              color: "var(--muted)",
+              fontWeight: 600,
+            }}
+          >
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={page >= totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next →
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }
 
 function FraudTab({
   flags,
+  onToggleSuspend,
 }: {
   flags:
     | {
         bidderId: string;
-        bidder: { name: string; email: string };
-        _count: { id: number };
+        user?: { name: string; email: string; isSuspended: boolean };
+        outbidCount: number;
       }[]
     | undefined;
+  onToggleSuspend: (id: string, suspended: boolean) => void;
 }) {
   if (!flags || flags.length === 0) {
     return (
       <EmptyState
         title="No fraud flags detected"
-        hint="Heuristic count > 10 outbids per bidder. Phase C wires a streaming bid-graph detector with feature-based scoring."
+        hint="Heuristic: more than 10 manual outbids per bidder. The live streaming detector with feature-based scoring is on the fraud dashboard."
       />
     );
   }
@@ -488,6 +661,10 @@ function FraudTab({
     <Card padding="none">
       <div
         style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
           padding: "0.7rem 1.25rem",
           background: "color-mix(in srgb, var(--danger) 8%, transparent)",
           borderBottom: "1px solid var(--border)",
@@ -498,14 +675,22 @@ function FraudTab({
           letterSpacing: "0.04em",
         }}
       >
-        {flags.length} flagged user{flags.length === 1 ? "" : "s"} detected
+        <span>
+          {flags.length} flagged user{flags.length === 1 ? "" : "s"} (heuristic)
+        </span>
+        <Link
+          href="/admin/fraud"
+          style={{ color: "var(--danger)", fontWeight: 700 }}
+        >
+          Live detector →
+        </Link>
       </div>
       {flags.map((f, i) => (
         <div
           key={f.bidderId}
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr auto",
+            gridTemplateColumns: "1fr auto auto",
             padding: "1rem 1.25rem",
             borderBottom:
               i < flags.length - 1 ? "1px solid var(--border)" : "none",
@@ -513,11 +698,20 @@ function FraudTab({
             gap: 12,
           }}
         >
-          <div>
-            <div style={{ fontWeight: 600, fontSize: "var(--font-sm)" }}>
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: "var(--font-sm)",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
               <Link href={`/users/${f.bidderId}`} style={{ color: "var(--text)" }}>
-                {f.bidder?.name}
+                {f.user?.name ?? "Unknown user"}
               </Link>
+              {f.user?.isSuspended && <Badge tone="neutral">Suspended</Badge>}
             </div>
             <div
               style={{
@@ -526,12 +720,120 @@ function FraudTab({
                 marginTop: 2,
               }}
             >
-              {f.bidder?.email}
+              {f.user?.email ?? f.bidderId}
             </div>
           </div>
-          <Badge tone="danger">{f._count?.id} suspicious bids</Badge>
+          <Badge tone="danger">{f.outbidCount} suspicious bids</Badge>
+          {f.user && !f.user.isSuspended && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => onToggleSuspend(f.bidderId, false)}
+            >
+              Suspend
+            </Button>
+          )}
         </div>
       ))}
     </Card>
+  );
+}
+
+function RecentActivity({
+  users,
+  auctions,
+}: {
+  users: RecentUser[];
+  auctions: RecentAuction[];
+}) {
+  const headerStyle: React.CSSProperties = {
+    padding: "0.7rem 1.25rem",
+    background: "var(--surface-2)",
+    borderBottom: "1px solid var(--border)",
+    fontSize: "var(--font-xs)",
+    fontWeight: 700,
+    color: "var(--muted)",
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
+  };
+  const rowStyle = (i: number, len: number): React.CSSProperties => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: "0.75rem 1.25rem",
+    borderBottom: i < len - 1 ? "1px solid var(--border)" : "none",
+    color: "var(--text)",
+  });
+  const emptyStyle: React.CSSProperties = {
+    padding: "1rem 1.25rem",
+    fontSize: "var(--font-sm)",
+    color: "var(--muted)",
+  };
+  const titleStyle: React.CSSProperties = {
+    fontWeight: 600,
+    fontSize: "var(--font-sm)",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  };
+
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(min(360px, 100%), 1fr))",
+        gap: "1.5rem",
+        marginTop: "1.5rem",
+      }}
+    >
+      <Card padding="none">
+        <div style={headerStyle}>Newest users</div>
+        {users.length === 0 ? (
+          <div style={emptyStyle}>No users yet</div>
+        ) : (
+          users.map((u, i) => (
+            <Link key={u.id} href={`/users/${u.id}`} style={rowStyle(i, users.length)}>
+              <div style={{ minWidth: 0 }}>
+                <div style={titleStyle}>{u.name}</div>
+                <div style={{ fontSize: "var(--font-xs)", color: "var(--muted)" }}>
+                  {u.email}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                {u.isSuspended && <Badge tone="danger">Suspended</Badge>}
+                <span style={{ fontSize: "var(--font-xs)", color: "var(--muted)" }}>
+                  {new Date(u.createdAt).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+            </Link>
+          ))
+        )}
+      </Card>
+
+      <Card padding="none">
+        <div style={headerStyle}>Newest auctions</div>
+        {auctions.length === 0 ? (
+          <div style={emptyStyle}>No auctions yet</div>
+        ) : (
+          auctions.map((a, i) => (
+            <Link
+              key={a.id}
+              href={`/auctions/${a.id}`}
+              style={rowStyle(i, auctions.length)}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div style={{ ...titleStyle, marginBottom: 2 }}>{a.title}</div>
+                <AuctionStatusBadge status={a.status} />
+              </div>
+              <Money value={a.currentPrice} size="sm" color="var(--accent)" />
+            </Link>
+          ))
+        )}
+      </Card>
+    </div>
   );
 }
