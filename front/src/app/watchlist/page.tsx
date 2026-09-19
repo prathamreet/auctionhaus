@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import {
+  AuctionImage,
   AuctionStatusBadge,
   AuctionTypeBadge,
   Button,
   Card,
+  Countdown,
   EmptyState,
   Money,
   PageHeader,
@@ -23,6 +25,7 @@ interface WatchItem {
   auction: {
     id: string;
     title: string;
+    imageUrl?: string;
     status: string;
     currentPrice: number;
     endTime: string;
@@ -128,23 +131,46 @@ export default function WatchlistPage() {
                   gap: "0.5rem",
                 }}
               >
-                <div style={{ minWidth: 0 }}>
-                  <Link
-                    href={`/auctions/${a?.id}`}
-                    style={{
-                      fontWeight: 600,
-                      fontSize: "var(--font-sm)",
-                      color: "var(--text)",
-                      display: "block",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      marginBottom: "0.25rem",
-                    }}
-                  >
-                    {a?.title ?? "—"}
-                  </Link>
-                  {a?.type && <AuctionTypeBadge type={a.type} />}
+                <div
+                  style={{
+                    minWidth: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {a?.imageUrl && (
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: "var(--radius)",
+                        overflow: "hidden",
+                        flexShrink: 0,
+                        border: "1px solid var(--border)",
+                      }}
+                    >
+                      <AuctionImage src={a.imageUrl} alt={a.title} />
+                    </div>
+                  )}
+                  <div style={{ minWidth: 0 }}>
+                    <Link
+                      href={`/auctions/${a?.id}`}
+                      style={{
+                        fontWeight: 600,
+                        fontSize: "var(--font-sm)",
+                        color: "var(--text)",
+                        display: "block",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      {a?.title ?? "—"}
+                    </Link>
+                    {a?.type && <AuctionTypeBadge type={a.type} />}
+                  </div>
                 </div>
                 <Money
                   value={a?.currentPrice ?? null}
@@ -163,12 +189,20 @@ export default function WatchlistPage() {
                     fontVariantNumeric: "tabular-nums",
                   }}
                 >
-                  {end
-                    ? end.toLocaleDateString([], {
-                        month: "short",
-                        day: "numeric",
-                      })
-                    : "—"}
+                  {a?.status === "ACTIVE" && a.endTime ? (
+                    <Countdown
+                      endTime={a.endTime}
+                      size="sm"
+                      style={{ fontSize: "var(--font-xs)", fontWeight: 600 }}
+                    />
+                  ) : end ? (
+                    end.toLocaleDateString([], {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  ) : (
+                    "—"
+                  )}
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <Button
