@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useSocketListener } from "@/lib/useSocketListener";
 import {
+  AuctionImage,
   AuctionTypeBadge,
   Badge,
   Button,
@@ -24,6 +25,7 @@ import {
 interface Auction {
   id: string;
   title: string;
+  imageUrl?: string;
   type: "ENGLISH" | "DUTCH" | "SEALED_BID";
   status: string;
   currentPrice: number;
@@ -227,13 +229,17 @@ function AuctionCard({
   isOwner: boolean;
   onToggleWatchlist: (e: React.MouseEvent) => void;
 }) {
-  // Snapshot the clock once at mount via the lazy initializer so the render
-  // stays pure. Catalogue cards do not tick; the countdown granularity lives
-  // on the auction detail page.
-  const [now] = useState(() => Date.now());
+  // Live-ticking clock so each card's "time left" stays current. Ended
+  // auctions never start an interval.
+  const ended = auction.status === "ENDED";
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (ended) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [ended]);
   const diff = new Date(auction.endTime).getTime() - now;
   const urgent = diff > 0 && diff < 3600000;
-  const ended = auction.status === "ENDED";
 
   return (
     <Link
@@ -255,6 +261,18 @@ function AuctionCard({
             }}
           >
             Your listing
+          </div>
+        )}
+        {auction.imageUrl && (
+          <div
+            style={{
+              width: "100%",
+              height: 170,
+              borderBottom: "1px solid var(--border)",
+              background: "var(--surface-2)",
+            }}
+          >
+            <AuctionImage src={auction.imageUrl} alt={auction.title} />
           </div>
         )}
         <div style={{ padding: "1.5rem" }}>
