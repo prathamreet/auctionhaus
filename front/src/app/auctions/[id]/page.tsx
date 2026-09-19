@@ -11,6 +11,7 @@ import type { Bid, LatestLadder } from "./_components/BidHistory";
 import { PricePanel, AuctionMeta } from "./_components/PricePanel";
 import { CommitmentPanel } from "./_components/CommitmentPanel";
 import {
+  AuctionImage,
   BackpressureBanner,
   PageShell,
   SkeletonCard,
@@ -22,6 +23,7 @@ interface Auction {
   id: string;
   title: string;
   description?: string;
+  imageUrl?: string;
   type: "ENGLISH" | "DUTCH" | "SEALED_BID";
   status: string;
   currentPrice: number;
@@ -433,6 +435,22 @@ export default function AuctionDetailPage() {
       <div className="grid-main-sidebar">
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          {/* Item image — only when the seller supplied one. */}
+          {auction.imageUrl && (
+            <div
+              style={{
+                width: "100%",
+                height: "clamp(240px, 40vw, 460px)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius)",
+                overflow: "hidden",
+                background: "var(--surface-2)",
+              }}
+            >
+              <AuctionImage src={auction.imageUrl} alt={auction.title} />
+            </div>
+          )}
+
           {/* Title + description */}
           <div
             style={{
