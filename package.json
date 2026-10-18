@@ -30,6 +30,7 @@
     "db:reset-auctions": "npm run db:clear-auctions --workspace=back",
     "db:prepare-bench": "npm run db:prepare-bench --workspace=back",
     "sim:run": "npm run sim:run --workspace=back",
+    "sim:ladder": "k6 run packages/simulator/k6/bid-throughput.js",
     "train:fraud": "npm run train:fraud --workspace=back",
     "eval:fraud": "npm run eval:fraud --workspace=back",
     "postinstall": "npm run prisma:generate"

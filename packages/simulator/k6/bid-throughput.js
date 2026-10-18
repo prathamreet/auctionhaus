@@ -2,8 +2,15 @@
  * k6 Bid Throughput Benchmark
  *
  * Measures bid latency + throughput under increasing concurrency for two modes:
- *   1. Direct Postgres (FOR UPDATE)  -> POST /api/bids/auctions/:id          (201 on commit)
- *   2. Redis Stream sequencer        -> POST /api/bids/auctions/:id/stream   (202 on enqueue)
+ *   1. Direct Postgres (FOR UPDATE)  -> POST /api/bids/auctions/:id          (HTTP 201 on durable commit)
+ *   2. Redis Stream sequencer        -> POST /api/bids/auctions/:id/stream   (HTTP 202 on stream enqueue)
+ *
+ * COMPLETION CRITERIA & ARCHITECTURAL SEMANTICS:
+ *   - Direct Mode: Evaluates synchronous persistence. Measures latency until the PostgreSQL
+ *     transaction acquires row locks, validates state, inserts the bid, and commits to WAL.
+ *   - Sequencer Mode: Evaluates asynchronous write-behind ingestion. Measures latency until
+ *     the bid is appended to Redis Stream via XADD. A decoupled background consumer drains the
+ *     stream and batch-commits bids to PostgreSQL (sustaining ~150-200 bids/s persistence drain).
  *
  * This is a MEASUREMENT harness, not an SLO gate: it has no failing thresholds,
  * so a run always exits cleanly and just reports numbers.
