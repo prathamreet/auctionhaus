@@ -84,7 +84,7 @@ describe('Escrow Service - settleWithinTx', () => {
 
     expect(prismaMock.wallet.update).toHaveBeenCalledWith({
       where: { userId: 'u1' },
-      data: { heldAmount: { decrement: m(500) } },
+      data: { balance: { decrement: m(500) }, heldAmount: { decrement: m(500) } },
     });
     expect(prismaMock.wallet.update).toHaveBeenCalledWith({
       where: { userId: 'u2' },

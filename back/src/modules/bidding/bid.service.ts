@@ -115,7 +115,6 @@ export const placeBid = async (data: {
         await tx.wallet.update({
           where: { id: previousWinning.bidder.wallet!.id },
           data: {
-            balance: { increment: previousWinning.amount },
             heldAmount: { decrement: previousWinning.amount },
           },
         });
@@ -144,7 +143,6 @@ export const placeBid = async (data: {
         await tx.wallet.update({
           where: { id: previousWinning.bidder.wallet!.id },
           data: {
-            balance: { increment: previousWinning.amount },
             heldAmount: { decrement: previousWinning.amount },
           },
         });
@@ -166,7 +164,6 @@ export const placeBid = async (data: {
     const updatedWallet = await tx.wallet.update({
       where: { userId: bidderId },
       data: {
-        balance: { decrement: amountD },
         heldAmount: { increment: amountD },
       },
     });

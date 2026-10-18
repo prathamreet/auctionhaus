@@ -84,14 +84,14 @@ describe('Bid Service', () => {
       expect(prismaMock.bid.update).toHaveBeenCalledWith({ where: { id: 'b_prev' }, data: { status: 'OUTBID' } });
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { id: 'w3' },
-        data: { balance: { increment: m(100) }, heldAmount: { decrement: m(100) } }
+        data: { heldAmount: { decrement: m(100) } }
       });
       expect(notifyUser).toHaveBeenCalledWith('u3', expect.objectContaining({ type: 'OUTBID' }));
 
       // Check new bid held (Decimal-tolerant via m()).
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { balance: { decrement: m(120) }, heldAmount: { increment: m(120) } }
+        data: { heldAmount: { increment: m(120) } }
       });
       expect(prismaMock.bid.create).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({ amount: m(120), status: 'WINNING' })

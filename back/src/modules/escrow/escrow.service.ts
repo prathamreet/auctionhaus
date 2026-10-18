@@ -22,10 +22,9 @@ import { D, toNum } from '../../lib/decimal';
  * Money mechanics by kind:
  *  - DIRECT_SALE (buyNow): payer.balance -= amount; seller.balance += amount.
  *    The payer's spendable balance must cover the amount (checked here).
- *  - WON_AUCTION (confirmWinnerPayment): payer.heldAmount -= amount;
- *    seller.balance += amount. The payer's balance was already moved into
- *    heldAmount when the winning bid was placed, so there is no balance check
- *    -- the funds are already held, we just release them to the seller.
+ *  - WON_AUCTION (confirmWinnerPayment): payer.balance -= amount;
+ *    payer.heldAmount -= amount; seller.balance += amount. The encumbered
+ *    hold is released and the user's balance is finalized.
  */
 export const settleWithinTx = async (
   tx: Prisma.TransactionClient,
@@ -86,12 +85,12 @@ export const settleWithinTx = async (
   }
 
   // Debit the payer. DIRECT_SALE comes out of spendable balance; WON_AUCTION
-  // releases the already-held funds.
+  // releases the encumbered hold and decrements the balance.
   await tx.wallet.update({
     where: { userId: payerId },
     data: isDirect
       ? { balance: { decrement: amountD } }
-      : { heldAmount: { decrement: amountD } },
+      : { balance: { decrement: amountD }, heldAmount: { decrement: amountD } },
   });
 
   // Credit the seller's spendable balance.

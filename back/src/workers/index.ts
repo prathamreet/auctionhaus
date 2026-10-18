@@ -262,7 +262,6 @@ async function endAuction(auctionId: string) {
         await tx.wallet.update({
           where: { id: wallet.id },
           data: {
-            balance: { increment: loser.amount },
             heldAmount: { decrement: loser.amount },
           },
         });
@@ -489,22 +488,27 @@ export async function processAutoBidLadder(
     // Hot pool: auto-bids still able to participate. Filter applied per step.
     let pool = autoBids.slice();
 
-    // Bound the loop. The ceiling is the highest-maxAmount auto-bid running
-    // every increment from the current price; +2 covers fence-post edges.
+    // Bound the loop. The ceiling is the runner-up auto-bid (or trigger bid) + 1 increment,
+    // capped by highestMax; +2 covers fence-post edges (ITEM-04).
     const highestMax = D(autoBids[0].maxAmount);
-    const stepCeiling = highestMax.sub(cur).div(inc).ceil().toNumber() + 2;
+    const runnerUpMax = autoBids.length > 1 ? D(autoBids[1].maxAmount) : cur;
+    const tightCeiling = runnerUpMax.add(inc).lt(highestMax) ? runnerUpMax.add(inc) : highestMax;
+    const stepCeiling = tightCeiling.sub(cur).div(inc).ceil().toNumber() + 2;
     const maxSteps = Math.max(0, Math.min(100000, stepCeiling));
 
     for (let step = 0; step < maxSteps; step++) {
       const nextBid = cur.add(inc);
 
-      // Drop anyone whose maxAmount can no longer cover nextBid, and skip the
-      // current winner so they don't outbid themselves.
-      pool = pool.filter(
-        (ab) => D(ab.maxAmount).gte(nextBid) && ab.bidderId !== curWinnerUserId,
-      );
-      if (pool.length === 0) break;
-      const challenger = pool[0]; // highest maxAmount in the remaining pool
+      // Permanently remove proxies whose maxAmount can no longer cover nextBid.
+      // The current winner is NOT removed from pool — they must remain eligible
+      // to counter-bid if subsequently outbid by another proxy (ITEM-01 fix).
+      pool = pool.filter((ab) => D(ab.maxAmount).gte(nextBid));
+
+      // Pick the highest-maxAmount challenger that is not the current winner.
+      // This is a temporary per-step exclusion (prevents self-outbidding)
+      // without permanently dropping the winner from future rounds.
+      const challenger = pool.find((ab) => ab.bidderId !== curWinnerUserId);
+      if (!challenger) break;
 
       // ── Affordability check BEFORE any DB write ──
       // Re-read the challenger's wallet inside the tx -- the loop may have
@@ -539,7 +543,6 @@ export async function processAutoBidLadder(
         await tx.wallet.update({
           where: { userId: curWinnerUserId },
           data: {
-            balance: { increment: curWinningAmount },
             heldAmount: { decrement: curWinningAmount },
           },
         });
@@ -570,7 +573,6 @@ export async function processAutoBidLadder(
       await tx.wallet.update({
         where: { userId: challenger.bidderId },
         data: {
-          balance: { decrement: nextBid },
           heldAmount: { increment: nextBid },
         },
       });

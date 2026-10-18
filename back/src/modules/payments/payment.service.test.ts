@@ -67,10 +67,10 @@ describe('Payment Service', () => {
 
       const res = await confirmWinnerPayment('a1', 'u1');
 
-      // Check Winner Wallet Deduction (only heldAmount is decremented since balance was decremented at bid time)
+      // Check Winner Wallet Deduction (both balance and heldAmount decremented at settlement)
       expect(prismaMock.wallet.update).toHaveBeenCalledWith({
         where: { userId: 'u1' },
-        data: { heldAmount: { decrement: m(500) } }
+        data: { balance: { decrement: m(500) }, heldAmount: { decrement: m(500) } }
       });
 
       // Check Seller Wallet Credit

@@ -157,4 +157,96 @@ describe('processAutoBidLadder', () => {
     // autoBid.findMany should not even be queried.
     expect(prismaMock.autoBid.findMany).not.toHaveBeenCalled();
   });
+
+  it('correctly resolves multi-step ladder with 2 competing auto-bidders (ITEM-01 regression)', async () => {
+    prismaMock.auction.findUnique.mockResolvedValue(englishAuction as any);
+    prismaMock.autoBid.findMany.mockResolvedValue([
+      { id: 'ab1', bidderId: 'auto1', maxAmount: 150, createdAt: new Date('2026-05-28T00:00:00Z') },
+      { id: 'ab2', bidderId: 'auto2', maxAmount: 130, createdAt: new Date('2026-05-28T00:01:00Z') },
+    ] as any);
+    prismaMock.bid.findFirst.mockResolvedValue({
+      id: 'trigBid',
+      bidderId: 'trigger',
+      amount: 100,
+    } as any);
+    (prismaMock.wallet.findUnique as any).mockImplementation(({ where }: any) =>
+      Promise.resolve({
+        id: `w_${where.userId}`,
+        userId: where.userId,
+        balance: 1000,
+        heldAmount: 0,
+      } as any),
+    );
+    let bidCount = 0;
+    (prismaMock.bid.create as any).mockImplementation((args: any) => {
+      bidCount++;
+      return Promise.resolve({
+        id: `bid_${bidCount}`,
+        ...args.data,
+        createdAt: new Date(`2026-05-28T00:0${bidCount}:00Z`),
+      } as any);
+    });
+
+    const steps = await processAutoBidLadder('a1', 'trigger');
+
+    expect(steps).toHaveLength(3);
+    expect(steps.map((s) => ({ bidderId: s.bidderId, amount: s.amount }))).toEqual([
+      { bidderId: 'auto1', amount: 110 },
+      { bidderId: 'auto2', amount: 120 },
+      { bidderId: 'auto1', amount: 130 },
+    ]);
+
+    expect(prismaMock.auction.update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { currentPrice: m(130) },
+    });
+  });
+
+  it('correctly resolves multi-step ladder with 3 competing auto-bidders to Vickrey price (ITEM-01 regression)', async () => {
+    prismaMock.auction.findUnique.mockResolvedValue(englishAuction as any);
+    prismaMock.autoBid.findMany.mockResolvedValue([
+      { id: 'ab1', bidderId: 'auto1', maxAmount: 200, createdAt: new Date('2026-05-28T00:00:00Z') },
+      { id: 'ab2', bidderId: 'auto2', maxAmount: 140, createdAt: new Date('2026-05-28T00:01:00Z') },
+      { id: 'ab3', bidderId: 'auto3', maxAmount: 120, createdAt: new Date('2026-05-28T00:02:00Z') },
+    ] as any);
+    prismaMock.bid.findFirst.mockResolvedValue({
+      id: 'trigBid',
+      bidderId: 'trigger',
+      amount: 100,
+    } as any);
+    (prismaMock.wallet.findUnique as any).mockImplementation(({ where }: any) =>
+      Promise.resolve({
+        id: `w_${where.userId}`,
+        userId: where.userId,
+        balance: 1000,
+        heldAmount: 0,
+      } as any),
+    );
+    let bidCount = 0;
+    (prismaMock.bid.create as any).mockImplementation((args: any) => {
+      bidCount++;
+      return Promise.resolve({
+        id: `bid_${bidCount}`,
+        ...args.data,
+        createdAt: new Date(`2026-05-28T00:0${bidCount}:00Z`),
+      } as any);
+    });
+
+    const steps = await processAutoBidLadder('a1', 'trigger');
+
+    expect(steps).toHaveLength(5);
+    expect(steps.map((s) => ({ bidderId: s.bidderId, amount: s.amount }))).toEqual([
+      { bidderId: 'auto1', amount: 110 },
+      { bidderId: 'auto2', amount: 120 },
+      { bidderId: 'auto1', amount: 130 },
+      { bidderId: 'auto2', amount: 140 },
+      { bidderId: 'auto1', amount: 150 },
+    ]);
+
+    expect(prismaMock.auction.update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { currentPrice: m(150) },
+    });
+  });
 });
+
