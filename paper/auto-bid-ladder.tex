@@ -9,11 +9,9 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
-\usepackage{hyperref}
-\usepackage{pgfplots}
+\usepackage[hidelinks]{hyperref}
 \usepackage{balance}
 \usepackage{placeins}
-\pgfplotsset{compat=1.18}
 
 % Relax justification to avoid stretched word-spacing in narrow columns
 \tolerance=2000
@@ -96,10 +94,11 @@ second-price sealed-bid auction.
 
 Since~(\ref{eq:vickrey}) is closed-form, commercial auction platforms
 routinely bypass ladder simulation: they evaluate the formula, insert a single
-winning bid row at~$P^\star$, and broadcast the updated price. External
-observation of major platforms (eBay, Catawiki, LiveAuctioneers) confirms that
-users only ever witness the final jump rather than the underlying ascending
-trajectory. While this \emph{single-jump} design minimizes database write
+winning bid row at~$P^\star$, and broadcast the updated price. Architectural
+analyses and empirical studies of production auction platforms (e.g., eBay~\cite{Roth2002,Shoup2008,Ockenfels2006})
+confirm that consumer-facing bid histories record only discrete jumps to
+prevailing second-price increments rather than the fully executed ascending trajectory.
+While this \emph{single-jump} design minimizes database write
 amplification ($O(1)$ writes), it introduces a severe systemic deficiency:
 the permanent loss of \emph{log fidelity}.
 
@@ -162,7 +161,7 @@ Specifically, we make three main contributions:
 \end{enumerate}
 
 The protocol runs in the open-source \textsc{AuctionHaus} platform. The
-reference implementation is about 180~lines of TypeScript, packaged as a
+reference implementation is approximately 210~lines of TypeScript, packaged as a
 BullMQ worker job that fires after every manual bid.
 
 % ─── II. LITERATURE SURVEY ───────────────────────────────────────────────────
@@ -249,7 +248,7 @@ dynamics with static deadlock-freedom invariants.
 To bypass database row-lock contention under terminal auction flurries,
 architectures often turn to single-writer logs inspired by the LMAX
 Disruptor~\cite{Thompson2011} and partitioned append logs such as
-Kafka~\cite{Kreps2011} and Redis Streams. While these streaming engines excel at
+Kafka~\cite{Kreps2011,Kleppmann2017} and Redis Streams. While these streaming engines excel at
 high-speed sequential ingestion, they deliberately sacrifice immediate ACID
 guarantees and relational queryability. Prior auction literature either assumes
 centralized in-memory matching with delayed checkpointing or falls back to
@@ -477,6 +476,10 @@ the same transaction in the order they were issued; on commit, they
 become visible to outside readers atomically but with insertion-order
 identifiers (\texttt{ctid} ordering). Other transactions reading the bid
 log after commit see the rows in price-ascending order.
+Isolation from concurrent writers follows directly from the auction row
+\texttt{FOR UPDATE} lock (Algorithm~\ref{alg:ladder}, line~2), which blocks any
+concurrent \textbf{PlaceBid} on the same auction until the ladder transaction
+commits; no external writer can insert an interleaved bid row into the sequence.
 \end{proof}
 
 \subsection{Property P2: Vickrey Equivalence}
@@ -498,7 +501,7 @@ We trace candidate selection in Algorithm~\ref{alg:ladder} by induction on the l
 
 \emph{Base case ($k=1$):} If $M_{(1)} < p_0 + \delta$, no auto-bid covers the first increment; all $\alpha \in \mathcal{P}$ are pruned by the limit filter, the loop breaks, and the price remains $p_0 = P^\star$ with $u_{\text{trig}}$ winning. If $M_{(1)} \geq p_0 + \delta$, candidate selection picks $\alpha \in \mathcal{P} \setminus \{u_{\text{trig}}\}$ with maximal limit, which is $u_{(1)}$. Thus $u_{(1)}$ places the first ladder rung at $p_0 + \delta$ and becomes the current winner. If $M_{(2)} < p_0 + \delta$ (no runner-up covers the first rung), on step $k=2$ every remaining candidate in $\mathcal{P}$ has $M_i < p_0 + 2\delta$, so the loop terminates with $u_{(1)}$ winning at $p_0 + \delta = \min(M_{(1)}, M_{(2)} + \delta)$.
 
-\emph{Inductive step:} Suppose the price has reached $\text{cur} = p_0 + k\delta < M_{(2)}$, with current winner $w \in \{u_{(1)}, u_{(2)}\}$. At the next step, $\text{next} = \text{cur} + \delta \leq M_{(2)} \leq M_{(1)}$. Both $u_{(1)}$ and $u_{(2)}$ satisfy $M_i \geq \text{next}$ and remain in $\mathcal{P}$. The challenger selection picks the maximal candidate in $\mathcal{P}$ distinct from $w$:
+\emph{Inductive step:} Suppose the price has reached $\text{cur} = p_0 + k\delta < M_{(2)}$, with current winner $w \in \{u_{(1)}, u_{(2)}\}$. We assume participants maintain solvent wallet balances (guaranteed by the pre-ladder wallet verification; if a proxy's balance is exhausted, it is deactivated and pruned from $\mathcal{P}$, with induction continuing on the remaining solvent pool). At the next step, $\text{next} = \text{cur} + \delta \leq M_{(2)} \leq M_{(1)}$. Both $u_{(1)}$ and $u_{(2)}$ satisfy $M_i \geq \text{next}$ and remain in $\mathcal{P}$. The challenger selection picks the maximal candidate in $\mathcal{P}$ distinct from $w$:
 \begin{itemize}
   \item If $w = u_{(1)}$, challenger selection excludes $u_{(1)}$ and picks $\text{argmax}_{i \neq (1)} M_i = u_{(2)}$ (since $M_{(2)} \geq M_{(j)}$ for all $j \geq 3$). Thus $u_{(2)}$ outbids $u_{(1)}$ at $\text{next}$.
   \item If $w = u_{(2)}$, challenger selection excludes $u_{(2)}$ and picks $u_{(1)}$ (since $M_{(1)} \geq M_i$ for all $i$). Thus $u_{(1)}$ outbids $u_{(2)}$ at $\text{next}$.
@@ -510,7 +513,7 @@ Any third proxy $u_{(j)}$ ($j \geq 3$) is never selected because at every step t
   \item If $u_{(1)}$ placed the bid at $\text{cur}$, then $u_{(1)}$ is the current winner. The only candidate with $M_i \geq \text{next}$ is $u_{(1)}$ itself, but $u_{(1)}$ is excluded from challenging. No eligible challenger exists, and the loop terminates at price $\text{cur} = M_{(2)}$ (when $M_{(2)}$ is on an increment boundary) or the highest rung $\leq M_{(2)}$, with $u_{(1)}$ winning.
   \item If $u_{(2)}$ placed the bid at $\text{cur} \leq M_{(2)}$, then $w = u_{(2)}$. Since $M_{(1)} \geq \text{next}$, $u_{(1)}$ is selected as challenger and places a bid at $\text{next} = \min(M_{(1)}, \text{cur} + \delta)$, becoming winner. On the following iteration, $\text{next}' > \text{next} > M_{(2)}$; $u_{(1)}$ is excluded as winner and all other candidates have been pruned. The loop terminates.
 \end{enumerate}
-In both cases, the ladder terminates with $u_{(1)}$ holding the winning bid at price $P^\star = \min(M_{(1)}, M_{(2)} + \delta)$, establishing Vickrey equivalence.
+In both cases, the ladder terminates with $u_{(1)}$ holding the winning bid at price $P^\star = \min(M_{(1)}, M_{(2)} + \delta)$, establishing Vickrey equivalence. When $M_{(1)} = M_{(2)}$, $P^\star = M_{(1)}$; the deterministic tie-break by registration timestamp ensures $u_{(1)}$ (earlier registrant) takes precedence and secures the winning bid.
 
 The lock on the auction row ensures no concurrent PlaceBid can advance $\text{currentPrice}$ during the loop. If a concurrent PlaceBid was queued, it waits at the FOR UPDATE statement until our transaction commits, then re-reads $\text{currentPrice}$ and triggers a fresh ladder resolution -- a clean serial extension of the auction history.
 \end{proof}
@@ -757,8 +760,9 @@ In such an environment, the two-tier lock order invariant (auction row first,
 followed by wallets in ascending lexicographical \texttt{userId} order) remains
 strictly sound: because the global lock order is universal, distributed
 deadlocks across shards remain mathematically impossible. However, the commit
-phase pays a consensus latency penalty of $2 \times \text{RTT}$ across
-participating shards. Under direct row-locking, this consensus delay amplifies
+phase pays a consensus overhead of at least $2 \times \text{RTT}$ (prepare and
+commit phases of 2PC) across participating shards, with additional replica consensus
+rounds in Raft- or Paxos-backed stores. Under direct row-locking, this consensus delay amplifies
 lock-hold duration, compounding lock contention when $C$ concurrent bidders
 compete. To mitigate this in distributed relational backends, the iterative
 ladder evaluation can be encapsulated within a database-side stored procedure
@@ -787,8 +791,9 @@ coordination.
 All empirical measurements were taken on a single host. In a multi-node setup
 with network-separated primary-replica pairs and clustered Redis brokers,
 network latency would increase absolute wall-clock times. However, because
-network RTT affects synchronous lock-wait duration quadratically under
-contention while affecting decoupled stream ingestion only additively, we
+network RTT amplifies synchronous lock-wait duration super-linearly under
+contention (as predicted by queuing-theoretic models of lock waiting~\cite{Bernstein1987})
+while affecting decoupled stream ingestion only additively, we
 expect the relative throughput advantage of the sequenced pipeline over
 direct row-locking to be even more pronounced in distributed networks.
 
@@ -817,8 +822,13 @@ the \textsc{AuctionHaus} platform since we deployed it.
 Three things remain open: (i)~a cross-auction resolver that splits a
 bidder's available balance across several proxy commitments at once;
 (ii)~a machine-checked proof of the protocol in
-TLA$^+$~\cite{Lamport2002}; and (iii)~measurements under a multi-node
-distributed deployment.
+TLA$^+$~\cite{Lamport2002}; and (iii)~empirical benchmarking under a live multi-node
+distributed deployment (analyzed structurally in Section~\ref{sec:eval}).
+
+\section*{Acknowledgment}
+The authors used AI-assisted tools for code refinement and manuscript
+editing. All theoretical contributions, proofs, and experimental results
+are the authors' own work.
 
 % ─── REFERENCES ─────────────────────────────────────────────────────────────
 \balance
