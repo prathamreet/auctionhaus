@@ -169,7 +169,7 @@ describe('processAutoBidLadder', () => {
       bidderId: 'trigger',
       amount: 100,
     } as any);
-    prismaMock.wallet.findUnique.mockImplementation(({ where }: any) =>
+    (prismaMock.wallet.findUnique as any).mockImplementation(({ where }: any) =>
       Promise.resolve({
         id: `w_${where.userId}`,
         userId: where.userId,
@@ -178,7 +178,7 @@ describe('processAutoBidLadder', () => {
       } as any),
     );
     let bidCount = 0;
-    prismaMock.bid.create.mockImplementation((args: any) => {
+    (prismaMock.bid.create as any).mockImplementation((args: any) => {
       bidCount++;
       return Promise.resolve({
         id: `bid_${bidCount}`,
@@ -214,7 +214,7 @@ describe('processAutoBidLadder', () => {
       bidderId: 'trigger',
       amount: 100,
     } as any);
-    prismaMock.wallet.findUnique.mockImplementation(({ where }: any) =>
+    (prismaMock.wallet.findUnique as any).mockImplementation(({ where }: any) =>
       Promise.resolve({
         id: `w_${where.userId}`,
         userId: where.userId,
@@ -223,7 +223,7 @@ describe('processAutoBidLadder', () => {
       } as any),
     );
     let bidCount = 0;
-    prismaMock.bid.create.mockImplementation((args: any) => {
+    (prismaMock.bid.create as any).mockImplementation((args: any) => {
       bidCount++;
       return Promise.resolve({
         id: `bid_${bidCount}`,
