@@ -1,0 +1,84 @@
+{
+  "runId": "2e27b940-b430-475f-8c1d-dfa70fb2ffd3",
+  "startedAt": "2026-09-26T07:40:05.763Z",
+  "endedAt": "2026-09-26T07:41:09.787Z",
+  "config": {
+    "auctionCount": 4,
+    "agents": [
+      {
+        "type": "shill",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "collusion",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "collusion",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "truthful",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "truthful",
+        "email": "",
+        "password": ""
+      },
+      {
+        "type": "sniper",
+        "email": "",
+        "password": ""
+      }
+    ],
+    "auctionDurationSec": 60,
+    "startingPrice": 1000,
+    "minIncrement": 100,
+    "backendUrl": "http://localhost:5000/api"
+  },
+  "auctionIds": [
+    "c327d758-c220-4110-80b9-c21cbdcff3e7",
+    "abf6d471-596e-4693-9341-fc575633c298",
+    "f2583a23-aac6-474a-b24e-e2bebacf423e",
+    "29a79fad-5e59-43bf-a44b-13c432b9715d"
+  ],
+  "agentMap": {
+    "2e41a0a4-5c80-46de-a661-47bfed63e2d5": {
+      "userId": "2e41a0a4-5c80-46de-a661-47bfed63e2d5",
+      "agentType": "shill"
+    },
+    "a020a0ac-acda-4093-8b6f-39e1a03a87f6": {
+      "userId": "a020a0ac-acda-4093-8b6f-39e1a03a87f6",
+      "agentType": "collusion"
+    },
+    "3fbc9199-64cd-4a44-b0e0-2f40883993db": {
+      "userId": "3fbc9199-64cd-4a44-b0e0-2f40883993db",
+      "agentType": "collusion"
+    },
+    "29a6bd02-2675-4d39-af6e-b48b03a64ed5": {
+      "userId": "29a6bd02-2675-4d39-af6e-b48b03a64ed5",
+      "agentType": "truthful"
+    },
+    "318141b3-e8f0-4296-af5b-c48888a5e4fc": {
+      "userId": "318141b3-e8f0-4296-af5b-c48888a5e4fc",
+      "agentType": "truthful"
+    },
+    "1704a2c1-1927-4365-aaba-8f9784f9cd73": {
+      "userId": "1704a2c1-1927-4365-aaba-8f9784f9cd73",
+      "agentType": "sniper"
+    }
+  },
+  "auctionOwners": {
+    "c327d758-c220-4110-80b9-c21cbdcff3e7": "369a1591-8fb6-43e3-b9c9-eba74ca3c69e",
+    "abf6d471-596e-4693-9341-fc575633c298": "369a1591-8fb6-43e3-b9c9-eba74ca3c69e",
+    "f2583a23-aac6-474a-b24e-e2bebacf423e": "369a1591-8fb6-43e3-b9c9-eba74ca3c69e",
+    "29a79fad-5e59-43bf-a44b-13c432b9715d": "24d3a142-d6a4-479c-8099-5d0b100bf7de"
+  },
+  "totalBids": 85,
+  "shillBids": 74
+}
