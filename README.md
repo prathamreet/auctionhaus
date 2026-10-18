@@ -10,36 +10,36 @@ AuctionHaus is a high-concurrency auction platform engineered to bridge economic
 
 ### Key Capabilities
 
-* **Atomic Ladder Execution Protocol:** Resolves multi-agent proxy counter-bids within a single atomic database transaction. Guarantees 100% relational log fidelity, exact Vickrey second-price convergence ($P^\star = \min(M_{(1)}, M_{(2)} + \delta)$), and mathematical deadlock freedom via a two-tier global lock hierarchy.
+* **Atomic Ladder Execution Protocol:** Resolves multi-agent proxy counter-bids within a single atomic database transaction. Guarantees 100% relational log fidelity, exact Vickrey second-price convergence (winning at the runner-up limit plus one increment), and mathematical deadlock freedom via a two-tier global lock hierarchy.
 * **Dual Ingress Architecture:**
-  * *Direct Mode (HTTP 201):* Synchronous PostgreSQL write-ahead log (WAL) persistence with row-level `FOR UPDATE` locking.
-  * *Sequencer Mode (HTTP 202):* Low-latency write-behind ingestion via Redis Streams (`XADD`) with decoupled batch persistence workers, sustaining 975.0 bids/s at 8.1 ms p95 latency under high concurrency.
-* **Streaming Fraud Detection Engine:** Maintains an active in-memory bipartite bid graph $\mathcal{G}(t, W)$ ($W = 30\text{ min}$) to compute streaming behavioral features (response latency $\tau$, frequency $\phi$, increment ratio $\rho$, seller co-occurrence $\sigma$, and bidding reciprocity $\gamma$) for real-time shill bidding detection.
-* **Formal Escrow Accounting:** Two-phase financial ledger separating spendable balances from encumbered holds (`heldAmount`), eliminating double-deductions during bidding flurries and guaranteeing conservative settlement.
+  * *Direct Mode (HTTP 201):* Synchronous PostgreSQL write-ahead log (WAL) persistence with row-level FOR UPDATE locking.
+  * *Sequencer Mode (HTTP 202):* Low-latency write-behind ingestion via Redis Streams (XADD) with decoupled batch persistence workers, sustaining 975.0 bids/s at 8.1 ms p95 latency under high concurrency.
+* **Streaming Fraud Detection Engine:** Maintains an active in-memory bipartite bid graph over a 30-minute sliding window to compute streaming behavioral features (response latency, frequency, increment ratio, seller co-occurrence, and bidding reciprocity) for real-time shill bidding detection.
+* **Formal Escrow Accounting:** Two-phase financial ledger separating spendable balances from encumbered holds (heldAmount), eliminating double-deductions during bidding flurries and guaranteeing conservative settlement.
 * **Real-Time Event Gateway:** Clustered WebSocket synchronization via Socket.io with Redis pub/sub adapter, providing sub-10ms state fan-out and multi-device UI synchronization.
 
 ---
 
 ## Architectural Highlights
 
-### 1. Two-Tier Global Lock Hierarchy & Deadlock Freedom
+### 1. Two-Tier Global Lock Hierarchy and Deadlock Freedom
 
 To prevent circular wait-for deadlocks between concurrent manual bids, proxy ladder workers, buy-now requests, and settlement routines, AuctionHaus enforces a strict universal lock ordering:
 
 ```
 [1. Acquire Auction Row Lock FOR UPDATE]
-                   │
-                   ▼
+                   |
+                   v
 [2. Acquire Participant Wallets FOR UPDATE (Ascending userId Order)]
 ```
 
-Because every concurrent writer acquires the auction lock first and sorts all candidate user IDs lexicographically prior to wallet locking, wait-for cycles are mathematically impossible (Gray & Reuter, 1992).
+Because every concurrent writer acquires the auction lock first and sorts all candidate user IDs lexicographically prior to wallet locking, wait-for cycles are mathematically impossible (Gray and Reuter, 1992).
 
 ### 2. Dual Ingestion Performance Profile
 
 Under load testing with Grafana k6 across 15-second constant-load sweeps on identical hardware (PostgreSQL 15, Redis 7):
 
-| Implementation | Concurrency ($C$) | Total Requests | Accepted Bids | Throughput | p95 Latency | Operational Profile |
+| Implementation | Concurrency (VUs) | Total Requests | Accepted Bids | Throughput | p95 Latency | Operational Profile |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **Direct Mode (Postgres)** | 1 VU | 53 | 53 | 3.5 bids/s | 236 ms | Synchronous WAL commit |
 | **Sequencer Mode (Redis)** | 1 VU | 86 | 86 | 5.7 bids/s | 134 ms | In-memory stream enqueue |
@@ -54,32 +54,32 @@ Under load testing with Grafana k6 across 15-second constant-load sweeps on iden
 
 ```
 auctionhaus/
-├── back/                         # Express, Prisma ORM, BullMQ, Socket.io backend
-│   ├── prisma/
-│   │   ├── schema.prisma         # Relational database models (Auctions, Bids, Wallets, Escrow)
-│   │   └── migrations/           # Versioned PostgreSQL migrations
-│   └── src/
-│       ├── gateway/              # Socket.io gateway and room dispatchers
-│       ├── lib/                  # Decimal.js utilities, Redis client, Prisma singleton
-│       ├── middleware/           # JWT auth, rate limiters, error handlers
-│       ├── modules/
-│       │   ├── auctions/         # Auction lifecycle, status transitions, buy-now
-│       │   ├── bidding/          # Bid placement service & Redis Stream sequencer
-│       │   ├── escrow/           # Idempotent settlement engine and holds
-│       │   ├── fraud/            # In-memory bipartite graph and feature extractor
-│       │   ├── notifications/    # Worker-driven notification service
-│       │   └── wallet/           # Ledger transactions and balance accounting
-│       └── workers/              # BullMQ workers (Atomic ladder, Dutch ticker, auction ends)
-├── front/                        # Next.js 16 (App Router), React 19, Tailwind CSS v4
-│   └── src/
-│       ├── app/                  # Route layouts, pages (auctions, admin, profile, auth)
-│       ├── components/           # UI components, live bid ladders, graphs
-│       ├── hooks/                # Socket hooks, React Query hooks, auth stores
-│       └── lib/                  # Axios clients, formatters, type definitions
-└── packages/
-    └── simulator/                # Synthetic agent workload generator and k6 harnesses
-        ├── k6/                   # k6 bid-throughput load test scripts
-        └── src/                  # Shill agent personas, training and evaluation pipelines
+|-- back/                         # Express, Prisma ORM, BullMQ, Socket.io backend
+|   |-- prisma/
+|   |   |-- schema.prisma         # Relational database models (Auctions, Bids, Wallets, Escrow)
+|   |   `-- migrations/           # Versioned PostgreSQL migrations
+|   `-- src/
+|       |-- gateway/              # Socket.io gateway and room dispatchers
+|       |-- lib/                  # Decimal.js utilities, Redis client, Prisma singleton
+|       |-- middleware/           # JWT auth, rate limiters, error handlers
+|       |-- modules/
+|       |   |-- auctions/         # Auction lifecycle, status transitions, buy-now
+|       |   |-- bidding/          # Bid placement service and Redis Stream sequencer
+|       |   |-- escrow/           # Idempotent settlement engine and holds
+|       |   |-- fraud/            # In-memory bipartite graph and feature extractor
+|       |   |-- notifications/    # Worker-driven notification service
+|       |   `-- wallet/           # Ledger transactions and balance accounting
+|       `-- workers/              # BullMQ workers (Atomic ladder, Dutch ticker, auction ends)
+|-- front/                        # Next.js 16 (App Router), React 19, Tailwind CSS v4
+|   `-- src/
+|       |-- app/                  # Route layouts, pages (auctions, admin, profile, auth)
+|       |-- components/           # UI components, live bid ladders, graphs
+|       |-- hooks/                # Socket hooks, React Query hooks, auth stores
+|       `-- lib/                  # Axios clients, formatters, type definitions
+`-- packages/
+    `-- simulator/                # Synthetic agent workload generator and k6 harnesses
+        |-- k6/                   # k6 bid-throughput load test scripts
+        `-- src/                  # Shill agent personas, training and evaluation pipelines
 ```
 
 ---
@@ -90,7 +90,7 @@ auctionhaus/
 
 * Node.js 20.x or higher
 * npm 10.x or higher
-* Docker & Docker Compose
+* Docker and Docker Compose
 * k6 (for load testing and benchmarks)
 
 ### 1. Infrastructure Setup
@@ -164,7 +164,7 @@ npm run dev:front
 
 ---
 
-## Testing & Quality Assurance
+## Testing and Quality Assurance
 
 Run the comprehensive test suite across backend services, workers, and concurrency models:
 
@@ -175,15 +175,15 @@ npm run test:back
 # Run full project linting
 npm run lint
 
-# Compile and type-check backend & frontend
+# Compile and type-check backend and frontend
 npm run build
 ```
 
 ---
 
-## Benchmarks & Evaluation
+## Benchmarks and Evaluation
 
-### Load Testing the Atomic Ladder & Sequencer
+### Load Testing the Atomic Ladder and Sequencer
 
 To benchmark system throughput and latency under concurrent load:
 
@@ -220,6 +220,8 @@ npm run train:fraud
 # Evaluate classifier against synthetic ground truth
 npm run eval:fraud
 ```
+
+---
 
 ## License
 
