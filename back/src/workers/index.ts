@@ -489,15 +489,20 @@ export async function processAutoBidLadder(
     let pool = autoBids.slice();
 
     // Bound the loop. The ceiling is the runner-up auto-bid (or trigger bid) + 1 increment,
-    // capped by highestMax; +2 covers fence-post edges (ITEM-04).
+    // capped by highestMax.
+    // In discrete English auctions, defeating a runner-up valuation of runnerUpMax requires
+    // reaching the smallest grid point strictly greater than runnerUpMax:
+    //   gridCeiling = floor(runnerUpMax / inc) * inc + inc
+    // capped by highestMax. This guarantees the discrete Vickrey price P* across all parities.
     const highestMax = D(autoBids[0].maxAmount);
     const runnerUpMax = autoBids.length > 1 ? D(autoBids[1].maxAmount) : cur;
-    const tightCeiling = runnerUpMax.add(inc).lt(highestMax) ? runnerUpMax.add(inc) : highestMax;
-    const stepCeiling = tightCeiling.sub(cur).div(inc).ceil().toNumber() + 2;
-    const maxSteps = Math.max(0, Math.min(100000, stepCeiling));
+    const gridCeiling = runnerUpMax.div(inc).floor().mul(inc).add(inc);
+    const tightCeiling = gridCeiling.lt(highestMax) ? gridCeiling : highestMax;
+    const maxSteps = Math.max(0, Math.min(100000, tightCeiling.sub(cur).div(inc).ceil().toNumber()));
 
     for (let step = 0; step < maxSteps; step++) {
       const nextBid = cur.add(inc);
+      if (nextBid.gt(tightCeiling)) break;
 
       // Permanently remove proxies whose maxAmount can no longer cover nextBid.
       // The current winner is NOT removed from pool — they must remain eligible
@@ -507,7 +512,14 @@ export async function processAutoBidLadder(
       // Pick the highest-maxAmount challenger that is not the current winner.
       // This is a temporary per-step exclusion (prevents self-outbidding)
       // without permanently dropping the winner from future rounds.
-      const challenger = pool.find((ab) => ab.bidderId !== curWinnerUserId);
+      let challenger = pool.find((ab) => ab.bidderId !== curWinnerUserId);
+
+      // Decisive final rung: if the runner-up was priced out on an odd rung and
+      // cur is below tightCeiling, allow the leader to place the final increment
+      // to establish the discrete Vickrey clearing price over runnerUpMax.
+      if (!challenger && pool.length > 0 && pool[0].bidderId === curWinnerUserId && nextBid.lte(tightCeiling)) {
+        challenger = pool[0];
+      }
       if (!challenger) break;
 
       // ── Affordability check BEFORE any DB write ──
@@ -519,7 +531,12 @@ export async function processAutoBidLadder(
         continue;
       }
       const available = D(cw.balance).sub(cw.heldAmount);
-      if (available.lt(nextBid)) {
+      // When the leader advances their own winning bid to the final decisive rung,
+      // the previous winning hold will be released, so only the net increment is required.
+      const requiredAvailable = challenger.bidderId === curWinnerUserId
+        ? nextBid.sub(curWinningAmount)
+        : nextBid;
+      if (available.lt(requiredAvailable)) {
         // Deactivate auto-bids that ran out of money so they stop competing.
         await tx.autoBid.update({
           where: { id: challenger.id },

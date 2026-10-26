@@ -132,8 +132,8 @@ Algorithmic determinism means that given the same sequence of bid arrivals, the 
 Because under high concurrency, its partial-commit failures left the database in varying incomplete intermediate states. Across 5 runs, it produced between 3 and 5 distinct log hashes, demonstrating a non-deterministic and unstable execution path.
 
 #### Q33. Show the formula for the Vickrey equilibrium price $P^\star$.
-$$P^\star = \min(M_{(1)},\, M_{(2)} + \delta)$$
-where $M_{(1)}$ is the highest proxy limit, $M_{(2)}$ is the second-highest limit, and $\delta$ is the minimum required increment.
+$$P^\star = \min(M_{(1)},\, \lfloor M_{(2)} \rfloor_\delta + \delta)$$
+where $M_{(1)}$ is the highest proxy limit, $\lfloor M_{(2)} \rfloor_\delta = \lfloor M_{(2)} / \delta \rfloor \cdot \delta$ is the discrete grid projection of the runner-up limit, and $\delta$ is the minimum required increment (simplifying to $\min(M_{(1)}, M_{(2)} + \delta)$ when ceilings lie on the increment grid).
 
 #### Q34. How does the protocol handle a tie where two proxy bids have the exact same maximum limit ($M_1 = M_2$)?
 The tie is resolved by the `createdAt` timestamp. The proxy bid that was registered earliest on the database gains priority. The later proxy bid will bid up to its maximum, and the earlier proxy bid will win at exactly that price (since $\min(M_1, M_2 + \delta)$ evaluates to $M_1$ because no further increment is possible).

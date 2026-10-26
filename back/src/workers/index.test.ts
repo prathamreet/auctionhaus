@@ -189,16 +189,17 @@ describe('processAutoBidLadder', () => {
 
     const steps = await processAutoBidLadder('a1', 'trigger');
 
-    expect(steps).toHaveLength(3);
+    expect(steps).toHaveLength(4);
     expect(steps.map((s) => ({ bidderId: s.bidderId, amount: s.amount }))).toEqual([
       { bidderId: 'auto1', amount: 110 },
       { bidderId: 'auto2', amount: 120 },
       { bidderId: 'auto1', amount: 130 },
+      { bidderId: 'auto1', amount: 140 },
     ]);
 
     expect(prismaMock.auction.update).toHaveBeenCalledWith({
       where: { id: 'a1' },
-      data: { currentPrice: m(130) },
+      data: { currentPrice: m(140) },
     });
   });
 
@@ -246,6 +247,51 @@ describe('processAutoBidLadder', () => {
     expect(prismaMock.auction.update).toHaveBeenCalledWith({
       where: { id: 'a1' },
       data: { currentPrice: m(150) },
+    });
+  });
+
+  it('correctly resolves discrete clearing price when runner-up ceiling is between grid points', async () => {
+    prismaMock.auction.findUnique.mockResolvedValue(englishAuction as any);
+    prismaMock.autoBid.findMany.mockResolvedValue([
+      { id: 'ab1', bidderId: 'auto1', maxAmount: 150, createdAt: new Date('2026-05-28T00:00:00Z') },
+      { id: 'ab2', bidderId: 'auto2', maxAmount: 125, createdAt: new Date('2026-05-28T00:01:00Z') },
+    ] as any);
+    prismaMock.bid.findFirst.mockResolvedValue({
+      id: 'trigBid',
+      bidderId: 'trigger',
+      amount: 100,
+    } as any);
+    (prismaMock.wallet.findUnique as any).mockImplementation(({ where }: any) =>
+      Promise.resolve({
+        id: `w_${where.userId}`,
+        userId: where.userId,
+        balance: 1000,
+        heldAmount: 0,
+      } as any),
+    );
+    let bidCount = 0;
+    (prismaMock.bid.create as any).mockImplementation((args: any) => {
+      bidCount++;
+      return Promise.resolve({
+        id: `bid_${bidCount}`,
+        ...args.data,
+        createdAt: new Date(`2026-05-28T00:0${bidCount}:00Z`),
+      } as any);
+    });
+
+    const steps = await processAutoBidLadder('a1', 'trigger');
+
+    // runnerUpMax = 125. Next grid price strictly beating 125 is 130.
+    expect(steps).toHaveLength(3);
+    expect(steps.map((s) => ({ bidderId: s.bidderId, amount: s.amount }))).toEqual([
+      { bidderId: 'auto1', amount: 110 },
+      { bidderId: 'auto2', amount: 120 },
+      { bidderId: 'auto1', amount: 130 },
+    ]);
+
+    expect(prismaMock.auction.update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { currentPrice: m(130) },
     });
   });
 });
