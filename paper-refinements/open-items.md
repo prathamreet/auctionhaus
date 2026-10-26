@@ -489,9 +489,35 @@ Original reviews are recorded in [reviewer-review.md](file:///e:/project/auction
 
 ---
 
+### ITEM-25: Discrete Parity-Free Vickrey Clearing, Exact Bound Harmonization, and Consistent Multi-Stage Benchmark Table
+
+* **Reviewer Remark:** *"The paper claims the price is \min(M_{(1)}, M_{(2)}+\delta). The algorithm and the tests stop at M_{(2)} when the leader places that rung... The benchmark still compares two different events... The iteration bound is not the exact count it claims."*
+* **Validity:** Valid (Verified Critical Adversarial Audit Finding).
+* **Problem Analysis:**
+  * When $(M_{(2)} - p_0)/\delta$ was odd, the leader placed the rung at $M_{(2)}$. On the next increment ($M_{(2)} + \delta$), the runner-up dropped out, and the leader was skipped because `ab.bidderId !== curWinnerUserId`. The loop prematurely broke at $M_{(2)}$ (e.g. 130 instead of 140 for ceilings 150 and 130).
+  * Theorem 2's proof suffered an internal contradiction: Case 1 stated termination at $M_{(2)}$, while line 516 concluded $P^\star = \min(M_{(1)}, M_{(2)} + \delta)$.
+  * The iteration bound was padded with $+1$ in Algorithm 1 and $+2$ in TypeScript, while Property P5 claimed it was the "exact count".
+  * Table I presented Direct mode (30 bids/s, sync PostgreSQL commit) alongside Sequencer ingress (975 bids/s, Redis enqueue) without tabulating background consumer durable persistence throughput (182.4 bids/s).
+* **What Needs to Be Done:**
+  * In [workers/index.ts](file:///e:/project/auctionhaus/back/src/workers/index.ts) and Algorithm 1 ([auto-bid-ladder.tex](file:///e:/project/auctionhaus/paper/auto-bid-ladder.tex)), allow the leader to place the decisive rung to $P^\star = \min(M_{(1)}, \lfloor M_{(2)} \rfloor_\delta + \delta)$ when the runner-up drops out, accounting for existing hold release.
+  * Harmonize loop bound to exact $K^\star = \lceil (P^\star - p_0)/\delta \rceil$ across P5, Algorithm 1, and the worker.
+  * Update [workers/index.test.ts](file:///e:/project/auctionhaus/back/src/workers/index.test.ts) to assert $P^\star = 140$ (4 steps) and add an off-grid ceiling test.
+  * Resolve contradiction in Theorem 2's proof so both Case 1 and Case 2 reach $P^\star$.
+  * Update Table I and Section VII.B in [auto-bid-ladder.tex](file:///e:/project/auctionhaus/paper/auto-bid-ladder.tex) and [cover-letter.tex](file:///e:/project/auctionhaus/paper/cover-letter.tex) to tabulate both Ingress (HTTP 202) and Persistence (durable PostgreSQL commit).
+* **Estimated Effort:** 1.5 – 2.0 hours
+* **Status:** Completed (Audited & Verified)
+* **Resolution:** Implemented decisive final rung and discrete grid projection in [workers/index.ts](file:///e:/project/auctionhaus/back/src/workers/index.ts) and Algorithm 1; synchronized [workers/index.test.ts](file:///e:/project/auctionhaus/back/src/workers/index.test.ts) (asserting 140 and 4 rungs for 150 vs 130); harmonized Theorem 2 proof, Property P1, P2, and P5 in [auto-bid-ladder.tex](file:///e:/project/auctionhaus/paper/auto-bid-ladder.tex); and updated Table I to report both Ingress (975 bids/s, 8.1 ms) and Persistence (182.4 bids/s, 410 ms) across identical completion criteria.
+* **Target Files:**
+  * [auto-bid-ladder.tex](file:///e:/project/auctionhaus/paper/auto-bid-ladder.tex)
+  * [cover-letter.tex](file:///e:/project/auctionhaus/paper/cover-letter.tex)
+  * [workers/index.ts](file:///e:/project/auctionhaus/back/src/workers/index.ts)
+  * [workers/index.test.ts](file:///e:/project/auctionhaus/back/src/workers/index.test.ts)
+
+---
+
 ## Part III: Formal Technical Verification & Audit Sign-Off
 
-**Audit Date:** October 18, 2026  
+**Audit Date:** October 19, 2026  
 **Auditor:** Principal Distributed Systems Engineer & Peer Review Auditor  
 **Scope:** Manuscript ([auto-bid-ladder.tex](file:///e:/project/auctionhaus/paper/auto-bid-ladder.tex)), Bibliography ([references.bib](file:///e:/project/auctionhaus/paper/references.bib)), Cover Letter ([cover-letter.tex](file:///e:/project/auctionhaus/paper/cover-letter.tex)), Backend Worker ([workers/index.ts](file:///e:/project/auctionhaus/back/src/workers/index.ts)), Worker Test Suite ([workers/index.test.ts](file:///e:/project/auctionhaus/back/src/workers/index.test.ts)), Bidding Service ([bid.service.ts](file:///e:/project/auctionhaus/back/src/modules/bidding/bid.service.ts)), Escrow Service ([escrow.service.ts](file:///e:/project/auctionhaus/back/src/modules/escrow/escrow.service.ts)), Benchmark Scripts ([bid-throughput.js](file:///e:/project/auctionhaus/packages/simulator/k6/bid-throughput.js)), and Package Manifests.
 
@@ -500,7 +526,7 @@ Original reviews are recorded in [reviewer-review.md](file:///e:/project/auction
 | Category | Range | Status | Key Verifications & Invariants |
 | :--- | :--- | :---: | :--- |
 | **Official Peer Review Items** | ITEM-01 – ITEM-08 | **8/8 PASS** | Algorithm 1 non-destructive filtering verified; Theorem 2 alternating escalation pricing proof verified; wallet accounting (holds on heldAmount without double-deduction) verified; bound $K^\star$ and $O(1)$ writes verified; benchmark completion criteria (WAL commit vs stream enqueue) verified; Table I 570 reqs vs 450 accepted bids math verified; trilemma narrative verified; Subsection VIII.D multi-node analysis verified. |
-| **Pre-Submission Audit Items** | ITEM-09 – ITEM-24 | **16/16 PASS** | Complete `Thompson2011` entry in bibtex; cover letter reconciled for Paper ID 1255 / ICDDS 2026; commercial platform citations verified; Theorem 2 tie-breaking on createdAt verified; $2\times\text{RTT}$ distributed commit qualified; P1 FOR UPDATE isolation step verified; phantom citations cleared; title alignment verified; worker line count (~210 lines) verified; super-linear lock-wait scaling verified; solvency precondition verified; IEEE AI disclosure verified; BibTeX entries sanitized; Section VIII.D label and Conclusion reference aligned. |
+| **Pre-Submission Audit Items** | ITEM-09 – ITEM-25 | **17/17 PASS** | Complete `Thompson2011` entry in bibtex; cover letter reconciled for Paper ID 1255 / ICDDS 2026; commercial platform citations verified; Theorem 2 tie-breaking on createdAt verified; $2\times\text{RTT}$ distributed commit qualified; P1 FOR UPDATE isolation step verified; phantom citations cleared; title alignment verified; worker line count (~210 lines) verified; super-linear lock-wait scaling verified; solvency precondition verified; IEEE AI disclosure verified; BibTeX entries sanitized; Section VIII.D label and Conclusion reference aligned; decisive Vickrey final rung and exact $K^\star$ bound verified; multi-stage Table I benchmark verified. |
 | **System Invariants** | Concurrency & Isolation | **PASS** | Strict two-tier global lock order (auction row first, then participant wallets in lexicographical userId order) verified across all mutation paths; deadlock freedom mathematically preserved. |
 | **System Invariants** | Arithmetic Precision | **PASS** | 100% Decimal precision (`D(...)`, `Decimal.js`) on all balance, hold, refund, increment, and settlement arithmetic; zero raw JS float leaks. |
 | **System Invariants** | Error Paths & Idempotency | **PASS** | Atomic transactional rollback on mid-ladder failure; job re-delivery idempotency verified; stream poison pill bypass via ACK on business rejection verified. |
